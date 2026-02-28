@@ -14,7 +14,7 @@ export async function GET(request, { params }) {
   } catch (err) {
     return NextResponse.json({ error: err.message }, { status: 500 })
   }
-}}
+}
 
 export async function PUT(request, { params }) {
   try {
