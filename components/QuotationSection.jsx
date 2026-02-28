@@ -1,14 +1,9 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import toast from 'react-hot-toast'
 import emailjs from '@emailjs/browser'
 
 const NAIRA_TO_DOLLAR = 1400
-
-// Initialize EmailJS (service credentials should be in environment)
-if (typeof window !== 'undefined') {
-  emailjs.init(process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY || '')
-}
 
 export default function QuotationSection({ settings = {}, calculator = {} }) {
   const [form, setForm] = useState({
@@ -18,6 +13,13 @@ export default function QuotationSection({ settings = {}, calculator = {} }) {
   const [customItem, setCustomItem] = useState({ name: '', price: '' })
   const [loading, setLoading] = useState(false)
   const [saved, setSaved] = useState(false)
+
+  // Initialize EmailJS with settings
+  useEffect(() => {
+    if (typeof window !== 'undefined' && settings?.emailjs_public_key) {
+      emailjs.init(settings.emailjs_public_key)
+    }
+  }, [settings?.emailjs_public_key])
 
   const allItems = [
     ...(calculator.type || []).map(i => ({ ...i, cat: 'Project Type' })),
@@ -263,8 +265,8 @@ export default function QuotationSection({ settings = {}, calculator = {} }) {
       // Send via EmailJS
       try {
         await emailjs.send(
-          process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID || '',
-          process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID_QUOTATION || '',
+          settings.emailjs_service_id || '',
+          settings.emailjs_template_id || '',
           {
             to_email: settings.company_email || 'anjalventures@gmail.com',
             from_name: form.client_name,
