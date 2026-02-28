@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { getDb } from '@/lib/db'
 
 export async function GET(request, { params }) {
@@ -35,6 +36,8 @@ export async function PUT(request, { params }) {
       RETURNING *
     `
     if (!result.length) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    // Revalidate homepage to show updated project
+    revalidatePath('/', 'layout')
     return NextResponse.json(result[0])
   } catch (err) {
     return NextResponse.json({ error: err.message }, { status: 500 })
@@ -45,6 +48,8 @@ export async function DELETE(request, { params }) {
   try {
     const sql = getDb()
     await sql`DELETE FROM projects WHERE id = ${params.id}`
+    // Revalidate homepage to remove image
+    revalidatePath('/', 'layout')
     return NextResponse.json({ success: true })
   } catch (err) {
     return NextResponse.json({ error: err.message }, { status: 500 })

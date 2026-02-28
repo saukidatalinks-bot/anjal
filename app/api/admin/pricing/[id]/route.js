@@ -9,12 +9,12 @@ export async function GET(request, { params }) {
     if (!plan) {
       return NextResponse.json({ error: 'Plan not found' }, { status: 404 })
     }
-    const features = await sql`SELECT * FROM pricing_features WHERE plan_id = ${params.id} ORDER BY display_order`
+    const features = await sql`SELECT feature FROM pricing_features WHERE plan_id = ${params.id} ORDER BY display_order`
     return NextResponse.json({ ...plan, features: features.map(f => f.feature) })
   } catch (err) {
     return NextResponse.json({ error: err.message }, { status: 500 })
   }
-}
+}}
 
 export async function PUT(request, { params }) {
   try {

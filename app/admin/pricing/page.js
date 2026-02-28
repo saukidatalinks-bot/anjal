@@ -46,7 +46,9 @@ export default function AdminPricing() {
 
   const handleEdit = (p) => {
     setEditing(p.id)
-    setForm({ ...p, features: p.features || [] })
+    // Ensure features is always an array of strings
+    const featureArray = Array.isArray(p.features) ? p.features.map(f => typeof f === 'string' ? f : f.feature || '') : []
+    setForm({ ...p, features: featureArray })
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
