@@ -10,17 +10,45 @@ export default function About({ settings = {} }) {
     <section id="about" className="section bg-white">
       <div className="container mx-auto px-6">
         <div className="grid lg:grid-cols-2 gap-20 items-center">
-          {/* Visual */}
+          {/* Visual - Interactive Stats */}
           <div className="relative">
-            <div className="bg-navy rounded-3xl overflow-hidden aspect-[4/5] flex items-center justify-center relative">
-              <div className="absolute inset-0 hero-grid-pattern" />
-              <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, rgba(22,163,74,0.15) 0%, transparent 60%)' }} />
-              <div className="relative z-10 text-center p-10">
-                <div className="font-display text-[100px] font-black text-white/5 leading-none mb-0">ADT</div>
-                <div className="flex flex-wrap gap-3 justify-center mt-4">
+            <div className="rounded-3xl overflow-hidden aspect-[4/5] flex items-center justify-center relative bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
+              {/* Animated background elements */}
+              <div className="absolute inset-0 opacity-10">
+                <div className="absolute top-10 left-10 w-32 h-32 bg-brand-green rounded-full blur-3xl animate-pulse" />
+                <div className="absolute bottom-10 right-10 w-40 h-40 bg-brand-gold rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+                <div className="absolute top-1/2 left-1/3 w-28 h-28 bg-blue-500 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+              </div>
+
+              {/* Stats grid */}
+              <div className="relative z-10 w-full h-full p-8 flex flex-col justify-between">
+                <div className="text-center mb-4">
+                  <div className="inline-block px-4 py-2 bg-brand-green/20 border border-brand-green/50 rounded-lg mb-3">
+                    <span className="text-brand-green text-xs font-bold uppercase tracking-wider">ANJAL DEVELOPERS TEAM</span>
+                  </div>
+                  <h3 className="text-white text-lg font-bold">Technical Excellence</h3>
+                </div>
+
+                {/* Stats boxes */}
+                <div className="grid grid-cols-2 gap-3 flex-1 flex items-center">
+                  {[
+                    { num: '42M', label: 'SMEs Underserved' },
+                    { num: '70%+', label: 'North-East Undigitised' },
+                    { num: '$100+', label: 'Starting Price' },
+                    { num: '6+', label: 'Service Verticals' },
+                  ].map((stat, i) => (
+                    <div key={i} className="bg-white/5 border border-white/10 rounded-lg p-4 backdrop-blur-sm hover:bg-white/10 transition-all hover:border-brand-green/50 hover:-translate-y-1">
+                      <div className="text-brand-green font-bold text-lg">{stat.num}</div>
+                      <div className="text-white/60 text-xs mt-1">{stat.label}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Bottom badges */}
+                <div className="flex flex-wrap gap-2 justify-center">
                   {['🌍 Pan-African', '⚡ Full-Stack', '🏆 First-Mover', '🔒 No Lock-In', '💎 Premium QA', '🤖 AI-Powered'].map(t => (
-                    <span key={t} className="bg-white/8 border border-white/12 text-white text-xs font-semibold px-3.5 py-2 rounded-lg">
-                      {t}
+                    <span key={t} className="bg-white/8 border border-white/12 text-white text-xs font-semibold px-2.5 py-1 rounded-lg backdrop-blur-sm hover:bg-white/12 transition-all">
+                      {t.split(' ')[0]}
                     </span>
                   ))}
                 </div>
