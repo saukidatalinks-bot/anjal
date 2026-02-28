@@ -1,4 +1,5 @@
 import { DM_Sans, Playfair_Display, DM_Mono } from 'next/font/google'
+import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
 const dmSans = DM_Sans({
@@ -61,6 +62,7 @@ export default function RootLayout({ children }) {
     <html lang="en" className={`${dmSans.variable} ${playfair.variable} ${dmMono.variable}`}>
       <body className="font-sans bg-white text-navy antialiased">
         {children}
+        <Analytics />
       </body>
     </html>
   )
