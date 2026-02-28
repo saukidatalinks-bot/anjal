@@ -39,180 +39,347 @@ export default function QuotationSection({ settings = {}, calculator = {} }) {
     const { default: jsPDF } = await import('jspdf')
     const doc = new jsPDF({ unit: 'mm', format: 'a4' })
 
-    const pageW = 210
-    const margin = 18
-    const contentW = pageW - margin * 2
-    const now = new Date()
-    const quoteNum = `AV-${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(Date.now()).slice(-4)}`
-    const dateStr = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+    // ─── Constants ───────────────────────────────────────────────
+    const pageW   = 210
+    const pageH   = 297
+    const margin  = 18
+    const cW      = pageW - margin * 2   // 174mm content width
 
-    // ─── Header / Navy Band ───
-    doc.setFillColor(10, 22, 40)
-    doc.rect(0, 0, pageW, 55, 'F')
-
-    // Decorative green bar
-    doc.setFillColor(22, 163, 74)
-    doc.rect(0, 55, pageW, 4, 'F')
-
-    // Company Name
-    doc.setFont('helvetica', 'bold')
-    doc.setFontSize(24)
-    doc.setTextColor(255, 255, 255)
-    doc.text(settings.company_name || 'Anjal Ventures', margin, 20)
-
-    doc.setFont('helvetica', 'normal')
-    doc.setFontSize(9)
-    doc.setTextColor(200, 210, 220)
-    doc.text(settings.company_tagline || "Building Africa's Digital Infrastructure", margin, 29)
-    doc.text(`CAC: ${settings.company_cac || 'BN 9258709'} · TIN: ${settings.company_tin || '2623553716975'}`, margin, 36)
-    doc.text(`${settings.company_email || 'anjalventures@gmail.com'} · ${settings.company_address || 'Damaturu, Yobe State, Nigeria'}`, margin, 43)
-
-    // Quote label
-    doc.setFont('helvetica', 'bold')
-    doc.setFontSize(11)
-    doc.setTextColor(22, 163, 74)
-    doc.text('QUOTATION', pageW - margin, 20, { align: 'right' })
-    doc.setFont('helvetica', 'normal')
-    doc.setFontSize(8)
-    doc.setTextColor(200, 210, 220)
-    doc.text(quoteNum, pageW - margin, 28, { align: 'right' })
-    doc.text(dateStr, pageW - margin, 36, { align: 'right' })
-
-    // ─── Client Info ───
-    let y = 72
-    doc.setFillColor(248, 250, 252)
-    doc.roundedRect(margin, y - 6, contentW, 40, 3, 3, 'F')
-
-    doc.setFont('helvetica', 'bold')
-    doc.setFontSize(9)
-    doc.setTextColor(10, 22, 40)
-    doc.text('PREPARED FOR', margin + 6, y + 2)
-    doc.setFont('helvetica', 'normal')
-    doc.setFontSize(11)
-    doc.setTextColor(10, 22, 40)
-    doc.text(form.client_name || '—', margin + 6, y + 10)
-    if (form.entity_name) {
-      doc.setFontSize(9)
-      doc.setTextColor(100, 116, 139)
-      doc.text(form.entity_name, margin + 6, y + 17)
+    // ─── Column layout (must sum to cW = 174) ───────────────────
+    // #(8) | Description(78) | Category(32) | USD(28) | NGN(28)
+    const col = {
+      num:  { x: margin,      w: 8  },
+      desc: { x: margin + 8,  w: 78 },
+      cat:  { x: margin + 86, w: 32 },
+      usd:  { x: margin + 118,w: 28 },
+      ngn:  { x: margin + 146,w: 28 },  // ends at 192 = pageW - margin ✓
     }
 
-    doc.setFont('helvetica', 'bold')
-    doc.setFontSize(9)
-    doc.setTextColor(10, 22, 40)
-    doc.text('CONTACT', pageW / 2 + 8, y + 2)
-    doc.setFont('helvetica', 'normal')
-    doc.setFontSize(9)
-    doc.setTextColor(100, 116, 139)
-    if (form.email) doc.text(form.email, pageW / 2 + 8, y + 10)
-    if (form.phone) doc.text(form.phone, pageW / 2 + 8, y + 17)
-    if (form.address) doc.text(form.address, pageW / 2 + 8, y + 24)
+    const now      = new Date()
+    const quoteNum = `AV-${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(Date.now()).slice(-4)}`
+    const dateStr  = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+    const validStr = new Date(now.getTime() + 30 * 864e5).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
 
-    // ─── Services Table ───
-    y += 50
+    // ─── Helper: safe right-aligned text inside a column ────────
+    const rText = (text, colDef, yPos) => {
+      doc.text(String(text), colDef.x + colDef.w, yPos, { align: 'right' })
+    }
+
+    // ─── Load logo ───────────────────────────────────────────────
+    let logoData = null
+    try {
+      const res = await fetch('/logo.png')
+      if (res.ok) {
+        const blob = await res.blob()
+        logoData = await new Promise(resolve => {
+          const reader = new FileReader()
+          reader.onloadend = () => resolve(reader.result)
+          reader.readAsDataURL(blob)
+        })
+      }
+    } catch (_) {}
+
+    // ═══════════════════════════════════════════════════════════════
+    // HEADER — navy band
+    // ═══════════════════════════════════════════════════════════════
+    const headerH = 58
+    doc.setFillColor(10, 22, 40)
+    doc.rect(0, 0, pageW, headerH, 'F')
+
+    // Green accent bar
+    doc.setFillColor(22, 163, 74)
+    doc.rect(0, headerH, pageW, 3, 'F')
+
+    // Logo (left side)
+    const logoH = 22
+    const logoW = 38
+    const logoY = (headerH - logoH) / 2
+    if (logoData) {
+      doc.addImage(logoData, 'PNG', margin, logoY, logoW, logoH)
+    }
+
+    // Company text (right of logo if present, otherwise from margin)
+    const textX = logoData ? margin + logoW + 6 : margin
     doc.setFont('helvetica', 'bold')
-    doc.setFontSize(10)
+    doc.setFontSize(20)
+    doc.setTextColor(255, 255, 255)
+    doc.text(settings.company_name || 'Anjal Ventures', textX, 20)
+
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(8)
+    doc.setTextColor(148, 163, 184)
+    doc.text(settings.company_tagline || "Building Africa's Digital Infrastructure", textX, 28)
+    doc.text(`CAC: ${settings.company_cac || 'BN 9258709'}  |  TIN: ${settings.company_tin || '2623553716975'}`, textX, 35)
+    doc.text(settings.company_email || 'anjalventures@gmail.com', textX, 42)
+    doc.text(settings.company_address || 'Damaturu, Yobe State, Nigeria', textX, 49)
+
+    // Quote reference block (right side of header)
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(18)
+    doc.setTextColor(22, 163, 74)
+    doc.text('QUOTATION', pageW - margin, 20, { align: 'right' })
+
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(8)
+    doc.setTextColor(148, 163, 184)
+    doc.text(`Ref: ${quoteNum}`, pageW - margin, 29, { align: 'right' })
+    doc.text(`Date: ${dateStr}`, pageW - margin, 36, { align: 'right' })
+    doc.text(`Valid Until: ${validStr}`, pageW - margin, 43, { align: 'right' })
+    doc.text(`Page 1 of 1`, pageW - margin, 50, { align: 'right' })
+
+    // ═══════════════════════════════════════════════════════════════
+    // CLIENT BLOCK
+    // ═══════════════════════════════════════════════════════════════
+    let y = headerH + 10
+
+    const clientBoxH = 38
+    // Left card — Bill To
+    doc.setFillColor(248, 250, 252)
+    doc.roundedRect(margin, y, 82, clientBoxH, 2, 2, 'F')
+    doc.setDrawColor(226, 232, 240)
+    doc.setLineWidth(0.3)
+    doc.roundedRect(margin, y, 82, clientBoxH, 2, 2, 'S')
+
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(7)
+    doc.setTextColor(22, 163, 74)
+    doc.text('PREPARED FOR', margin + 5, y + 7)
+
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(11)
+    doc.setTextColor(10, 22, 40)
+    const clientName = doc.splitTextToSize(form.client_name || '—', 72)
+    doc.text(clientName[0], margin + 5, y + 15)
+
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(8.5)
+    doc.setTextColor(71, 85, 105)
+    if (form.entity_name) doc.text(doc.splitTextToSize(form.entity_name, 72)[0], margin + 5, y + 22)
+    if (form.address)     doc.text(doc.splitTextToSize(form.address, 72)[0],     margin + 5, y + 29)
+
+    // Right card — Contact Details
+    const rightX = margin + 92
+    const rightW = cW - 92
+    doc.setFillColor(248, 250, 252)
+    doc.roundedRect(rightX, y, rightW, clientBoxH, 2, 2, 'F')
+    doc.roundedRect(rightX, y, rightW, clientBoxH, 2, 2, 'S')
+
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(7)
+    doc.setTextColor(22, 163, 74)
+    doc.text('CONTACT DETAILS', rightX + 5, y + 7)
+
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(8.5)
+    doc.setTextColor(71, 85, 105)
+    const contactLines = [
+      form.email   ? `Email:  ${form.email}`   : null,
+      form.phone   ? `Phone:  ${form.phone}`   : null,
+    ].filter(Boolean)
+    contactLines.forEach((line, i) => {
+      doc.text(doc.splitTextToSize(line, rightW - 10)[0], rightX + 5, y + 15 + i * 8)
+    })
+
+    // ═══════════════════════════════════════════════════════════════
+    // SECTION TITLE
+    // ═══════════════════════════════════════════════════════════════
+    y += clientBoxH + 10
+
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(9)
     doc.setTextColor(10, 22, 40)
     doc.text('SERVICE ESTIMATE', margin, y)
-    y += 9
 
-    // Table header
+    // Green underline
+    doc.setDrawColor(22, 163, 74)
+    doc.setLineWidth(0.6)
+    doc.line(margin, y + 2, margin + 36, y + 2)
+
+    y += 7
+
+    // ═══════════════════════════════════════════════════════════════
+    // TABLE HEADER ROW
+    // ═══════════════════════════════════════════════════════════════
+    const tHeaderH = 9
     doc.setFillColor(10, 22, 40)
-    doc.roundedRect(margin, y, contentW, 10, 2, 2, 'F')
+    doc.rect(margin, y, cW, tHeaderH, 'F')
+
     doc.setFont('helvetica', 'bold')
-    doc.setFontSize(8)
+    doc.setFontSize(7.5)
     doc.setTextColor(255, 255, 255)
-    doc.text('#', margin + 4, y + 6.5)
-    doc.text('Service / Item', margin + 12, y + 6.5)
-    doc.text('Category', pageW - margin - 55, y + 6.5)
-    doc.text('Price (USD)', pageW - margin - 28, y + 6.5)
-    doc.text('Price (NGN)', pageW - margin - 6, y + 6.5, { align: 'right' })
-    y += 10
+    doc.text('#',            col.num.x + 3,             y + 6)
+    doc.text('DESCRIPTION',  col.desc.x,                y + 6)
+    doc.text('CATEGORY',     col.cat.x,                 y + 6)
+    doc.text('PRICE (USD)',  col.usd.x + col.usd.w,    y + 6, { align: 'right' })
+    doc.text('PRICE (NGN)',  col.ngn.x + col.ngn.w,    y + 6, { align: 'right' })
+    y += tHeaderH
 
+    // ═══════════════════════════════════════════════════════════════
+    // TABLE ROWS — dynamic height, no overlap
+    // ═══════════════════════════════════════════════════════════════
     selectedItems.forEach((item, idx) => {
-      const rowH = 11
-      const itemNaira = Math.round(parseFloat(item.base_price || 0) * NAIRA_TO_DOLLAR)
+      const price    = parseFloat(item.base_price || 0)
+      const nairaAmt = Math.round(price * NAIRA_TO_DOLLAR)
 
-      doc.setFillColor(idx % 2 === 0 ? 255 : 249, idx % 2 === 0 ? 255 : 250, idx % 2 === 0 ? 255 : 252)
-      doc.rect(margin, y, contentW, rowH, 'F')
+      // Measure how tall this row needs to be
+      const nameLines = doc.splitTextToSize(item.name || '', col.desc.w - 2)
+      const rowH      = Math.max(10, nameLines.length * 5 + 5)
+      const midY      = y + rowH / 2 + 2.5
 
+      // Alternating row background
+      if (idx % 2 === 0) {
+        doc.setFillColor(255, 255, 255)
+      } else {
+        doc.setFillColor(248, 250, 252)
+      }
+      doc.rect(margin, y, cW, rowH, 'F')
+
+      // Row number
       doc.setFont('helvetica', 'normal')
       doc.setFontSize(8)
+      doc.setTextColor(148, 163, 184)
+      doc.text(String(idx + 1), col.num.x + 3, midY)
+
+      // Description — multi-line safe
       doc.setTextColor(10, 22, 40)
-      doc.text(String(idx + 1), margin + 4, y + 6.5)
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(8.5)
+      nameLines.forEach((line, li) => {
+        doc.text(line, col.desc.x, y + 6.5 + li * 5)
+      })
 
-      const nameLines = doc.splitTextToSize(item.name, 50)
-      if (nameLines.length > 1) {
-        doc.text(nameLines[0], margin + 12, y + 6.5)
-        nameLines.slice(1).forEach((line, li) => {
-          doc.text(line, margin + 12, y + 6.5 + (li + 1) * 5)
-        })
-      } else {
-        doc.text(item.name, margin + 12, y + 6.5)
-      }
-
+      // Category badge — subtle
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(7.5)
       doc.setTextColor(100, 116, 139)
-      doc.text(item.cat || '—', pageW - margin - 55, y + 6.5)
+      const catText = doc.splitTextToSize(item.cat || '—', col.cat.w - 2)
+      doc.text(catText[0], col.cat.x, midY)
 
-      doc.setTextColor(22, 163, 74)
+      // Prices — right-aligned, green, bold
       doc.setFont('helvetica', 'bold')
-      doc.text(`$${parseFloat(item.base_price).toFixed(2)}`, pageW - margin - 28, y + 6.5)
-      doc.text(`₦${itemNaira.toLocaleString()}`, pageW - margin - 6, y + 6.5, { align: 'right' })
+      doc.setFontSize(8.5)
+      doc.setTextColor(22, 163, 74)
+      rText(`$${price.toFixed(2)}`,              col.usd, midY)
+      rText(`NGN ${nairaAmt.toLocaleString()}`,   col.ngn, midY)
 
-      doc.setTextColor(226, 232, 240)
-      doc.line(margin, y + rowH, margin + contentW, y + rowH)
+      // Bottom border
+      doc.setDrawColor(226, 232, 240)
+      doc.setLineWidth(0.2)
+      doc.line(margin, y + rowH, margin + cW, y + rowH)
+
       y += rowH
     })
 
-    // Total row
-    y += 6
-    doc.setFillColor(10, 22, 40)
-    doc.roundedRect(margin, y, contentW, 14, 2, 2, 'F')
+    // ═══════════════════════════════════════════════════════════════
+    // SUBTOTAL + TOTAL ROWS
+    // ═══════════════════════════════════════════════════════════════
+    y += 2
+
+    // Subtotal line
+    doc.setFillColor(241, 245, 249)
+    doc.rect(margin, y, cW, 9, 'F')
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(8)
+    doc.setTextColor(71, 85, 105)
+    doc.text(`${selectedItems.length} item${selectedItems.length !== 1 ? 's' : ''}`, col.desc.x, y + 6)
+    doc.text('SUBTOTAL', col.cat.x, y + 6)
     doc.setFont('helvetica', 'bold')
-    doc.setFontSize(10)
+    doc.setTextColor(10, 22, 40)
+    rText(`$${total.toFixed(2)}`,              col.usd, y + 6)
+    rText(`NGN ${totalNaira.toLocaleString()}`, col.ngn, y + 6)
+    y += 9
+
+    // Grand total row
+    doc.setFillColor(10, 22, 40)
+    doc.rect(margin, y, cW, 13, 'F')
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(9)
     doc.setTextColor(255, 255, 255)
-    doc.text('TOTAL ESTIMATE', margin + 6, y + 9)
-
+    doc.text('TOTAL ESTIMATE', col.desc.x, y + 8.5)
     doc.setTextColor(22, 163, 74)
-    doc.text(`$${total.toFixed(2)} USD`, pageW - margin - 28, y + 9)
-    doc.text(`₦${totalNaira.toLocaleString()}`, pageW - margin - 6, y + 9, { align: 'right' })
+    doc.setFontSize(10)
+    rText(`$${total.toFixed(2)} USD`,           col.usd, y + 8.5)
+    rText(`NGN ${totalNaira.toLocaleString()}`,  col.ngn, y + 8.5)
+    y += 13
 
-    // ─── Notes ───
+    // ═══════════════════════════════════════════════════════════════
+    // NOTES (if any)
+    // ═══════════════════════════════════════════════════════════════
     if (form.notes) {
-      y += 24
+      y += 10
+      doc.setFillColor(240, 253, 244)
+      const noteLines  = doc.splitTextToSize(form.notes, cW - 16)
+      const noteBoxH   = noteLines.length * 5 + 12
+      doc.roundedRect(margin, y, cW, noteBoxH, 2, 2, 'F')
+      doc.setDrawColor(22, 163, 74)
+      doc.setLineWidth(0.3)
+      doc.roundedRect(margin, y, cW, noteBoxH, 2, 2, 'S')
+
       doc.setFont('helvetica', 'bold')
-      doc.setFontSize(9)
-      doc.setTextColor(10, 22, 40)
-      doc.text('ADDITIONAL NOTES', margin, y)
-      y += 7
+      doc.setFontSize(7.5)
+      doc.setTextColor(22, 163, 74)
+      doc.text('ADDITIONAL NOTES', margin + 6, y + 7)
       doc.setFont('helvetica', 'normal')
       doc.setFontSize(8)
-      doc.setTextColor(100, 116, 139)
-      const noteLines = doc.splitTextToSize(form.notes, contentW)
-      doc.text(noteLines, margin, y)
-      y += noteLines.length * 5
+      doc.setTextColor(71, 85, 105)
+      doc.text(noteLines, margin + 6, y + 13)
+      y += noteBoxH
     }
 
-    // ─── Terms ───
-    y += 14
-    doc.setFontSize(7)
-    doc.setTextColor(120, 130, 140)
-    const termsText = `Terms: 50% deposit required to commence. Full payment on delivery. This quotation is valid for 30 days. Exchange rate: ₦${NAIRA_TO_DOLLAR.toLocaleString()} per USD (current rate).`
-    const termsLines = doc.splitTextToSize(termsText, contentW)
-    doc.text(termsLines, margin, y)
-    y += termsLines.length * 4 + 3
-
-    doc.text('All deliverables include full source code ownership. Anjal Ventures offers ongoing technical support and maintenance options.', margin, y, { maxWidth: contentW })
+    // ═══════════════════════════════════════════════════════════════
+    // TERMS & CONDITIONS
+    // ═══════════════════════════════════════════════════════════════
+    y += 10
+    doc.setDrawColor(226, 232, 240)
+    doc.setLineWidth(0.3)
+    doc.line(margin, y, margin + cW, y)
     y += 5
-    doc.text(`${settings.company_email || 'anjalventures@gmail.com'} · ${settings.company_phone || '+234 (0) 8 1400 11111'} · ${settings.company_address || 'Damaturu, Yobe State, Nigeria'}`, margin, y)
 
-    // ─── Footer ───
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(7.5)
+    doc.setTextColor(71, 85, 105)
+    doc.text('TERMS & CONDITIONS', margin, y)
+    y += 5
+
+    const terms = [
+      `1.  A 50% deposit is required to commence work. Full balance is due on delivery.`,
+      `2.  This quotation is valid for 30 days from the date of issue (${dateStr}).`,
+      `3.  NGN amounts are calculated at the rate of NGN ${NAIRA_TO_DOLLAR.toLocaleString()} per USD and may vary at invoice.`,
+      `4.  All deliverables include full source code ownership transferred to the client.`,
+      `5.  Ongoing support and maintenance packages are available on request.`,
+    ]
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(7.5)
+    doc.setTextColor(100, 116, 139)
+    terms.forEach(line => {
+      const wrapped = doc.splitTextToSize(line, cW)
+      doc.text(wrapped, margin, y)
+      y += wrapped.length * 4 + 1
+    })
+
+    // ═══════════════════════════════════════════════════════════════
+    // FOOTER BAND
+    // ═══════════════════════════════════════════════════════════════
+    const footerY = pageH - 14
     doc.setFillColor(10, 22, 40)
-    doc.rect(0, 285, pageW, 12, 'F')
+    doc.rect(0, footerY, pageW, 14, 'F')
+    doc.setFillColor(22, 163, 74)
+    doc.rect(0, footerY, pageW, 1.5, 'F')
+
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(7)
     doc.setTextColor(100, 120, 140)
-    doc.text(settings.footer_tagline || 'We Build Digital Excellence — From Damaturu to the World.', pageW / 2, 292, { align: 'center' })
+    doc.text(
+      settings.footer_tagline || 'We Build Digital Excellence — From Damaturu to the World.',
+      pageW / 2, footerY + 8,
+      { align: 'center' }
+    )
+    doc.setFontSize(6.5)
+    doc.text(
+      `${settings.company_email || 'anjalventures@gmail.com'}  |  ${settings.company_phone || '+234 814 001 1111'}  |  ${settings.company_address || 'Damaturu, Yobe State, Nigeria'}`,
+      pageW / 2, footerY + 12,
+      { align: 'center' }
+    )
 
     return doc
   }
