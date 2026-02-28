@@ -6,8 +6,7 @@ import About from '@/components/About'
 import Services from '@/components/Services'
 import Portfolio from '@/components/Portfolio'
 import Pricing from '@/components/Pricing'
-import Calculator from '@/components/Calculator'
-import QuotationSection from '@/components/QuotationSection'
+import EstimatorAndQuotation from '@/components/EstimatorAndQuotation'
 import Contact from '@/components/Contact'
 import { Footer, WhatsAppButton } from '@/components/Footer'
 import { getDb, initDb, seedDefaults } from '@/lib/db'
@@ -60,8 +59,7 @@ export default async function HomePage() {
       <Services services={services} />
       <Portfolio projects={projects} />
       <Pricing plans={pricingPlans} settings={settings} />
-      <Calculator calculator={calculator} />
-      <QuotationSection settings={settings} calculator={calculator} />
+      <EstimatorAndQuotation settings={settings} calculator={calculator} />
       <Contact settings={settings} services={services} />
       <Footer settings={settings} />
       <WhatsAppButton settings={settings} />
