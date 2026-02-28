@@ -20,6 +20,13 @@ const SETTING_GROUPS = [
     ],
   },
   {
+    title: '💱 Currency & Exchange',
+    desc: 'Exchange rate for Naira equivalent pricing throughout the site',
+    fields: [
+      { key: 'exchange_rate', label: 'Naira per USD (e.g., 1400)', type: 'number', placeholder: '1400' },
+    ],
+  },
+  {
     title: '🏠 Homepage Content',
     desc: 'Text and content shown on the main landing page',
     fields: [

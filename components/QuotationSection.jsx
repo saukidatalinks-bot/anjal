@@ -1,9 +1,6 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import toast from 'react-hot-toast'
-import emailjs from '@emailjs/browser'
-
-const NAIRA_TO_DOLLAR = 1400
 
 export default function QuotationSection({ settings = {}, calculator = {} }) {
   const [form, setForm] = useState({
@@ -12,14 +9,8 @@ export default function QuotationSection({ settings = {}, calculator = {} }) {
   const [selectedItems, setSelectedItems] = useState([])
   const [customItem, setCustomItem] = useState({ name: '', price: '' })
   const [loading, setLoading] = useState(false)
-  const [saved, setSaved] = useState(false)
 
-  // Initialize EmailJS with settings
-  useEffect(() => {
-    if (typeof window !== 'undefined' && settings?.emailjs_public_key) {
-      emailjs.init(settings.emailjs_public_key)
-    }
-  }, [settings?.emailjs_public_key])
+  const NAIRA_TO_DOLLAR = parseInt(settings?.exchange_rate || 1400)
 
   const allItems = [
     ...(calculator.type || []).map(i => ({ ...i, cat: 'Project Type' })),
@@ -42,23 +33,6 @@ export default function QuotationSection({ settings = {}, calculator = {} }) {
     if (!customItem.name || !customItem.price) return
     setSelectedItems(prev => [...prev, { id: `custom-${Date.now()}`, name: customItem.name, base_price: parseFloat(customItem.price), cat: 'Custom' }])
     setCustomItem({ name: '', price: '' })
-  }
-
-  const handleSave = async () => {
-    if (!form.client_name || selectedItems.length === 0) {
-      toast.error('Please fill in your name and select at least one service')
-      return
-    }
-    try {
-      await fetch('/api/quotation', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, selected_items: selectedItems, total_amount: total }),
-      })
-      setSaved(true)
-    } catch (err) {
-      console.error('Error saving quotation:', err)
-    }
   }
 
   const generatePDF = async () => {
@@ -93,7 +67,7 @@ export default function QuotationSection({ settings = {}, calculator = {} }) {
     doc.text(`CAC: ${settings.company_cac || 'BN 9258709'} · TIN: ${settings.company_tin || '2623553716975'}`, margin, 36)
     doc.text(`${settings.company_email || 'anjalventures@gmail.com'} · ${settings.company_address || 'Damaturu, Yobe State, Nigeria'}`, margin, 43)
 
-    // Quote label top right
+    // Quote label
     doc.setFont('helvetica', 'bold')
     doc.setFontSize(11)
     doc.setTextColor(22, 163, 74)
@@ -108,7 +82,7 @@ export default function QuotationSection({ settings = {}, calculator = {} }) {
     let y = 72
     doc.setFillColor(248, 250, 252)
     doc.roundedRect(margin, y - 6, contentW, 40, 3, 3, 'F')
-    
+
     doc.setFont('helvetica', 'bold')
     doc.setFontSize(9)
     doc.setTextColor(10, 22, 40)
@@ -139,7 +113,7 @@ export default function QuotationSection({ settings = {}, calculator = {} }) {
     doc.setFont('helvetica', 'bold')
     doc.setFontSize(10)
     doc.setTextColor(10, 22, 40)
-    doc.text('SERVICES & DELIVERABLES', margin, y)
+    doc.text('SERVICE ESTIMATE', margin, y)
     y += 9
 
     // Table header
@@ -158,16 +132,15 @@ export default function QuotationSection({ settings = {}, calculator = {} }) {
     selectedItems.forEach((item, idx) => {
       const rowH = 11
       const itemNaira = Math.round(parseFloat(item.base_price || 0) * NAIRA_TO_DOLLAR)
-      
+
       doc.setFillColor(idx % 2 === 0 ? 255 : 249, idx % 2 === 0 ? 255 : 250, idx % 2 === 0 ? 255 : 252)
       doc.rect(margin, y, contentW, rowH, 'F')
-      
+
       doc.setFont('helvetica', 'normal')
       doc.setFontSize(8)
       doc.setTextColor(10, 22, 40)
       doc.text(String(idx + 1), margin + 4, y + 6.5)
-      
-      // Wrap long item names
+
       const nameLines = doc.splitTextToSize(item.name, 50)
       if (nameLines.length > 1) {
         doc.text(nameLines[0], margin + 12, y + 6.5)
@@ -177,15 +150,15 @@ export default function QuotationSection({ settings = {}, calculator = {} }) {
       } else {
         doc.text(item.name, margin + 12, y + 6.5)
       }
-      
+
       doc.setTextColor(100, 116, 139)
       doc.text(item.cat || '—', pageW - margin - 55, y + 6.5)
-      
+
       doc.setTextColor(22, 163, 74)
       doc.setFont('helvetica', 'bold')
       doc.text(`$${parseFloat(item.base_price).toFixed(2)}`, pageW - margin - 28, y + 6.5)
       doc.text(`₦${itemNaira.toLocaleString()}`, pageW - margin - 6, y + 6.5, { align: 'right' })
-      
+
       doc.setTextColor(226, 232, 240)
       doc.line(margin, y + rowH, margin + contentW, y + rowH)
       y += rowH
@@ -199,7 +172,7 @@ export default function QuotationSection({ settings = {}, calculator = {} }) {
     doc.setFontSize(10)
     doc.setTextColor(255, 255, 255)
     doc.text('TOTAL ESTIMATE', margin + 6, y + 9)
-    
+
     doc.setTextColor(22, 163, 74)
     doc.text(`$${total.toFixed(2)} USD`, pageW - margin - 28, y + 9)
     doc.text(`₦${totalNaira.toLocaleString()}`, pageW - margin - 6, y + 9, { align: 'right' })
@@ -224,7 +197,7 @@ export default function QuotationSection({ settings = {}, calculator = {} }) {
     y += 14
     doc.setFontSize(7)
     doc.setTextColor(120, 130, 140)
-    const termsText = 'Terms: 50% deposit required to commence. Full payment on delivery. This quotation is valid for 30 days. Exchange rate: ₦1,400 per USD (current rate at time of quotation).'
+    const termsText = `Terms: 50% deposit required to commence. Full payment on delivery. This quotation is valid for 30 days. Exchange rate: ₦${NAIRA_TO_DOLLAR.toLocaleString()} per USD (current rate).`
     const termsLines = doc.splitTextToSize(termsText, contentW)
     doc.text(termsLines, margin, y)
     y += termsLines.length * 4 + 3
@@ -244,54 +217,67 @@ export default function QuotationSection({ settings = {}, calculator = {} }) {
     return doc
   }
 
-  const downloadQuotation = async () => {
+  const handleDownloadAndSend = async () => {
     if (!form.client_name || selectedItems.length === 0) {
-      toast.error('Please enter your name and select services before downloading')
+      toast.error('Please fill in your name and select at least one service')
       return
     }
     setLoading(true)
     try {
-      // Save to database
-      await handleSave()
+      // 1. Save to database
+      await fetch('/api/quotation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...form, selected_items: selectedItems, total_amount: total }),
+      })
 
-      // Generate PDF
+      // 2. Generate and download PDF
       const doc = await generatePDF()
       const now = new Date()
       const quoteNum = `AV-${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(Date.now()).slice(-4)}`
-      
-      // Download to device
       doc.save(`Anjal-Ventures-Quotation-${quoteNum}.pdf`)
-      
-      // Send via EmailJS
-      try {
-        await emailjs.send(
-          settings.emailjs_service_id || '',
-          settings.emailjs_template_id || '',
-          {
-            to_email: settings.company_email || 'anjalventures@gmail.com',
+
+      // 3. Try to send email via EmailJS (same logic as Contact.jsx)
+      const pubKey = settings?.emailjs_public_key
+      const serviceId = settings?.emailjs_service_id
+      const templateId = settings?.emailjs_template_id
+
+      if (pubKey && serviceId && templateId && typeof window !== 'undefined') {
+        try {
+          if (!window._ejsInit) {
+            const emailjs = (await import('@emailjs/browser')).default
+            emailjs.init(pubKey)
+            window._ejsInit = emailjs
+          }
+          await window._ejsInit.send(serviceId, templateId, {
             from_name: form.client_name,
             from_email: form.email,
-            from_phone: form.phone,
-            from_entity: form.entity_name,
-            from_address: form.address,
+            from_entity: form.entity_name || 'Not provided',
+            phone: form.phone || 'Not provided',
+            from_address: form.address || 'Not provided',
             total_usd: `$${total.toFixed(2)} USD`,
             total_ngn: `₦${totalNaira.toLocaleString()}`,
             items_count: selectedItems.length,
-            quotation_number: quoteNum,
-          }
-        )
-      } catch (emailError) {
-        console.warn('EmailJS warning:', emailError)
-        // Don't fail if email doesn't send, as quotation is already saved
+            message: form.notes || 'No additional notes',
+            to_email: settings?.company_email || 'contact@anjal.com',
+          })
+          console.log('✓ Quotation email sent successfully')
+        } catch (e) {
+          console.warn('⚠ EmailJS send failed:', e.message)
+          toast.warning('Quotation saved & downloaded, but email notification failed. We still received your request.')
+        }
+      } else if (!pubKey || !serviceId || !templateId) {
+        console.warn('⚠ EmailJS not configured. Quotation saved to database only.')
       }
-      
-      toast.success('✅ Quotation sent! Download started. Our team will contact you soon.')
+
+      toast.success('✅ Quotation downloaded! Our team will contact you soon.')
+      setForm({ client_name: '', entity_name: '', email: '', phone: '', address: '', notes: '' })
+      setSelectedItems([])
     } catch (err) {
       console.error('Error:', err)
       toast.error('Failed to process quotation. Please try again.')
-    } finally {
-      setLoading(false)
     }
+    setLoading(false)
   }
 
   return (
@@ -301,7 +287,7 @@ export default function QuotationSection({ settings = {}, calculator = {} }) {
           <div className="section-tag">Request a Quotation</div>
           <h2 className="section-title">Download Your Branded Quote</h2>
           <p className="section-subtitle mx-auto text-center">
-            Select the services you need, fill in your details, and instantly download a professional, branded quotation PDF. Prices shown in USD and NGN (₦1,400 per USD).
+            Select the services you need, fill in your details, and instantly download a professional, branded quotation PDF. Prices shown in USD and NGN (at ₦{NAIRA_TO_DOLLAR}/USD).
           </p>
         </div>
 
@@ -399,7 +385,7 @@ export default function QuotationSection({ settings = {}, calculator = {} }) {
               )}
             </div>
 
-            <button onClick={downloadQuotation} disabled={loading}
+            <button onClick={handleDownloadAndSend} disabled={loading}
               className="btn btn-green w-full justify-center py-4 text-base disabled:opacity-50">
               {loading ? '⏳ Generating & Sending...' : '⬇ Download & Send Quotation'}
             </button>

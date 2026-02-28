@@ -1,10 +1,10 @@
 'use client'
 import { useState } from 'react'
 
-const NAIRA_TO_DOLLAR = 1400
-
-export default function Pricing({ plans = [] }) {
+export default function Pricing({ plans = [], settings = {} }) {
   const [quotationOpen, setQuotationOpen] = useState(false)
+
+  const NAIRA_TO_DOLLAR = parseInt(settings?.exchange_rate || 1400)
 
   const getPriceValue = (priceStr) => {
     if (!priceStr) return 0

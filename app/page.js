@@ -59,7 +59,7 @@ export default async function HomePage() {
       <About settings={settings} />
       <Services services={services} />
       <Portfolio projects={projects} />
-      <Pricing plans={pricingPlans} />
+      <Pricing plans={pricingPlans} settings={settings} />
       <Calculator calculator={calculator} />
       <QuotationSection settings={settings} calculator={calculator} />
       <Contact settings={settings} services={services} />
