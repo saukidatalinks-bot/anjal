@@ -22,9 +22,9 @@ export default function Contact({ settings = {}, services = [] }) {
       })
 
       // Send via EmailJS if configured
-      const pubKey = settings.emailjs_public_key
-      const serviceId = settings.emailjs_service_id
-      const templateId = settings.emailjs_template_id
+      const pubKey = settings?.emailjs_public_key
+      const serviceId = settings?.emailjs_service_id
+      const templateId = settings?.emailjs_template_id
 
       if (pubKey && serviceId && templateId && typeof window !== 'undefined') {
         try {
@@ -33,18 +33,22 @@ export default function Contact({ settings = {}, services = [] }) {
             emailjs.init(pubKey)
             window._ejsInit = emailjs
           }
-          await window._ejsInit.send(serviceId, templateId, {
+          const result = await window._ejsInit.send(serviceId, templateId, {
             from_name: form.name,
             from_email: form.email,
-            phone: form.phone,
-            service: form.service,
-            budget: form.budget,
+            phone: form.phone || 'Not provided',
+            service: form.service || 'Not specified',
+            budget: form.budget || 'Not specified',
             message: form.message,
-            to_email: settings.company_email,
+            to_email: settings?.company_email || 'contact@anjal.com',
           })
+          console.log('✓ EmailJS sent successfully:', result)
         } catch (e) {
-          console.log('EmailJS error (message still saved):', e)
+          console.error('✗ EmailJS send failed:', e.message, e)
+          toast.error('Message saved but email notification failed. We will still receive it through our system.')
         }
+      } else if (!pubKey || !serviceId || !templateId) {
+        console.warn('⚠ EmailJS not configured. Message saved to database only.')
       }
 
       setSent(true)

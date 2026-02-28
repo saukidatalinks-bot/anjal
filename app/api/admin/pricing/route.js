@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { getDb } from '@/lib/db'
 
 export async function GET() {
@@ -26,6 +27,8 @@ export async function POST(request) {
         await sql`INSERT INTO pricing_features (plan_id, feature, display_order) VALUES (${planId}, ${features[i]}, ${i})`
       }
     }
+    // Revalidate homepage to show new pricing plan
+    revalidatePath('/', 'layout')
     return NextResponse.json({ ...result[0], features: features || [] }, { status: 201 })
   } catch (err) {
     return NextResponse.json({ error: err.message }, { status: 500 })

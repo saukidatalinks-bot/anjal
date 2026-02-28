@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import AdminSidebar from '@/components/AdminSidebar'
 import toast, { Toaster } from 'react-hot-toast'
 
-const BLANK = { name:'', price:'', price_note:'', is_featured:false, cta_text:'Get Started', display_order:0, is_active:true, features:[] }
+const BLANK = { name: '', price: '', price_note: '', is_featured: false, cta_text: 'Get Started', display_order: 0, is_active: true, features: [] }
 
 export default function AdminPricing() {
   const [plans, setPlans] = useState([])
