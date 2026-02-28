@@ -23,7 +23,11 @@ export default function Navbar({ settings = {} }) {
             {/* Logo */}
             <a href="#hero" className="flex items-center gap-3">
               <div className="w-10 h-10 relative flex-shrink-0">
-                <Image src="/logo.png" alt="Anjal Ventures Logo" fill className="object-contain" onError={(e) => { e.target.style.display='none' }} />
+                <picture>
+                  <source srcSet="/logo-sm.webp" type="image/webp" />
+                  <source srcSet="/logo.png" type="image/png" />
+                  <Image src="/logo.png" alt="Anjal Ventures Logo" fill className="object-contain" priority onError={(e) => { e.target.style.display='none' }} />
+                </picture>
                 <div className="w-10 h-10 bg-navy rounded-xl flex items-center justify-center text-white font-display font-bold text-lg absolute inset-0 opacity-0 logo-fallback">A</div>
               </div>
               <span className="font-display font-bold text-lg text-navy">

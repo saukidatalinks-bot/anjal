@@ -32,7 +32,10 @@ export default function AdminSidebar() {
       <div className="p-6 border-b border-white/8">
         <div className="flex items-center gap-3 mb-1">
           <div className="w-9 h-9 relative flex-shrink-0">
-            <Image src="/logo.png" alt="Logo" fill className="object-contain" onError={() => {}} />
+            <picture>
+              <source srcSet="/logo-sm.webp" type="image/webp" />
+              <Image src="/logo.png" alt="Logo" fill className="object-contain" onError={() => {}} />
+            </picture>
           </div>
           <div>
             <div className="font-display font-bold text-white text-sm">Anjal Ventures</div>

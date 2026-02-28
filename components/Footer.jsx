@@ -18,7 +18,10 @@ export function Footer({ settings = {} }) {
           <div className="lg:col-span-2">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 relative flex-shrink-0">
-                <Image src="/logo.png" alt="Logo" fill className="object-contain" onError={() => {}} />
+                <picture>
+                  <source srcSet="/logo-md.webp" type="image/webp" />
+                  <Image src="/logo.png" alt="Logo" fill className="object-contain" onError={() => {}} />
+                </picture>
               </div>
               <span className="font-display font-bold text-xl text-white">
                 {companyName.split(' ')[0]} <span className="text-brand-green">{companyName.split(' ').slice(1).join(' ')}</span>

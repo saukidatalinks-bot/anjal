@@ -24,10 +24,35 @@ export const metadata = {
   title: 'Anjal Ventures — Building Africa\'s Digital Infrastructure',
   description: 'Nigeria\'s premier technology solutions company delivering world-class web development, mobile apps, AI, SaaS and digital transformation services. Starting from $100.',
   keywords: 'web development Nigeria, mobile app development, AI solutions Africa, SaaS platform, Damaturu technology company',
+  manifest: '/manifest.json',
+  icons: {
+    icon: [
+      { url: '/favicon.png', sizes: '32x32', type: 'image/png' },
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: '/apple-touch-icon.png',
+    shortcut: '/favicon.png',
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'Anjal Ventures',
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#0A1628' },
+  ],
   openGraph: {
     title: 'Anjal Ventures — Building Africa\'s Digital Infrastructure',
     description: 'Premium digital solutions for Nigerian SMEs, enterprises and institutions. CAC Registered.',
     type: 'website',
+    url: 'https://anjalventures.com',
+    siteName: 'Anjal Ventures',
+    locale: 'en_NG',
   },
 }
 

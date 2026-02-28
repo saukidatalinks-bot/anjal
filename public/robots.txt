@@ -1,0 +1,37 @@
+# Anjal Ventures — Robots.txt
+# Allow all search engines to crawl and index the site
+
+User-agent: *
+Allow: /
+Allow: /sitemap.xml
+
+Disallow: /admin/
+Disallow: /api/
+Disallow: /.next/
+Disallow: /node_modules/
+
+# Crawl delay (milliseconds between requests)
+Crawl-delay: 1
+
+# Specific rules for Googlebot
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+# Specific rules for Bingbot
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+# Sitemap location
+Sitemap: https://anjalventures.com/sitemap.xml
+
+# Prevent bad bots
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Allow: /
