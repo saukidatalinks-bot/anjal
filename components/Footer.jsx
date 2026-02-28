@@ -75,7 +75,7 @@ export function Footer({ settings = {} }) {
 }
 
 export function WhatsAppButton({ settings = {} }) {
-  const wa = settings.company_whatsapp || '2348000000000'
+  const wa = settings.company_whatsapp || '2348164135836'
   const waUrl = `https://wa.me/${wa.replace(/[^0-9]/g, '')}`
 
   return (

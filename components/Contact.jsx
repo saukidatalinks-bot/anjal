@@ -62,7 +62,7 @@ export default function Contact({ settings = {}, services = [] }) {
 
   const email1 = settings.company_email || 'anjalventures@gmail.com'
   const email2 = settings.company_email2 || 'contact@anjal.com'
-  const wa = settings.company_whatsapp || '2348000000000'
+  const wa = settings.company_whatsapp || '2348164135836'
   const address = settings.company_address || 'Damaturu, Yobe State, Nigeria'
   const phone = settings.company_phone || '+234 000 000 0000'
 
