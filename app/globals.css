@@ -1,0 +1,161 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --navy: #0A1628;
+  --navy-mid: #112240;
+  --navy-light: #1a3a6b;
+  --green: #16A34A;
+  --green-light: #22c55e;
+  --green-pale: #dcfce7;
+  --gold: #c9a84c;
+  --border: #e2e8f0;
+  --off-white: #f8fafc;
+  --slate: #64748b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@layer components {
+  .section {
+    @apply py-24;
+  }
+
+  .container {
+    @apply max-w-7xl mx-auto px-6;
+  }
+
+  .section-tag {
+    @apply inline-flex items-center gap-2 bg-green-100 text-green-700 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-widest mb-5;
+  }
+
+  .section-title {
+    @apply font-display text-4xl lg:text-5xl text-navy leading-tight mb-5;
+  }
+
+  .section-subtitle {
+    @apply text-lg text-slate-500 leading-relaxed max-w-xl;
+  }
+
+  .btn {
+    @apply inline-flex items-center gap-2 px-7 py-3.5 rounded-lg font-semibold text-sm cursor-pointer transition-all duration-300 border-none;
+  }
+
+  .btn-primary {
+    @apply bg-navy text-white hover:bg-navy-light hover:-translate-y-0.5 shadow-lg hover:shadow-xl;
+  }
+
+  .btn-green {
+    @apply bg-brand-green text-white hover:bg-brand-green-light hover:-translate-y-0.5;
+  }
+
+  .btn-outline {
+    @apply bg-transparent text-navy border-2 border-slate-200 hover:border-navy hover:bg-navy hover:text-white hover:-translate-y-0.5;
+  }
+
+  .btn-outline-white {
+    @apply bg-transparent text-white border-2 border-white/40 hover:bg-white hover:text-navy;
+  }
+
+  .card {
+    @apply bg-white rounded-2xl border border-slate-200 transition-all duration-300;
+  }
+
+  .card-hover {
+    @apply hover:-translate-y-2 hover:shadow-2xl hover:border-transparent;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-3 border-2 border-slate-200 rounded-lg font-sans text-sm text-navy bg-slate-50 focus:outline-none focus:border-green-500 focus:bg-white focus:ring-2 focus:ring-green-100 transition-all;
+  }
+
+  .label {
+    @apply block text-xs font-bold text-navy uppercase tracking-widest mb-2;
+  }
+
+  .admin-sidebar-link {
+    @apply flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-white/10 transition-all duration-200 cursor-pointer;
+  }
+
+  .admin-sidebar-link.active {
+    @apply text-white bg-white/15;
+  }
+
+  .admin-card {
+    @apply bg-white rounded-xl border border-slate-200 p-6;
+  }
+
+  .table-row {
+    @apply flex items-center justify-between p-4 rounded-lg border border-slate-200 bg-slate-50 hover:bg-white hover:border-slate-300 transition-all;
+  }
+
+  .status-badge {
+    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase;
+  }
+
+  .fade-in-up {
+    animation: fadeInUp 0.6s ease both;
+  }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Marquee */
+.marquee-wrapper {
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.marquee-track {
+  display: inline-flex;
+  gap: 60px;
+  animation: marquee 25s linear infinite;
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #f1f5f9; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* Hero grid pattern */
+.hero-grid-pattern {
+  background-image:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* Modal */
+.modal-overlay {
+  @apply fixed inset-0 z-50 flex items-center justify-center p-6;
+  background: rgba(10, 22, 40, 0.7);
+  backdrop-filter: blur(8px);
+}
+
+/* Toast override */
+.toast-custom {
+  font-family: var(--font-dm-sans);
+}
+
+/* Print styles for quotation */
+@media print {
+  body * { visibility: hidden; }
+  #quotation-preview, #quotation-preview * { visibility: visible; }
+  #quotation-preview { position: absolute; left: 0; top: 0; width: 100%; }
+}
