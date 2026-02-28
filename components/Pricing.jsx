@@ -56,7 +56,7 @@ export default function Pricing({ plans = [], settings = {} }) {
                   {plan.price_note}
                 </div>
                 <div className={`text-sm font-semibold mb-6 px-3 py-2 rounded-lg ${plan.is_featured ? 'bg-white/10 text-white' : 'bg-slate-100 text-navy'}`}>
-                  {formatNaira(convertToNaira(getPriceValue(plan.price)))} at ₦1,400/$
+                  {formatNaira(convertToNaira(getPriceValue(plan.price)))} at ₦{NAIRA_TO_DOLLAR.toLocaleString()}/$
                 </div>
 
                 <ul className="flex-1 space-y-0 mb-8">
@@ -87,7 +87,7 @@ export default function Pricing({ plans = [], settings = {} }) {
               <div className="font-bold text-navy text-sm">Need a custom quote?</div>
               <div className="text-xs text-slate-500">Fill out our quotation form and download a branded PDF proposal</div>
             </div>
-            <button onClick={() => document.getElementById('quotation-section')?.scrollIntoView({ behavior: 'smooth' })}
+            <button onClick={() => document.getElementById('quotation')?.scrollIntoView({ behavior: 'smooth' })}
               className="btn btn-primary whitespace-nowrap">
               Request Quotation →
             </button>
