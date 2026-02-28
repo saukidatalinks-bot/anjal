@@ -1,6 +1,14 @@
 'use client'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
+import emailjs from '@emailjs/browser'
+
+const NAIRA_TO_DOLLAR = 1400
+
+// Initialize EmailJS (service credentials should be in environment)
+if (typeof window !== 'undefined') {
+  emailjs.init(process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY || '')
+}
 
 export default function QuotationSection({ settings = {}, calculator = {} }) {
   const [form, setForm] = useState({
@@ -18,6 +26,7 @@ export default function QuotationSection({ settings = {}, calculator = {} }) {
   ]
 
   const total = selectedItems.reduce((acc, item) => acc + parseFloat(item.base_price || 0), 0)
+  const totalNaira = Math.round(total * NAIRA_TO_DOLLAR)
 
   const toggleItem = (item) => {
     setSelectedItems(prev =>
@@ -38,7 +47,6 @@ export default function QuotationSection({ settings = {}, calculator = {} }) {
       toast.error('Please fill in your name and select at least one service')
       return
     }
-    setLoading(true)
     try {
       await fetch('/api/quotation', {
         method: 'POST',
@@ -46,18 +54,12 @@ export default function QuotationSection({ settings = {}, calculator = {} }) {
         body: JSON.stringify({ ...form, selected_items: selectedItems, total_amount: total }),
       })
       setSaved(true)
-    } catch {}
-    setLoading(false)
+    } catch (err) {
+      console.error('Error saving quotation:', err)
+    }
   }
 
-  const downloadPDF = async () => {
-    if (!form.client_name || selectedItems.length === 0) {
-      toast.error('Please enter your name and select services before downloading')
-      return
-    }
-    await handleSave()
-
-    // Dynamically import jsPDF for client-side PDF generation
+  const generatePDF = async () => {
     const { default: jsPDF } = await import('jspdf')
     const doc = new jsPDF({ unit: 'mm', format: 'a4' })
 
@@ -65,123 +67,149 @@ export default function QuotationSection({ settings = {}, calculator = {} }) {
     const margin = 18
     const contentW = pageW - margin * 2
     const now = new Date()
-    const quoteNum = `AV-${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(Date.now()).slice(-4)}`
+    const quoteNum = `AV-${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(Date.now()).slice(-4)}`
     const dateStr = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
 
     // ─── Header / Navy Band ───
     doc.setFillColor(10, 22, 40)
-    doc.rect(0, 0, pageW, 52, 'F')
+    doc.rect(0, 0, pageW, 55, 'F')
 
     // Decorative green bar
     doc.setFillColor(22, 163, 74)
-    doc.rect(0, 52, pageW, 3, 'F')
+    doc.rect(0, 55, pageW, 4, 'F')
 
     // Company Name
     doc.setFont('helvetica', 'bold')
-    doc.setFontSize(22)
+    doc.setFontSize(24)
     doc.setTextColor(255, 255, 255)
-    doc.text(settings.company_name || 'Anjal Ventures', margin, 22)
+    doc.text(settings.company_name || 'Anjal Ventures', margin, 20)
 
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(9)
-    doc.setTextColor(180, 200, 220)
-    doc.text(settings.company_tagline || "Building Africa's Digital Infrastructure", margin, 30)
-    doc.text(`CAC: ${settings.company_cac || 'BN 9258709'} · TIN: ${settings.company_tin || '2623553716975'}`, margin, 37)
-    doc.text(`${settings.company_email || 'anjalventures@gmail.com'} · ${settings.company_address || 'Damaturu, Yobe State, Nigeria'}`, margin, 44)
+    doc.setTextColor(200, 210, 220)
+    doc.text(settings.company_tagline || "Building Africa's Digital Infrastructure", margin, 29)
+    doc.text(`CAC: ${settings.company_cac || 'BN 9258709'} · TIN: ${settings.company_tin || '2623553716975'}`, margin, 36)
+    doc.text(`${settings.company_email || 'anjalventures@gmail.com'} · ${settings.company_address || 'Damaturu, Yobe State, Nigeria'}`, margin, 43)
 
     // Quote label top right
     doc.setFont('helvetica', 'bold')
-    doc.setFontSize(10)
+    doc.setFontSize(11)
     doc.setTextColor(22, 163, 74)
-    doc.text('QUOTATION', pageW - margin, 22, { align: 'right' })
+    doc.text('QUOTATION', pageW - margin, 20, { align: 'right' })
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(8)
-    doc.setTextColor(180, 200, 220)
-    doc.text(quoteNum, pageW - margin, 29, { align: 'right' })
+    doc.setTextColor(200, 210, 220)
+    doc.text(quoteNum, pageW - margin, 28, { align: 'right' })
     doc.text(dateStr, pageW - margin, 36, { align: 'right' })
 
     // ─── Client Info ───
-    let y = 68
+    let y = 72
     doc.setFillColor(248, 250, 252)
-    doc.roundedRect(margin, y - 6, contentW, 36, 3, 3, 'F')
+    doc.roundedRect(margin, y - 6, contentW, 40, 3, 3, 'F')
+    
     doc.setFont('helvetica', 'bold')
     doc.setFontSize(9)
     doc.setTextColor(10, 22, 40)
     doc.text('PREPARED FOR', margin + 6, y + 2)
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(11)
+    doc.setTextColor(10, 22, 40)
     doc.text(form.client_name || '—', margin + 6, y + 10)
-    if (form.entity_name) { doc.setFontSize(9); doc.setTextColor(100, 116, 139); doc.text(form.entity_name, margin + 6, y + 18) }
+    if (form.entity_name) {
+      doc.setFontSize(9)
+      doc.setTextColor(100, 116, 139)
+      doc.text(form.entity_name, margin + 6, y + 17)
+    }
 
     doc.setFont('helvetica', 'bold')
     doc.setFontSize(9)
     doc.setTextColor(10, 22, 40)
-    doc.text('CONTACT', pageW / 2, y + 2)
+    doc.text('CONTACT', pageW / 2 + 8, y + 2)
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(9)
     doc.setTextColor(100, 116, 139)
-    if (form.email) doc.text(form.email, pageW / 2, y + 10)
-    if (form.phone) doc.text(form.phone, pageW / 2, y + 17)
-    if (form.address) doc.text(form.address, pageW / 2, y + 24)
+    if (form.email) doc.text(form.email, pageW / 2 + 8, y + 10)
+    if (form.phone) doc.text(form.phone, pageW / 2 + 8, y + 17)
+    if (form.address) doc.text(form.address, pageW / 2 + 8, y + 24)
 
     // ─── Services Table ───
-    y += 46
+    y += 50
     doc.setFont('helvetica', 'bold')
     doc.setFontSize(10)
     doc.setTextColor(10, 22, 40)
     doc.text('SERVICES & DELIVERABLES', margin, y)
-    y += 7
+    y += 9
 
     // Table header
     doc.setFillColor(10, 22, 40)
-    doc.roundedRect(margin, y, contentW, 9, 2, 2, 'F')
+    doc.roundedRect(margin, y, contentW, 10, 2, 2, 'F')
     doc.setFont('helvetica', 'bold')
     doc.setFontSize(8)
     doc.setTextColor(255, 255, 255)
-    doc.text('#', margin + 4, y + 6)
-    doc.text('Service / Item', margin + 12, y + 6)
-    doc.text('Category', pageW - margin - 50, y + 6)
-    doc.text('Price (USD)', pageW - margin - 6, y + 6, { align: 'right' })
-    y += 9
+    doc.text('#', margin + 4, y + 6.5)
+    doc.text('Service / Item', margin + 12, y + 6.5)
+    doc.text('Category', pageW - margin - 55, y + 6.5)
+    doc.text('Price (USD)', pageW - margin - 28, y + 6.5)
+    doc.text('Price (NGN)', pageW - margin - 6, y + 6.5, { align: 'right' })
+    y += 10
 
     selectedItems.forEach((item, idx) => {
-      const rowH = 9
+      const rowH = 11
+      const itemNaira = Math.round(parseFloat(item.base_price || 0) * NAIRA_TO_DOLLAR)
+      
       doc.setFillColor(idx % 2 === 0 ? 255 : 249, idx % 2 === 0 ? 255 : 250, idx % 2 === 0 ? 255 : 252)
       doc.rect(margin, y, contentW, rowH, 'F')
+      
       doc.setFont('helvetica', 'normal')
       doc.setFontSize(8)
       doc.setTextColor(10, 22, 40)
-      doc.text(String(idx + 1), margin + 4, y + 6)
-      doc.text(item.name, margin + 12, y + 6)
+      doc.text(String(idx + 1), margin + 4, y + 6.5)
+      
+      // Wrap long item names
+      const nameLines = doc.splitTextToSize(item.name, 50)
+      if (nameLines.length > 1) {
+        doc.text(nameLines[0], margin + 12, y + 6.5)
+        nameLines.slice(1).forEach((line, li) => {
+          doc.text(line, margin + 12, y + 6.5 + (li + 1) * 5)
+        })
+      } else {
+        doc.text(item.name, margin + 12, y + 6.5)
+      }
+      
       doc.setTextColor(100, 116, 139)
-      doc.text(item.cat || '—', pageW - margin - 50, y + 6)
+      doc.text(item.cat || '—', pageW - margin - 55, y + 6.5)
+      
       doc.setTextColor(22, 163, 74)
       doc.setFont('helvetica', 'bold')
-      doc.text(`$${parseFloat(item.base_price).toFixed(2)}`, pageW - margin - 6, y + 6, { align: 'right' })
+      doc.text(`$${parseFloat(item.base_price).toFixed(2)}`, pageW - margin - 28, y + 6.5)
+      doc.text(`₦${itemNaira.toLocaleString()}`, pageW - margin - 6, y + 6.5, { align: 'right' })
+      
       doc.setTextColor(226, 232, 240)
       doc.line(margin, y + rowH, margin + contentW, y + rowH)
       y += rowH
     })
 
     // Total row
-    y += 4
+    y += 6
     doc.setFillColor(10, 22, 40)
-    doc.roundedRect(margin, y, contentW, 12, 2, 2, 'F')
+    doc.roundedRect(margin, y, contentW, 14, 2, 2, 'F')
     doc.setFont('helvetica', 'bold')
     doc.setFontSize(10)
     doc.setTextColor(255, 255, 255)
-    doc.text('TOTAL ESTIMATE', margin + 6, y + 8)
+    doc.text('TOTAL ESTIMATE', margin + 6, y + 9)
+    
     doc.setTextColor(22, 163, 74)
-    doc.text(`$${total.toFixed(2)} USD`, pageW - margin - 6, y + 8, { align: 'right' })
+    doc.text(`$${total.toFixed(2)} USD`, pageW - margin - 28, y + 9)
+    doc.text(`₦${totalNaira.toLocaleString()}`, pageW - margin - 6, y + 9, { align: 'right' })
 
     // ─── Notes ───
     if (form.notes) {
-      y += 22
+      y += 24
       doc.setFont('helvetica', 'bold')
       doc.setFontSize(9)
       doc.setTextColor(10, 22, 40)
-      doc.text('NOTES', margin, y)
-      y += 6
+      doc.text('ADDITIONAL NOTES', margin, y)
+      y += 7
       doc.setFont('helvetica', 'normal')
       doc.setFontSize(8)
       doc.setTextColor(100, 116, 139)
@@ -193,10 +221,15 @@ export default function QuotationSection({ settings = {}, calculator = {} }) {
     // ─── Terms ───
     y += 14
     doc.setFontSize(7)
-    doc.setTextColor(180, 190, 200)
-    doc.text('Terms: 50% deposit required to commence. Full payment on delivery. This quotation is valid for 30 days. Prices in USD.', margin, y, { maxWidth: contentW })
-    y += 8
-    doc.text('All deliverables include full source code ownership. Anjal Ventures · CAC BN 9258709 · anjalventures@gmail.com', margin, y, { maxWidth: contentW })
+    doc.setTextColor(120, 130, 140)
+    const termsText = 'Terms: 50% deposit required to commence. Full payment on delivery. This quotation is valid for 30 days. Exchange rate: ₦1,400 per USD (current rate at time of quotation).'
+    const termsLines = doc.splitTextToSize(termsText, contentW)
+    doc.text(termsLines, margin, y)
+    y += termsLines.length * 4 + 3
+
+    doc.text('All deliverables include full source code ownership. Anjal Ventures offers ongoing technical support and maintenance options.', margin, y, { maxWidth: contentW })
+    y += 5
+    doc.text(`${settings.company_email || 'anjalventures@gmail.com'} · ${settings.company_phone || '+234 (0) 8 1400 11111'} · ${settings.company_address || 'Damaturu, Yobe State, Nigeria'}`, margin, y)
 
     // ─── Footer ───
     doc.setFillColor(10, 22, 40)
@@ -206,19 +239,67 @@ export default function QuotationSection({ settings = {}, calculator = {} }) {
     doc.setTextColor(100, 120, 140)
     doc.text(settings.footer_tagline || 'We Build Digital Excellence — From Damaturu to the World.', pageW / 2, 292, { align: 'center' })
 
-    // Save
-    doc.save(`Anjal-Ventures-Quotation-${quoteNum}.pdf`)
-    toast.success('Quotation PDF downloaded!')
+    return doc
+  }
+
+  const downloadQuotation = async () => {
+    if (!form.client_name || selectedItems.length === 0) {
+      toast.error('Please enter your name and select services before downloading')
+      return
+    }
+    setLoading(true)
+    try {
+      // Save to database
+      await handleSave()
+
+      // Generate PDF
+      const doc = await generatePDF()
+      const now = new Date()
+      const quoteNum = `AV-${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(Date.now()).slice(-4)}`
+      
+      // Download to device
+      doc.save(`Anjal-Ventures-Quotation-${quoteNum}.pdf`)
+      
+      // Send via EmailJS
+      try {
+        await emailjs.send(
+          process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID || '',
+          process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID_QUOTATION || '',
+          {
+            to_email: settings.company_email || 'anjalventures@gmail.com',
+            from_name: form.client_name,
+            from_email: form.email,
+            from_phone: form.phone,
+            from_entity: form.entity_name,
+            from_address: form.address,
+            total_usd: `$${total.toFixed(2)} USD`,
+            total_ngn: `₦${totalNaira.toLocaleString()}`,
+            items_count: selectedItems.length,
+            quotation_number: quoteNum,
+          }
+        )
+      } catch (emailError) {
+        console.warn('EmailJS warning:', emailError)
+        // Don't fail if email doesn't send, as quotation is already saved
+      }
+      
+      toast.success('✅ Quotation sent! Download started. Our team will contact you soon.')
+    } catch (err) {
+      console.error('Error:', err)
+      toast.error('Failed to process quotation. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
-    <section id="quotation-section" className="section bg-slate-50">
+    <section id="quotation" className="section bg-slate-50">
       <div className="container mx-auto px-6 max-w-4xl">
         <div className="text-center mb-12">
           <div className="section-tag">Request a Quotation</div>
           <h2 className="section-title">Download Your Branded Quote</h2>
           <p className="section-subtitle mx-auto text-center">
-            Select the services you need, fill in your details, and instantly download a professional, branded quotation PDF.
+            Select the services you need, fill in your details, and instantly download a professional, branded quotation PDF. Prices shown in USD and NGN (₦1,400 per USD).
           </p>
         </div>
 
@@ -284,7 +365,10 @@ export default function QuotationSection({ settings = {}, calculator = {} }) {
                       <div className="font-medium text-navy">{item.name}</div>
                       <div className="text-xs text-slate-400">{item.cat}</div>
                     </div>
-                    <div className="font-bold text-brand-green text-xs">${parseFloat(item.base_price).toFixed(0)}</div>
+                    <div className="flex flex-col items-end text-xs font-bold text-brand-green">
+                      <div>${parseFloat(item.base_price).toFixed(0)}</div>
+                      <div className="text-slate-400 text-[10px]">₦{Math.round(parseFloat(item.base_price) * NAIRA_TO_DOLLAR).toLocaleString()}</div>
+                    </div>
                   </label>
                 ))}
               </div>
@@ -294,25 +378,31 @@ export default function QuotationSection({ settings = {}, calculator = {} }) {
                 <div className="mt-4 pt-4 border-t border-slate-100">
                   <div className="text-xs text-slate-400 mb-2 font-semibold uppercase tracking-wider">Selected ({selectedItems.length})</div>
                   {selectedItems.map((item, i) => (
-                    <div key={i} className="flex justify-between text-sm py-1">
-                      <span className="text-slate-600">{item.name}</span>
-                      <span className="font-semibold text-navy">${parseFloat(item.base_price).toFixed(0)}</span>
+                    <div key={i} className="flex justify-between text-sm py-1.5 text-slate-600">
+                      <span>{item.name}</span>
+                      <div className="flex flex-col items-end text-xs">
+                        <div className="font-semibold text-navy">${parseFloat(item.base_price).toFixed(0)}</div>
+                        <div className="text-slate-400">₦{Math.round(parseFloat(item.base_price) * NAIRA_TO_DOLLAR).toLocaleString()}</div>
+                      </div>
                     </div>
                   ))}
-                  <div className="flex justify-between font-bold text-navy pt-2 border-t border-slate-200 mt-2">
-                    <span>Total Estimate</span>
-                    <span className="text-brand-green">${total.toFixed(2)}</span>
+                  <div className="flex justify-between font-bold text-navy pt-2 border-t border-slate-200 mt-2 py-2">
+                    <span>Total</span>
+                    <div className="flex flex-col items-end text-sm">
+                      <div className="text-brand-green">${total.toFixed(2)}</div>
+                      <div className="text-slate-500 text-xs">₦{totalNaira.toLocaleString()}</div>
+                    </div>
                   </div>
                 </div>
               )}
             </div>
 
-            <button onClick={downloadPDF} disabled={loading}
-              className="btn btn-green w-full justify-center py-4 text-base">
-              {loading ? 'Generating...' : '⬇ Download Quotation PDF'}
+            <button onClick={downloadQuotation} disabled={loading}
+              className="btn btn-green w-full justify-center py-4 text-base disabled:opacity-50">
+              {loading ? '⏳ Generating & Sending...' : '⬇ Download & Send Quotation'}
             </button>
             <p className="text-center text-xs text-slate-400">
-              A branded PDF quotation will be generated instantly with your details and selected services.
+              PDF will download instantly & email sent to <strong>our team</strong> with your details. We'll contact you soon!
             </p>
           </div>
         </div>

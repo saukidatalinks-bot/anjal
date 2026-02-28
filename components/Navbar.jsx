@@ -13,7 +13,7 @@ export default function Navbar({ settings = {} }) {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  const links = ['About', 'Services', 'Portfolio', 'Pricing', 'Contact']
+  const links = ['About', 'Services', 'Portfolio', 'Pricing', 'Quotation', 'Contact']
 
   return (
     <>

@@ -1,8 +1,24 @@
 'use client'
 import { useState } from 'react'
 
+const NAIRA_TO_DOLLAR = 1400
+
 export default function Pricing({ plans = [] }) {
   const [quotationOpen, setQuotationOpen] = useState(false)
+
+  const getPriceValue = (priceStr) => {
+    if (!priceStr) return 0
+    const match = priceStr.toString().match(/[\d.]+/)
+    return match ? parseFloat(match[0]) : 0
+  }
+
+  const convertToNaira = (usdPrice) => {
+    return Math.round(usdPrice * NAIRA_TO_DOLLAR)
+  }
+
+  const formatNaira = (amount) => {
+    return '₦' + amount.toLocaleString()
+  }
 
   return (
     <section id="pricing" className="section bg-slate-50">
@@ -38,6 +54,9 @@ export default function Pricing({ plans = [] }) {
                 </div>
                 <div className={`text-xs mb-7 ${plan.is_featured ? 'text-white/40' : 'text-slate-400'}`}>
                   {plan.price_note}
+                </div>
+                <div className={`text-sm font-semibold mb-6 px-3 py-2 rounded-lg ${plan.is_featured ? 'bg-white/10 text-white' : 'bg-slate-100 text-navy'}`}>
+                  {formatNaira(convertToNaira(getPriceValue(plan.price)))} at ₦1,400/$
                 </div>
 
                 <ul className="flex-1 space-y-0 mb-8">
