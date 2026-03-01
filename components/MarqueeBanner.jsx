@@ -6,7 +6,7 @@ export default function MarqueeBanner({ services = [] }) {
   const doubled = [...items, ...items]
 
   return (
-    <div className="bg-brand-green py-4 marquee-wrapper overflow-hidden">
+    <div className="bg-apple-blue py-4 marquee-wrapper overflow-hidden">
       <div className="marquee-track inline-flex gap-12 whitespace-nowrap" style={{ animation: 'marquee 30s linear infinite' }}>
         {doubled.map((item, i) => (
           <span key={i} className="text-white text-sm font-semibold uppercase tracking-widest flex items-center gap-3 flex-shrink-0">

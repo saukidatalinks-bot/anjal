@@ -11,7 +11,7 @@ export function Footer({ settings = {} }) {
   const tagline = settings.footer_tagline || 'We Build Digital Excellence — From Damaturu to the World.'
 
   return (
-    <footer className="bg-navy border-t border-white/5 pt-16 pb-8">
+    <footer className="bg-apple-dark border-t border-apple-light-secondary pt-16 pb-8">
       <div className="container mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           {/* Brand */}
@@ -24,15 +24,15 @@ export function Footer({ settings = {} }) {
                 </picture>
               </div>
               <span className="font-display font-bold text-xl text-white">
-                {companyName.split(' ')[0]} <span className="text-brand-green">{companyName.split(' ').slice(1).join(' ')}</span>
+                {companyName.split(' ')[0]} <span className="text-apple-blue">{companyName.split(' ').slice(1).join(' ')}</span>
               </span>
             </div>
             <p className="text-sm text-white/45 leading-relaxed mb-6 max-w-sm">{tagline}</p>
-            <div className="bg-brand-gold/10 border border-brand-gold/20 rounded-xl p-4">
+            <div className="bg-apple-blue/10 border border-apple-blue/20 rounded-xl p-4">
               <p className="text-xs text-white/40 leading-relaxed">
-                <span className="text-brand-gold font-semibold">CAC Registered:</span> {cac} ·{' '}
-                <span className="text-brand-gold font-semibold">TIN:</span> {tin}<br />
-                {address} · Status: <span className="text-brand-gold font-semibold">ACTIVE</span>
+                <span className="text-apple-blue font-semibold">CAC Registered:</span> {cac} ·{' '}
+                <span className="text-apple-blue font-semibold">TIN:</span> {tin}<br />
+                {address} · Status: <span className="text-apple-blue font-semibold">ACTIVE</span>
               </p>
             </div>
           </div>
@@ -42,7 +42,7 @@ export function Footer({ settings = {} }) {
             <div className="text-xs font-bold text-white/35 uppercase tracking-widest mb-5">Services</div>
             <ul className="space-y-3">
               {['Web Development', 'Android Mobile Apps', 'Enterprise SaaS', 'AI & Automation', 'SME Solutions', 'Tech Training'].map(s => (
-                <li key={s}><a href="#services" className="text-sm text-white/50 hover:text-white transition-colors">{s}</a></li>
+                <li key={s}><a href="#services" className="text-sm text-white/50 hover:text-apple-blue transition-colors">{s}</a></li>
               ))}
             </ul>
           </div>
@@ -51,13 +51,13 @@ export function Footer({ settings = {} }) {
           <div>
             <div className="text-xs font-bold text-white/35 uppercase tracking-widest mb-5">Company</div>
             <ul className="space-y-3">
-              <li><a href="#about" className="text-sm text-white/50 hover:text-white transition-colors">About Us</a></li>
-              <li><a href="#portfolio" className="text-sm text-white/50 hover:text-white transition-colors">Portfolio</a></li>
-              <li><a href="#pricing" className="text-sm text-white/50 hover:text-white transition-colors">Pricing</a></li>
-              <li><a href="#contact" className="text-sm text-white/50 hover:text-white transition-colors">Contact</a></li>
-              <li><a href={`mailto:${email1}`} className="text-sm text-white/50 hover:text-white transition-colors">{email1}</a></li>
-              <li><a href={`mailto:${email2}`} className="text-sm text-white/50 hover:text-white transition-colors">{email2}</a></li>
-              <li><a href="/admin" className="text-sm text-white/30 hover:text-white/70 transition-colors text-xs">Admin Login</a></li>
+              <li><a href="#about" className="text-sm text-white/50 hover:text-apple-blue transition-colors">About Us</a></li>
+              <li><a href="#portfolio" className="text-sm text-white/50 hover:text-apple-blue transition-colors">Portfolio</a></li>
+              <li><a href="#pricing" className="text-sm text-white/50 hover:text-apple-blue transition-colors">Pricing</a></li>
+              <li><a href="#contact" className="text-sm text-white/50 hover:text-apple-blue transition-colors">Contact</a></li>
+              <li><a href={`mailto:${email1}`} className="text-sm text-white/50 hover:text-apple-blue transition-colors">{email1}</a></li>
+              <li><a href={`mailto:${email2}`} className="text-sm text-white/50 hover:text-apple-blue transition-colors">{email2}</a></li>
+              <li><a href="/admin" className="text-sm text-white/30 hover:text-apple-blue transition-colors text-xs">Admin Login</a></li>
             </ul>
           </div>
         </div>
@@ -65,8 +65,8 @@ export function Footer({ settings = {} }) {
         <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-xs text-white/25">© 2026 {companyName}. All rights reserved. CAC {cac}.</p>
           <div className="flex gap-6">
-            <span className="text-xs text-white/25 cursor-pointer hover:text-white/50 transition-colors">Terms & Conditions</span>
-            <span className="text-xs text-white/25 cursor-pointer hover:text-white/50 transition-colors">Privacy Policy</span>
+            <span className="text-xs text-white/25 cursor-pointer hover:text-apple-blue transition-colors">Terms & Conditions</span>
+            <span className="text-xs text-white/25 cursor-pointer hover:text-apple-blue transition-colors">Privacy Policy</span>
           </div>
         </div>
       </div>
