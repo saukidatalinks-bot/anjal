@@ -1,11 +1,13 @@
 'use client'
 import { useEffect, useState } from 'react'
 import AdminSidebar from '@/components/AdminSidebar'
+import TestimonialsModal from '@/components/TestimonialsModal'
 import Link from 'next/link'
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState(null)
   const [messages, setMessages] = useState([])
+  const [testimonialsModalOpen, setTestimonialsModalOpen] = useState(false)
 
   useEffect(() => {
     // Fetch stats from various endpoints
@@ -33,6 +35,7 @@ export default function AdminDashboard() {
     { href: '/admin/services', label: 'Edit Services', icon: '⚡', desc: 'Manage service offerings' },
     { href: '/admin/pricing', label: 'Update Pricing', icon: '💰', desc: 'Modify pricing plans' },
     { href: '/admin/calculator', label: 'Calculator Items', icon: '🧮', desc: 'Edit estimator services' },
+    { href: '/admin/testimonials', label: 'Manage Testimonials', icon: '💬', desc: 'View, edit & publish testimonies', onClick: (e) => { e.preventDefault(); setTestimonialsModalOpen(true) } },
     { href: '/admin/settings', label: 'Site Settings', icon: '⚙️', desc: 'Update contact info & config' },
     { href: '/admin/contacts', label: 'View Messages', icon: '📩', desc: `${stats?.unread || 0} unread messages` },
   ]
@@ -75,6 +78,7 @@ export default function AdminDashboard() {
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
             {quickLinks.map(link => (
               <Link key={link.href} href={link.href}
+                onClick={link.onClick}
                 className="admin-card hover:border-brand-green hover:bg-brand-green-pale/30 transition-all group p-5 cursor-pointer">
                 <div className="text-2xl mb-2">{link.icon}</div>
                 <div className="font-semibold text-navy text-sm mb-1 group-hover:text-brand-green transition-colors">{link.label}</div>
@@ -117,6 +121,9 @@ export default function AdminDashboard() {
             )}
           </div>
         </div>
+
+        {/* Testimonials Modal */}
+        <TestimonialsModal isOpen={testimonialsModalOpen} onClose={() => setTestimonialsModalOpen(false)} />
       </main>
     </div>
   )

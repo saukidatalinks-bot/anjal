@@ -69,39 +69,57 @@ export default function EstimatorAndQuotation({ settings = {}, calculator = {} }
     const doc = new jsPDF({ unit: 'mm', format: 'a4' })
 
     const pageW = 210
+    const pageH = 297
     const margin = 18
     const contentW = pageW - margin * 2
     const now = new Date()
     const quoteNum = `AV-${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(Date.now()).slice(-4)}`
     const dateStr = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
 
-    // Header
-    doc.setFillColor(10, 22, 40)
-    doc.rect(0, 0, pageW, 55, 'F')
-    doc.setFillColor(22, 163, 74)
-    doc.rect(0, 55, pageW, 4, 'F')
+    // Helper function to add header
+    const addHeader = () => {
+      doc.setFillColor(10, 22, 40)
+      doc.rect(0, 0, pageW, 55, 'F')
+      doc.setFillColor(22, 163, 74)
+      doc.rect(0, 55, pageW, 4, 'F')
 
-    doc.setFont('helvetica', 'bold')
-    doc.setFontSize(24)
-    doc.setTextColor(255, 255, 255)
-    doc.text(settings.company_name || 'Anjal Ventures', margin, 20)
+      doc.setFont('helvetica', 'bold')
+      doc.setFontSize(24)
+      doc.setTextColor(255, 255, 255)
+      doc.text(settings.company_name || 'Anjal Ventures', margin, 20)
 
-    doc.setFont('helvetica', 'normal')
-    doc.setFontSize(9)
-    doc.setTextColor(200, 210, 220)
-    doc.text(settings.company_tagline || "Building Africa's Digital Infrastructure", margin, 29)
-    doc.text(`CAC: ${settings.company_cac || 'BN 9258709'} · TIN: ${settings.company_tin || '2623553716975'}`, margin, 36)
-    doc.text(`${settings.company_email || 'anjalventures@gmail.com'} · ${settings.company_address || 'Damaturu, Yobe State, Nigeria'}`, margin, 43)
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(9)
+      doc.setTextColor(200, 210, 220)
+      doc.text(settings.company_tagline || "Building Africa's Digital Infrastructure", margin, 29)
+      doc.text(`CAC: ${settings.company_cac || 'BN 9258709'} · TIN: ${settings.company_tin || '2623553716975'}`, margin, 36)
+      doc.text(`${settings.company_email || 'anjalventures@gmail.com'} · ${settings.company_address || 'Damaturu, Yobe State, Nigeria'}`, margin, 43)
 
-    doc.setFont('helvetica', 'bold')
-    doc.setFontSize(11)
-    doc.setTextColor(22, 163, 74)
-    doc.text('PROJECT ESTIMATE & QUOTATION', pageW - margin, 20, { align: 'right' })
-    doc.setFont('helvetica', 'normal')
-    doc.setFontSize(8)
-    doc.setTextColor(200, 210, 220)
-    doc.text(quoteNum, pageW - margin, 28, { align: 'right' })
-    doc.text(dateStr, pageW - margin, 36, { align: 'right' })
+      doc.setFont('helvetica', 'bold')
+      doc.setFontSize(11)
+      doc.setTextColor(22, 163, 74)
+      doc.text('PROJECT ESTIMATE & QUOTATION', pageW - margin, 20, { align: 'right' })
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(8)
+      doc.setTextColor(200, 210, 220)
+      doc.text(quoteNum, pageW - margin, 28, { align: 'right' })
+      doc.text(dateStr, pageW - margin, 36, { align: 'right' })
+    }
+
+    // Helper function to add footer
+    const addFooter = (pageNum) => {
+      doc.setFillColor(10, 22, 40)
+      doc.rect(0, pageH - 12, pageW, 12, 'F')
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(7)
+      doc.setTextColor(100, 120, 140)
+      doc.text(settings.footer_tagline || 'We Build Digital Excellence — From Damaturu to the World.', pageW / 2, pageH - 5, { align: 'center' })
+      doc.setTextColor(80, 100, 120)
+      doc.text(`Page ${pageNum}`, pageW - margin, pageH - 5, { align: 'right' })
+    }
+
+    // Add header on page 1
+    addHeader()
 
     // Client Info
     let y = 72
@@ -133,7 +151,7 @@ export default function EstimatorAndQuotation({ settings = {}, calculator = {} }
     if (form.phone) doc.text(form.phone, pageW / 2 + 8, y + 17)
     if (form.address) doc.text(form.address, pageW / 2 + 8, y + 24)
 
-    // Estimate Table
+    // Estimate Table Header
     y += 50
     doc.setFont('helvetica', 'bold')
     doc.setFontSize(10)
@@ -141,6 +159,7 @@ export default function EstimatorAndQuotation({ settings = {}, calculator = {} }
     doc.text('PROJECT BREAKDOWN', margin, y)
     y += 9
 
+    // Table Header
     doc.setFillColor(10, 22, 40)
     doc.roundedRect(margin, y, contentW, 10, 2, 2, 'F')
     doc.setFont('helvetica', 'bold')
@@ -153,9 +172,18 @@ export default function EstimatorAndQuotation({ settings = {}, calculator = {} }
     doc.text('Price (NGN)', pageW - margin - 6, y + 6.5, { align: 'right' })
     y += 10
 
+    // Table Rows
     selectedItems.forEach((item, idx) => {
       const rowH = 11
       const itemNaira = Math.round(parseFloat(item.base_price || 0) * NAIRA_TO_DOLLAR)
+
+      // Check if we need a new page
+      if (y + rowH > pageH - 40) {
+        addFooter(doc.getPage())
+        doc.addPage()
+        addHeader()
+        y = 72
+      }
 
       doc.setFillColor(idx % 2 === 0 ? 255 : 249, idx % 2 === 0 ? 255 : 250, idx % 2 === 0 ? 255 : 252)
       doc.rect(margin, y, contentW, rowH, 'F')
@@ -200,43 +228,92 @@ export default function EstimatorAndQuotation({ settings = {}, calculator = {} }
     doc.setTextColor(22, 163, 74)
     doc.text(`$${total.toFixed(2)} USD`, pageW - margin - 28, y + 9)
     doc.text(`₦${totalNaira.toLocaleString()}`, pageW - margin - 6, y + 9, { align: 'right' })
+    y += 18
 
-    // Notes
+    // Additional Notes Section
     if (form.notes) {
-      y += 24
+      if (y + 15 > pageH - 40) {
+        addFooter(doc.getPage())
+        doc.addPage()
+        addHeader()
+        y = 72
+      }
+
       doc.setFont('helvetica', 'bold')
       doc.setFontSize(9)
       doc.setTextColor(10, 22, 40)
       doc.text('ADDITIONAL NOTES', margin, y)
       y += 7
+
       doc.setFont('helvetica', 'normal')
       doc.setFontSize(8)
       doc.setTextColor(100, 116, 139)
-      const noteLines = doc.splitTextToSize(form.notes, contentW)
-      doc.text(noteLines, margin, y)
-      y += noteLines.length * 5
+      doc.setFillColor(249, 250, 251)
+      const noteLines = doc.splitTextToSize(form.notes, contentW - 4)
+      doc.roundedRect(margin, y - 3, contentW, noteLines.length * 5 + 2, 2, 2, 'F')
+      doc.text(noteLines, margin + 2, y)
+      y += noteLines.length * 5 + 8
     }
 
-    // Terms
-    y += 14
-    doc.setFontSize(7)
-    doc.setTextColor(120, 130, 140)
-    const termsText = `Terms: 50% deposit required to commence. Full payment on delivery. This quotation is valid for 30 days. Exchange rate: ₦${NAIRA_TO_DOLLAR.toLocaleString()} per USD (current rate).`
-    const termsLines = doc.splitTextToSize(termsText, contentW)
-    doc.text(termsLines, margin, y)
-    y += termsLines.length * 4 + 3
+    // Terms and Conditions Section
+    if (y + 35 > pageH - 15) {
+      addFooter(doc.getPage())
+      doc.addPage()
+      addHeader()
+      y = 72
+    }
 
-    doc.text('All deliverables include full source code ownership. Anjal Ventures offers ongoing technical support and maintenance options.', margin, y, { maxWidth: contentW })
-    y += 5
-    doc.text(`${settings.company_email || 'anjalventures@gmail.com'} · ${settings.company_phone || '+234 (0) 8 1400 11111'} · ${settings.company_address || 'Damaturu, Yobe State, Nigeria'}`, margin, y)
+    y += 2
+    doc.setFillColor(248, 250, 252)
+    doc.roundedRect(margin, y - 5, contentW, 30, 3, 3, 'F')
 
-    // Footer
-    doc.setFillColor(10, 22, 40)
-    doc.rect(0, 285, pageW, 12, 'F')
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(9)
+    doc.setTextColor(10, 22, 40)
+    doc.text('TERMS & CONDITIONS', margin + 6, y)
+    y += 6
+
     doc.setFont('helvetica', 'normal')
-    doc.setFontSize(7)
-    doc.setTextColor(100, 120, 140)
-    doc.text(settings.footer_tagline || 'We Build Digital Excellence — From Damaturu to the World.', pageW / 2, 292, { align: 'center' })
+    doc.setFontSize(7.5)
+    doc.setTextColor(100, 116, 139)
+
+    const terms = [
+      `• 50% deposit required to commence work`,
+      `• Full payment due on final delivery`,
+      `• This quotation is valid for 30 days`,
+      `• Exchange rate: ₦${NAIRA_TO_DOLLAR.toLocaleString()}/USD (current market rate)`,
+      `• All deliverables include full source code ownership`,
+      `• Ongoing technical support and maintenance available`
+    ]
+
+    terms.forEach(term => {
+      const termLines = doc.splitTextToSize(term, contentW - 12)
+      termLines.forEach(line => {
+        doc.text(line, margin + 6, y)
+        y += 4
+      })
+    })
+
+    y += 8
+
+    // Contact Information Footer Section
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(8)
+    doc.setTextColor(10, 22, 40)
+    doc.text('CONTACT DETAILS', margin, y)
+    y += 5
+
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(7.5)
+    doc.setTextColor(100, 116, 139)
+    doc.text(`Email: ${settings.company_email || 'anjalventures@gmail.com'}`, margin, y)
+    y += 4
+    doc.text(`Phone: ${settings.company_phone || '+234 (0) 8 1400 11111'}`, margin, y)
+    y += 4
+    doc.text(`Address: ${settings.company_address || 'Damaturu, Yobe State, Nigeria'}`, margin, y)
+
+    // Add footer to last page
+    addFooter(doc.getPage())
 
     return doc
   }

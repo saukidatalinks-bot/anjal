@@ -55,7 +55,7 @@ export default function Navbar({ settings = {} }) {
                 className="px-5 py-2.5 text-sm font-medium text-gray-600 border border-gray-200 rounded-lg hover:border-gray-300 hover:bg-gray-50 transition-all">
                 Email
               </a>
-              <a href="#quotation" className="px-5 py-2.5 text-sm font-semibold text-white bg-black rounded-lg hover:bg-gray-800 transition-colors">
+              <a href="#estimator-quotation" className="px-5 py-2.5 text-sm font-semibold text-white bg-black rounded-lg hover:bg-gray-800 transition-colors">
                 Get Quote
               </a>
             </div>
@@ -81,7 +81,7 @@ export default function Navbar({ settings = {} }) {
               {link}
             </a>
           ))}
-          <a href="#quotation" onClick={() => setMobileOpen(false)}
+          <a href="#estimator-quotation" onClick={() => setMobileOpen(false)}
             className="px-4 py-3 rounded-lg text-sm font-semibold text-white bg-black hover:bg-gray-800 transition-colors text-center mt-3">
             Get Quote
           </a>
