@@ -107,7 +107,8 @@ export default function EstimatorAndQuotation({ settings = {}, calculator = {} }
     }
 
     // Helper function to add footer
-    const addFooter = (pageNum) => {
+    const addFooter = () => {
+      const pageNum = doc.internal.pages.length - 1
       doc.setFillColor(10, 22, 40)
       doc.rect(0, pageH - 12, pageW, 12, 'F')
       doc.setFont('helvetica', 'normal')
@@ -179,7 +180,7 @@ export default function EstimatorAndQuotation({ settings = {}, calculator = {} }
 
       // Check if we need a new page
       if (y + rowH > pageH - 40) {
-        addFooter(doc.getPage())
+        addFooter()
         doc.addPage()
         addHeader()
         y = 72
@@ -233,7 +234,7 @@ export default function EstimatorAndQuotation({ settings = {}, calculator = {} }
     // Additional Notes Section
     if (form.notes) {
       if (y + 15 > pageH - 40) {
-        addFooter(doc.getPage())
+        addFooter()
         doc.addPage()
         addHeader()
         y = 72
@@ -257,7 +258,7 @@ export default function EstimatorAndQuotation({ settings = {}, calculator = {} }
 
     // Terms and Conditions Section
     if (y + 35 > pageH - 15) {
-      addFooter(doc.getPage())
+      addFooter()
       doc.addPage()
       addHeader()
       y = 72
@@ -313,7 +314,7 @@ export default function EstimatorAndQuotation({ settings = {}, calculator = {} }
     doc.text(`Address: ${settings.company_address || 'Damaturu, Yobe State, Nigeria'}`, margin, y)
 
     // Add footer to last page
-    addFooter(doc.getPage())
+    addFooter()
 
     return doc
   }
