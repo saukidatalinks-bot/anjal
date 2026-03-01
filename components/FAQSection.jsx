@@ -3,45 +3,37 @@
 import { useState } from 'react'
 
 export default function FAQSection() {
-  const [openFAQ, setOpenFAQ] = useState(0)
+  const [openFAQ, setOpenFAQ] = useState(null)
 
   const faqs = [
     {
-      category: 'General',
+      category: 'Services',
       questions: [
         {
-          q: 'What services does Anjal Ventures provide?',
-          a: 'We specialize in web development (Next.js, React), mobile app development (React Native, Flutter), backend systems, AI/ML solutions, cloud infrastructure, and enterprise digital transformation. Whether you need a custom MVP or enterprise-scale platform, we deliver end-to-end solutions.'
+          q: 'What services do you offer?',
+          a: 'We provide custom web development, mobile applications, cloud infrastructure, backend systems, and digital transformation consulting. Each project is tailored to your specific business needs.'
         },
         {
-          q: 'Where is your team located?',
-          a: 'We are based in Damaturu, Yobe State, Nigeria, but we work with clients globally. Our distributed team ensures 24/7 support and collaboration across time zones.'
-        },
-        {
-          q: 'Do you work with startups and small businesses?',
-          a: 'Absolutely! We work with businesses of all sizes - from early-stage startups to established enterprises. We tailor our approach and pricing to match your budget and growth stage.'
+          q: 'Do you work remotely?',
+          a: 'Yes. We are based in Nigeria but work with clients globally. We maintain excellent communication and regular progress updates throughout all projects.'
         }
       ]
     },
     {
-      category: 'Project Scope',
+      category: 'Process',
       questions: [
         {
-          q: 'How long does a typical project take?',
-          a: 'Project timelines vary based on complexity. Simple websites take 2-4 weeks, mobile apps 8-12 weeks, and enterprise systems 12-24 weeks. During discovery, we provide a detailed timeline with milestones.'
+          q: 'How long does a project typically take?',
+          a: 'Project timelines vary based on scope and complexity. Most projects range from 8-16 weeks. We provide a detailed timeline and milestones after our initial discovery phase.'
         },
         {
-          q: 'What if my project requirements change mid-development?',
-          a: `We use Agile methodology, so changes are expected and welcome. We'll assess scope changes, adjust the timeline if needed, and keep you informed every step of the way.`
-        },
-        {
-          q: 'Do you provide ongoing support after launch?',
-          a: 'Yes! We offer 24/7 support packages including bug fixes, feature updates, performance optimization, security patches, and database backups. Your success is ongoing.'
+          q: 'What is your development process?',
+          a: 'We follow a proven 6-phase process: discovery, design, development, testing, deployment, and ongoing support. You\'ll have regular updates and demo sessions throughout.'
         }
       ]
     },
     {
-      category: 'Pricing & Payment',
+      category: 'Pricing',
       questions: [
         {
           q: 'How do you price projects?',
@@ -49,83 +41,35 @@ export default function FAQSection() {
         },
         {
           q: 'What payment terms do you offer?',
-          a: 'Typically 30% upfront, 40% at mid-project milestone, and 30% upon launch. For larger contracts, we can arrange payment plans. We accept bank transfers, cryptocurrency, and online payment platforms.'
-        },
-        {
-          q: 'Are there any hidden costs?',
-          a: 'No hidden costs. Everything is transparent and outlined in your contract. We provide detailed cost breakdowns by feature/component. Any changes are discussed and quoted separately.'
+          a: 'Standard terms are 30% upfront, 40% at mid-point, and 30% upon delivery. We can discuss alternative arrangements based on your preferences.'
         }
       ]
     },
     {
-      category: 'Technology & Quality',
+      category: 'Code & Support',
       questions: [
         {
-          q: 'What technologies do you use?',
-          a: 'We use modern, battle-tested technologies: Next.js, React, React Native, Node.js, Python, PostgreSQL, MongoDB, AWS/GCP, Firebase, and more. We choose the best tools for your specific needs.'
+          q: 'Do I own the code?',
+          a: 'Yes. You receive 100% ownership of all code, design assets, and intellectual property. We provide full documentation and support handing off to your team.'
         },
         {
-          q: 'Do you follow coding standards and best practices?',
-          a: 'Absolutely. We follow SOLID principles, write clean code, conduct peer reviews, perform extensive testing, and maintain documentation. Code quality is non-negotiable.'
-        },
-        {
-          q: 'Will I own the source code?',
-          a: 'Yes, 100% code ownership. You own all code, design assets, and intellectual property. We provide complete documentation and transition support when the project ends.'
-        }
-      ]
-    },
-    {
-      category: 'Security & Data',
-      questions: [
-        {
-          q: 'How do you handle data security?',
-          a: 'We implement industry-standard security: encryption (SSL/TLS), secure authentication (OAuth, JWT), GDPR compliance, regular security audits, and DDoS protection. Security audits are included in our standard process.'
-        },
-        {
-          q: 'Is my data backed up?',
-          a: 'Yes, automated daily backups are standard. We maintain multiple backup copies in secure locations and provide disaster recovery procedures. You can restore data at any point.'
-        },
-        {
-          q: 'Do you comply with data protection regulations?',
-          a: 'Yes, we ensure GDPR, CCPA, and other international data protection compliance. We help implement privacy policies and consent management appropriate for your users.'
-        }
-      ]
-    },
-    {
-      category: 'Getting Started',
-      questions: [
-        {
-          q: 'How do I start a project with Anjal Ventures?',
-          a: 'Simple: 1) Schedule a free consultation call, 2) We discuss your vision and requirements, 3) We send a detailed proposal with timeline and pricing, 4) You approve and we begin kickoff meeting.'
-        },
-        {
-          q: 'What information do you need from me to provide a quotation?',
-          a: `Tell us about your business, the problem you're solving, your target users, key features, budget range (if you have one), and timeline. Details help us provide accurate estimates.`
-        },
-        {
-          q: 'Can I have a meeting with the team before committing?',
-          a: `Absolutely. We encourage a discovery call first. This is risk-free consultation to ensure we're the right fit for your project. We can discuss your vision and answer questions.`
+          q: 'What support do you offer after launch?',
+          a: 'We provide ongoing support packages including bug fixes, security updates, performance optimization, and feature development. 24/7 support is available.'
         }
       ]
     }
   ]
 
   return (
-    <section className="py-24 bg-gradient-to-br from-navy via-slate-900 to-navy relative overflow-hidden">
-      {/* Background elements */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-20 right-20 w-96 h-96 bg-brand-gold rounded-full mix-blend-screen filter blur-3xl" />
-        <div className="absolute bottom-20 left-20 w-96 h-96 bg-brand-green rounded-full mix-blend-screen filter blur-3xl" />
-      </div>
-
-      <div className="relative z-10 container mx-auto px-6">
+    <section className="py-24 bg-white">
+      <div className="container mx-auto px-6">
         {/* Header */}
         <div className="text-center mb-16">
-          <h2 className="text-5xl md:text-6xl font-black text-white mb-4">
-            Frequently Asked <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-gold to-brand-green">Questions</span>
+          <h2 className="text-5xl md:text-6xl font-semibold text-black mb-4">
+            Frequently Asked Questions
           </h2>
-          <p className="text-xl text-white/70 max-w-2xl mx-auto">
-            Can't find the answer you're looking for? <a href="#contact" className="text-brand-gold hover:text-brand-green transition-colors">Chat with us</a>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Have questions? Our team is here to help. <a href="#contact" className="text-black font-semibold hover:text-gray-700">Get in touch →</a>
           </p>
         </div>
 
@@ -137,8 +81,8 @@ export default function FAQSection() {
               onClick={() => setOpenFAQ(faqs.findIndex(f => f.category === category.category) * 2)}
               className={`px-6 py-3 rounded-full font-semibold transition-all ${
                 Math.floor(openFAQ / 2) === index
-                  ? 'bg-brand-gold text-navy'
-                  : 'bg-white/10 text-white border border-white/20 hover:border-brand-gold/50'
+                  ? 'border-black text-black bg-white'
+                  : 'border-gray-200 text-gray-600 bg-white hover:bg-gray-50'
               }`}
             >
               {category.category}
@@ -147,7 +91,7 @@ export default function FAQSection() {
         </div>
 
         {/* FAQ Accordion */}
-        <div className="max-w-3xl mx-auto space-y-4">
+        <div className="max-w-3xl mx-auto space-y-3">
           {faqs.map((category, catIndex) =>
             category.questions.map((faq, faqIndex) => {
               const faqIndex_ = catIndex * 2 + faqIndex
@@ -159,19 +103,19 @@ export default function FAQSection() {
                   onClick={() => setOpenFAQ(isOpen ? -1 : faqIndex_)}
                   className="w-full text-left"
                 >
-                  <div className="group bg-white/5 backdrop-blur-xl border border-white/10 hover:border-brand-gold/50 rounded-2xl p-6 transition-all duration-300 hover:bg-white/10">
+                  <div className="border border-gray-200 bg-white hover:bg-gray-50 rounded-lg p-6 transition-all duration-200">
                     <div className="flex items-start justify-between gap-4">
-                      <h3 className="text-lg font-bold text-white group-hover:text-brand-gold transition-colors">
+                      <h3 className="text-base font-semibold text-black">
                         {faq.q}
                       </h3>
-                      <span className={`text-2xl text-brand-gold flex-shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>
+                      <span className={`text-lg text-gray-400 flex-shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}>
                         ⌄
                       </span>
                     </div>
 
                     {/* Answer */}
-                    <div className={`overflow-hidden transition-all duration-300 ${isOpen ? 'max-h-96 mt-4' : 'max-h-0'}`}>
-                      <p className="text-white/70 leading-relaxed">{faq.a}</p>
+                    <div className={`overflow-hidden transition-all duration-200 ${isOpen ? 'max-h-96 mt-4' : 'max-h-0'}`}>
+                      <p className="text-gray-600 leading-relaxed text-sm">{faq.a}</p>
                     </div>
                   </div>
                 </button>
@@ -182,14 +126,14 @@ export default function FAQSection() {
 
         {/* Still have questions? */}
         <div className="mt-16 text-center">
-          <div className="inline-block bg-gradient-to-r from-brand-gold/10 to-brand-green/10 border border-white/20 rounded-3xl p-12">
-            <h3 className="text-2xl font-bold text-white mb-4">Still have questions?</h3>
-            <p className="text-white/70 mb-6 max-w-md">
-              Our team is ready to answer anything. Schedule a free consultation call with one of our specialists.
+          <div className="inline-block bg-gray-50 border border-gray-200 rounded-lg p-12">
+            <h3 className="text-2xl font-semibold text-black mb-4">Still have questions?</h3>
+            <p className="text-gray-600 mb-8 max-w-md">
+              Our team is here to help. Get in touch with us for a personalized consultation.
             </p>
-            <a href="#contact" className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-brand-gold to-brand-green text-navy font-bold rounded-xl hover:shadow-lg transition-all hover:scale-105">
-              Book Your Free Consultation
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <a href="#contact" className="inline-flex items-center gap-2 px-8 py-3 bg-black text-white font-semibold rounded-lg hover:bg-gray-800 transition-colors">
+              Get in Touch
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
             </a>

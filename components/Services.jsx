@@ -2,35 +2,41 @@
 
 export default function Services({ services = [] }) {
   return (
-    <section id="services" className="section bg-slate-50">
+    <section id="services" className="section bg-white py-24">
       <div className="container mx-auto px-6">
-        <div className="text-center mb-16">
-          <div className="section-tag">What We Build</div>
-          <h2 className="section-title mx-auto">Full-Stack Digital Solutions</h2>
-          <p className="section-subtitle mx-auto text-center">
-            From frontend UI to cloud backend, AI integration, mobile apps and API development — our team handles every layer of the stack with zero outsourcing.
+        <div className="text-center mb-20 max-w-3xl mx-auto">
+          <div className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Our Services</div>
+          <h2 className="text-5xl md:text-6xl font-semibold text-black mb-6">
+            Full-Stack Digital Solutions
+          </h2>
+          <p className="text-lg text-gray-600">
+            From frontend to cloud backend, AI integration, mobile apps, and APIs — we handle every layer of your digital product with world-class craftsmanship.
           </p>
         </div>
 
         {services.length === 0 ? (
-          <div className="text-center py-20 text-slate-400">No services configured yet. Add services in the Admin panel.</div>
+          <div className="text-center py-20 text-gray-400">No services configured yet. Add services in the Admin panel.</div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {services.map((service, i) => (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {services.map((service) => (
               <div key={service.id}
-                className="card card-hover p-9 group cursor-default relative overflow-hidden"
-                style={{ animationDelay: `${i * 0.1}s` }}>
-                {/* Top accent line */}
-                <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-brand-green to-navy scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
-
-                <div className="w-14 h-14 bg-slate-100 rounded-xl flex items-center justify-center text-3xl mb-5 group-hover:bg-navy transition-colors duration-300">
+                className="border border-gray-200 rounded-lg p-8 hover:bg-gray-50 transition-colors duration-200 group cursor-default">
+                
+                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center text-2xl mb-6 group-hover:bg-gray-200 transition-colors">
                   {service.icon}
                 </div>
-                <h3 className="font-display text-xl text-navy mb-3">{service.name}</h3>
-                <p className="text-sm text-slate-500 leading-relaxed mb-5">{service.description}</p>
+
+                <h3 className="text-xl font-semibold text-black mb-3">
+                  {service.name}
+                </h3>
+
+                <p className="text-base text-gray-600 leading-relaxed mb-6">
+                  {service.description}
+                </p>
+
                 <div className="flex flex-wrap gap-2">
                   {(service.tags || []).map(tag => (
-                    <span key={tag} className="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-medium border border-slate-200">
+                    <span key={tag} className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-medium border border-gray-200">
                       {tag}
                     </span>
                   ))}

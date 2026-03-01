@@ -9,106 +9,89 @@ export default function About({ settings = {} }) {
   return (
     <section id="about" className="section bg-white">
       <div className="container mx-auto px-6">
-        <div className="grid lg:grid-cols-2 gap-20 items-center">
-          {/* Visual - Interactive Stats */}
-          <div className="relative">
-            <div className="rounded-3xl overflow-hidden aspect-[4/5] flex items-center justify-center relative bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
-              {/* Animated background elements */}
-              <div className="absolute inset-0 opacity-10">
-                <div className="absolute top-10 left-10 w-32 h-32 bg-brand-green rounded-full blur-3xl animate-pulse" />
-                <div className="absolute bottom-10 right-10 w-40 h-40 bg-brand-gold rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-                <div className="absolute top-1/2 left-1/3 w-28 h-28 bg-blue-500 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
-              </div>
+        <div className="grid lg:grid-cols-2 gap-16 items-start">
+          {/* Left side - Content */}
+          <div>
+            <div className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">About Us</div>
+            <h2 className="text-5xl md:text-6xl font-semibold text-black mb-8">
+              Technology Partner for African Businesses
+            </h2>
+            <p className="text-lg text-gray-600 leading-relaxed mb-6">
+              {aboutText}
+            </p>
+            <p className="text-base text-gray-600 leading-relaxed mb-12">
+              Headquartered in {address}, we are a first-mover technology provider focused on delivering world-class digital solutions that are accessible to every business across Africa.
+            </p>
 
-              {/* Stats grid */}
-              <div className="relative z-10 w-full h-full p-8 flex flex-col justify-between">
-                <div className="text-center mb-4">
-                  <div className="inline-block px-4 py-2 bg-brand-green/20 border border-brand-green/50 rounded-lg mb-3">
-                    <span className="text-brand-green text-xs font-bold uppercase tracking-wider">ANJAL DEVELOPERS TEAM</span>
-                  </div>
-                  <h3 className="text-white text-lg font-bold">Technical Excellence</h3>
-                </div>
-
-                {/* Stats boxes */}
-                <div className="grid grid-cols-2 gap-3 flex-1 flex items-center">
-                  {[
-                    { num: '42M', label: 'SMEs Underserved' },
-                    { num: '70%+', label: 'North-East Undigitised' },
-                    { num: '$100+', label: 'Starting Price' },
-                    { num: '6+', label: 'Service Verticals' },
-                  ].map((stat, i) => (
-                    <div key={i} className="bg-white/5 border border-white/10 rounded-lg p-4 backdrop-blur-sm hover:bg-white/10 transition-all hover:border-brand-green/50 hover:-translate-y-1">
-                      <div className="text-brand-green font-bold text-lg">{stat.num}</div>
-                      <div className="text-white/60 text-xs mt-1">{stat.label}</div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Bottom badges */}
-                <div className="flex flex-wrap gap-2 justify-center">
-                  {['🌍 Pan-African', '⚡ Full-Stack', '🏆 First-Mover', '🔒 No Lock-In', '💎 Premium QA', '🤖 AI-Powered'].map(t => (
-                    <span key={t} className="bg-white/8 border border-white/12 text-white text-xs font-semibold px-2.5 py-1 rounded-lg backdrop-blur-sm hover:bg-white/12 transition-all">
-                      {t.split(' ')[0]}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Registration card */}
-            <div className="absolute -bottom-6 -right-6 bg-white rounded-2xl shadow-2xl p-5 min-w-[200px] border border-slate-100">
-              <div className="text-xs font-bold text-navy uppercase tracking-widest mb-3">Company Registration</div>
-              {[['CAC BN', cac], ['TIN', tin], ['Established', 'Jan 30, 2026'], ['Status', '● ACTIVE']].map(([k, v]) => (
-                <div key={k} className="flex justify-between gap-4 py-1.5 border-b border-slate-100 last:border-0">
-                  <span className="text-[11px] text-slate-400">{k}</span>
-                  <span className={`text-[11px] font-semibold font-mono ${v.includes('ACTIVE') ? 'text-brand-green' : 'text-navy'}`}>{v}</span>
+            {/* Core values grid */}
+            <div className="grid grid-cols-2 gap-4">
+              {[
+                { title: 'Mission', desc: 'Delivering affordable, cutting-edge digital solutions that transform ideas into scalable technology.' },
+                { title: 'Vision', desc: 'Become a trusted pan-African technology partner for businesses and institutions.' },
+                { title: 'Quality', desc: 'World-class engineering standards applied to every project — no compromises.' },
+                { title: 'Ownership', desc: 'Full code ownership transferred to clients. Zero vendor lock-in.' },
+              ].map(v => (
+                <div key={v.title} className="p-6 rounded-lg bg-gray-50 border border-gray-200 hover:bg-gray-100 transition-colors">
+                  <div className="font-semibold text-black text-sm mb-2">{v.title}</div>
+                  <p className="text-xs text-gray-600 leading-relaxed">{v.desc}</p>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Content */}
-          <div>
-            <div className="section-tag">About Anjal Ventures</div>
-            <h2 className="section-title">Nigeria's Premier Digital Technology Partner</h2>
-            <p className="text-slate-500 leading-relaxed mb-4">{aboutText}</p>
-            <p className="text-slate-500 leading-relaxed mb-8 text-sm">
-              Operating under the technical brand <strong className="text-navy">Anjal Developers Team</strong>, we are headquartered in {address} — strategically positioned as a first-mover technology provider in one of Nigeria's most digitally underserved regions. Our work is not theoretical; we have already built and launched live, publicly accessible digital products serving users across multiple countries.
-            </p>
-
-            <div className="grid grid-cols-2 gap-4">
-              {[
-                { icon: '🎯', title: 'Mission', desc: 'Delivering cutting-edge, affordable digital solutions that transform ideas into scalable, impactful technology — accessible to every business across Africa.' },
-                { icon: '👁️', title: 'Vision', desc: 'To become the foremost technology solutions provider in North-East Nigeria and a trusted pan-African digital partner for businesses and institutions.' },
-                { icon: '💎', title: 'Excellence', desc: 'World-class engineering standards applied to every project — no compromises on quality, security or performance.' },
-                { icon: '🔒', title: 'Client Ownership', desc: 'Full source code, domain and hosting ownership transferred to every client. Zero vendor lock-in. Always.' },
-              ].map(v => (
-                <div key={v.title} className="p-5 rounded-xl bg-slate-50 border border-slate-200 hover:border-brand-green hover:bg-brand-green-pale transition-all group cursor-default">
-                  <div className="text-2xl mb-2">{v.icon}</div>
-                  <div className="font-bold text-navy text-sm mb-1.5">{v.title}</div>
-                  <p className="text-xs text-slate-500 leading-relaxed">{v.desc}</p>
+          {/* Right side - Info card */}
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-12">
+            <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-8">Company Information</h3>
+            
+            <div className="space-y-8">
+              {/* Registration details */}
+              <div>
+                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-4">Registration Details</div>
+                <div className="space-y-3">
+                  {[['CAC BN', cac], ['TIN', tin], ['Status', 'Active']].map(([k, v]) => (
+                    <div key={k} className="flex justify-between items-center pb-3 border-b border-gray-200 last:pb-0 last:border-0">
+                      <span className="text-sm text-gray-600">{k}</span>
+                      <span className="text-sm font-semibold text-black font-mono">{v}</span>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </div>
+
+              {/* Key stats */}
+              <div className="pt-8 border-t border-gray-200">
+                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-4">Key Metrics</div>
+                <div className="grid grid-cols-2 gap-4">
+                  {[
+                    { num: '40+', label: 'Projects' },
+                    { num: '70%', label: 'North Africa' },
+                  ].map(s => (
+                    <div key={s.label}>
+                      <div className="text-2xl font-semibold text-black">{s.num}</div>
+                      <div className="text-xs text-gray-600 mt-1">{s.label}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Stats band */}
-      <div className="mt-24 bg-navy">
+      {/* Stats section */}
+      <div className="mt-24 bg-gray-50 border-y border-gray-200">
         <div className="container mx-auto px-6 py-16">
-          <div className="grid grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-12">
             {[
-              { num: settings.stats_smes || '42', suffix: 'M+', label: 'Nigerian SMEs Underserved' },
-              { num: settings.stats_undigitised || '70', suffix: '%+', label: 'North-East Undigitised' },
-              { num: settings.stats_starting_price || '100', prefix: '$', suffix: '+', label: 'Websites Starting From' },
-              { num: settings.stats_services || '6', suffix: '+', label: 'Service Verticals' },
+              { num: settings.stats_smes || '42', suffix: 'M+', label: 'African SMEs' },
+              { num: settings.stats_undigitised || '70', suffix: '%', label: 'Digitization Gap' },
+              { num: settings.stats_starting_price || '100', prefix: '$', suffix: '+', label: 'Website Pricing' },
+              { num: settings.stats_services || '6', suffix: '+', label: 'Service Lines' },
             ].map((s, i) => (
-              <div key={i} className="py-8 px-6 text-center border-r border-white/8 last:border-r-0 first:border-l-0">
-                <div className="font-display text-5xl font-bold text-white mb-2">
+              <div key={i} className="py-4 text-center">
+                <div className="text-4xl font-semibold text-black mb-2">
                   {s.prefix}{s.num}{s.suffix}
                 </div>
-                <div className="text-sm text-white/40">{s.label}</div>
+                <div className="text-sm text-gray-600">{s.label}</div>
               </div>
             ))}
           </div>

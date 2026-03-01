@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 
-const AnimatedCounter = ({ end, duration = 2000, label }) => {
+const AnimatedCounter = ({ end, label }) => {
   const [count, setCount] = useState(0)
   const [isVisible, setIsVisible] = useState(false)
   const ref = useRef(null)
@@ -27,15 +27,9 @@ const AnimatedCounter = ({ end, duration = 2000, label }) => {
     let startTime = Date.now()
     const timer = setInterval(() => {
       const elapsed = Date.now() - startTime
-      const progress = Math.min(elapsed / duration, 1)
+      const progress = Math.min(elapsed / 2000, 1)
 
-      if (label.includes('%')) {
-        setCount(Math.floor(progress * end))
-      } else if (label === 'Companies') {
-        setCount(Math.floor(progress * end))
-      } else {
-        setCount(Math.floor(progress * end))
-      }
+      setCount(Math.floor(progress * end))
 
       if (progress === 1) {
         clearInterval(timer)
@@ -43,92 +37,65 @@ const AnimatedCounter = ({ end, duration = 2000, label }) => {
     }, 50)
 
     return () => clearInterval(timer)
-  }, [isVisible, end, duration, label])
+  }, [isVisible, end])
 
   return (
     <div ref={ref} className="text-center">
-      <div className="text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-brand-gold to-brand-green mb-3">
+      <div className="text-4xl md:text-5xl font-semibold text-black mb-2">
         {count}
-        {label === 'Companies' ? '+' : label === 'Client Success' ? '%' : ''}
+        {label === 'Success Rate' ? '%' : '+'}
       </div>
-      <p className="text-white/70 text-lg font-semibold">{label}</p>
+      <p className="text-gray-600 text-sm font-medium">{label}</p>
     </div>
   )
 }
 
 export default function StatsSection() {
   const stats = [
-    { end: 42, label: 'Companies' },
-    { end: 87, label: 'Client Success' },
-    { end: 15, label: 'Years Combined Experience' },
-    { end: 100, label: 'Code Ownership %' }
+    { end: 40, label: 'Projects Delivered' },
+    { end: 87, label: 'Success Rate' },
+    { end: 15, label: 'Years Experience' },
+    { end: 100, label: 'Code Ownership' }
   ]
 
   return (
-    <section className="py-24 bg-gradient-to-br from-navy via-slate-900 to-navy relative overflow-hidden">
-      {/* Background animation */}
-      <div className="absolute inset-0 opacity-20">
-        <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-gradient-to-br from-brand-gold to-transparent rounded-full mix-blend-screen filter blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-gradient-to-tr from-brand-green to-transparent rounded-full mix-blend-screen filter blur-3xl" />
-      </div>
-
-      <div className="relative z-10 container mx-auto px-6">
-        {/* Section header */}
-        <div className="text-center mb-20">
-          <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
-            Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-gold to-brand-green">Track Record</span>
+    <section className="py-20 bg-white border-t border-gray-200">
+      <div className="container mx-auto px-6 max-w-5xl">
+        {/* Header */}
+        <div className="text-center mb-16 max-w-2xl mx-auto">
+          <h2 className="text-4xl font-semibold text-black mb-4">
+            Proven Track Record
           </h2>
-          <p className="text-xl text-white/60 max-w-2xl mx-auto">
-            Numbers that speak volumes about our commitment to excellence
-          </p>
+          <div className="w-12 h-1 bg-black mx-auto" />
         </div>
 
-        {/* Stats grid with glass effect */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-20">
+        {/* Stats grid */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-12 mb-16">
           {stats.map((stat, index) => (
-            <div
-              key={index}
-              className="group relative p-8 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 hover:border-brand-gold/50 transition-all duration-300 hover:bg-white/10 hover:shadow-2xl"
-            >
-              {/* Gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-br from-brand-gold/0 via-transparent to-brand-green/0 group-hover:from-brand-gold/10 group-hover:to-brand-green/10 rounded-2xl transition-all duration-300 pointer-events-none" />
-
-              {/* Content */}
-              <div className="relative">
-                <AnimatedCounter end={stat.end} label={stat.label} />
-              </div>
-
-              {/* Decorative element */}
-              <div className="absolute top-0 right-0 w-20 h-20 bg-brand-gold/5 rounded-full group-hover:bg-brand-gold/10 transition-all duration-300 -mr-10 -mt-10 group-hover:scale-150 blur-2xl" />
-            </div>
+            <AnimatedCounter key={index} end={stat.end} label={stat.label} />
           ))}
         </div>
 
-        {/* Value propositions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {[
-            {
-              icon: '⚡',
-              title: 'Lightning Fast Delivery',
-              description: 'Agile methodologies mean your project launches when you need it, not months later.'
-            },
-            {
-              icon: '🛡️',
-              title: 'Enterprise Security',
-              description: 'Bank-level encryption and compliance with international data protection standards.'
-            },
-            {
-              icon: '🚀',
-              title: 'Scalable Architecture',
-              description: 'From MVP to millions of users—your infrastructure grows with your business.'
-            }
-          ].map((prop, i) => (
-            <div key={i} className="group p-8 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 hover:border-brand-gold/50 transition-all hover:bg-white/10">
-              <div className="text-5xl mb-4 group-hover:scale-110 transition-transform">{prop.icon}</div>
-              <h3 className="text-xl font-bold text-white mb-2">{prop.title}</h3>
-              <p className="text-white/60 group-hover:text-white/80 transition-colors">{prop.description}</p>
-            </div>
-          ))}
+        {/* Three value propositions */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 pt-16 border-t border-gray-200">
+          <div>
+            <h3 className="text-lg font-semibold text-black mb-3">Delivered On Time</h3>
+            <p className="text-gray-600 text-sm leading-relaxed">
+              We respect your timeline. Agile methodology ensures predictable delivery with regular updates and transparent communication.
+            </p>
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-black mb-3">Enterprise Grade</h3>
+            <p className="text-gray-600 text-sm leading-relaxed">
+              Bank-level security, GDPR compliance, and scalable architecture built to handle millions of users without compromise.
+            </p>
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-black mb-3">Complete Ownership</h3>
+            <p className="text-gray-600 text-sm leading-relaxed">
+              100% code ownership. Full documentation, no vendor lock-in, and seamless handoff to your team when you're ready.
+            </p>
+          </div>
         </div>
       </div>
     </section>

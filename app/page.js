@@ -1,17 +1,16 @@
 import { Toaster } from 'react-hot-toast'
 import Navbar from '@/components/Navbar'
 import HeroEnhanced from '@/components/HeroEnhanced'
+import StatsSection from '@/components/StatsSection'  
 import TestimonialsCarousel from '@/components/TestimonialsCarousel'
-import StatsSection from '@/components/StatsSection'
-import EnhancedCTA from '@/components/EnhancedCTA'
-import CaseStudies from '@/components/CaseStudies'
 import ProcessTimeline from '@/components/ProcessTimeline'
-import FAQSection from '@/components/FAQSection'
 import MarqueeBanner from '@/components/MarqueeBanner'
 import About from '@/components/About'
 import Services from '@/components/Services'
 import Portfolio from '@/components/Portfolio'
 import Pricing from '@/components/Pricing'
+import FAQSection from '@/components/FAQSection'
+import EnhancedCTA from '@/components/EnhancedCTA'
 import EstimatorAndQuotation from '@/components/EstimatorAndQuotation'
 import Contact from '@/components/Contact'
 import { Footer, WhatsAppButton } from '@/components/Footer'
@@ -61,8 +60,7 @@ export default async function HomePage() {
       <Navbar settings={settings} />
       <HeroEnhanced />
       <StatsSection />
-      <TestimonialsCarousel />
-      <CaseStudies />
+      <TestimonialsCarousel testimonials={[]} />
       <ProcessTimeline />
       <MarqueeBanner services={services} />
       <About settings={settings} />

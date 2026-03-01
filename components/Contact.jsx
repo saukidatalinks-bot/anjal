@@ -67,78 +67,87 @@ export default function Contact({ settings = {}, services = [] }) {
   const phone = settings.company_phone || '+234 000 000 0000'
 
   return (
-    <section id="contact" className="section bg-navy">
+    <section id="contact" className="section bg-white py-24">
       <div className="container mx-auto px-6">
         <div className="grid lg:grid-cols-5 gap-16 items-start">
           {/* Left Info */}
           <div className="lg:col-span-2">
-            <div className="inline-flex items-center gap-2 bg-brand-green/15 border border-brand-green/30 text-brand-green-light px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-widest mb-5">
-              <span className="w-1.5 h-1.5 bg-brand-green-light rounded-full" />
-              Get In Touch
-            </div>
-            <h2 className="font-display text-4xl text-white mb-5 leading-tight">
-              Ready to Build Your Digital Future?
+            <div className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Contact Us</div>
+            <h2 className="text-4xl font-semibold text-black mb-6 leading-tight">
+              Ready to start your project?
             </h2>
-            <p className="text-white/55 leading-relaxed mb-8 text-sm">
-              From a simple business website to an enterprise SaaS platform — we're ready to deliver. Contact us today for a free consultation and let's discuss your project.
+            <p className="text-gray-600 leading-relaxed mb-10 text-base">
+              From a simple business website to an enterprise platform — we're ready to help. Contact us for a free consultation.
             </p>
 
             {[
-              { icon: '📧', label: 'Primary Email', value: email1, href: `mailto:${email1}` },
-              { icon: '📩', label: 'Business Email', value: email2, href: `mailto:${email2}` },
-              { icon: '📞', label: 'Phone', value: phone, href: `tel:${phone}` },
-              { icon: '💬', label: 'WhatsApp', value: 'Chat on WhatsApp →', href: `https://wa.me/${wa.replace(/[^0-9]/g,'')}` },
-              { icon: '📍', label: 'Headquarters', value: address, href: null },
-              { icon: '🏛️', label: 'Registration', value: `CAC ${settings.company_cac || 'BN 9258709'}`, href: null },
-            ].map(({ icon, label, value, href }) => (
-              <div key={label} className="flex items-start gap-4 mb-5">
-                <div className="w-11 h-11 bg-white/8 rounded-xl flex items-center justify-center text-lg flex-shrink-0">
-                  {icon}
-                </div>
-                <div>
-                  <div className="text-xs text-white/40 uppercase tracking-widest font-semibold mb-1">{label}</div>
-                  {href
-                    ? <a href={href} target={href.startsWith('http') ? '_blank' : '_self'} rel="noopener"
-                        className="text-white text-sm font-medium hover:text-brand-green-light transition-colors">{value}</a>
-                    : <span className="text-white text-sm font-medium">{value}</span>
-                  }
-                </div>
+              { label: 'Email', value: email1, href: `mailto:${email1}` },
+              { label: 'Alternative Email', value: email2, href: `mailto:${email2}` },
+              { label: 'Phone', value: phone, href: `tel:${phone}` },
+              { label: 'WhatsApp', value: 'Chat on WhatsApp', href: `https://wa.me/${wa.replace(/[^0-9]/g,'')}` },
+              { label: 'Location', value: address, href: null },
+            ].map(({ label, value, href }) => (
+              <div key={label} className="mb-6">
+                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">{label}</div>
+                {href
+                  ? <a href={href} target={href.startsWith('http') ? '_blank' : '_self'} rel="noopener"
+                      className="text-black font-medium hover:text-gray-600 transition-colors">{value}</a>
+                  : <span className="text-black font-medium">{value}</span>
+                }
               </div>
             ))}
           </div>
 
           {/* Right Form */}
           <div className="lg:col-span-3">
-            <div className="bg-white rounded-2xl p-8 lg:p-10">
-              <h3 className="font-display text-2xl text-navy mb-7">Send Us a Message</h3>
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-10">
+              <h3 className="text-2xl font-semibold text-black mb-8">Send us a message</h3>
 
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div>
-                  <label className="label">Full Name *</label>
-                  <input className="input-field" placeholder="Your full name" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
+                  <label className="block text-sm font-medium text-black mb-2">Full Name *</label>
+                  <input className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-black transition-colors" 
+                    placeholder="Your full name" 
+                    value={form.name} 
+                    onChange={e => setForm({ ...form, name: e.target.value })} 
+                  />
                 </div>
                 <div>
-                  <label className="label">Email *</label>
-                  <input type="email" className="input-field" placeholder="your@email.com" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
+                  <label className="block text-sm font-medium text-black mb-2">Email *</label>
+                  <input type="email" className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-black transition-colors" 
+                    placeholder="your@email.com" 
+                    value={form.email} 
+                    onChange={e => setForm({ ...form, email: e.target.value })} 
+                  />
                 </div>
               </div>
+
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div>
-                  <label className="label">Phone / WhatsApp</label>
-                  <input className="input-field" placeholder="+234 000 000 0000" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} />
+                  <label className="block text-sm font-medium text-black mb-2">Phone / WhatsApp</label>
+                  <input className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-black transition-colors" 
+                    placeholder="+234 000 000 0000" 
+                    value={form.phone} 
+                    onChange={e => setForm({ ...form, phone: e.target.value })} 
+                  />
                 </div>
                 <div>
-                  <label className="label">Service Interested In</label>
-                  <select className="input-field" value={form.service} onChange={e => setForm({ ...form, service: e.target.value })}>
+                  <label className="block text-sm font-medium text-black mb-2">Service Interested In</label>
+                  <select className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-black transition-colors focus:ring-0" 
+                    value={form.service} 
+                    onChange={e => setForm({ ...form, service: e.target.value })}>
                     <option value="">Select a service...</option>
                     {services.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
-                    <option value="Other / Consultation">Other / Consultation</option>
+                    <option value="Other">Other / Consultation</option>
                   </select>
                 </div>
               </div>
+
               <div className="mb-4">
-                <label className="label">Budget Range</label>
-                <select className="input-field" value={form.budget} onChange={e => setForm({ ...form, budget: e.target.value })}>
+                <label className="block text-sm font-medium text-black mb-2">Budget Range</label>
+                <select className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-black transition-colors focus:ring-0" 
+                  value={form.budget} 
+                  onChange={e => setForm({ ...form, budget: e.target.value })}>
                   <option value="">Select a budget range...</option>
                   <option>$100 – $300 (Starter)</option>
                   <option>$300 – $700 (Business)</option>
@@ -147,23 +156,29 @@ export default function Contact({ settings = {}, services = [] }) {
                   <option>Let's discuss</option>
                 </select>
               </div>
-              <div className="mb-6">
-                <label className="label">Your Message *</label>
-                <textarea className="input-field" rows={5} placeholder="Tell us about your project, goals and any specific requirements..." value={form.message} onChange={e => setForm({ ...form, message: e.target.value })} />
+
+              <div className="mb-8">
+                <label className="block text-sm font-medium text-black mb-2">Your Message *</label>
+                <textarea className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-black transition-colors" 
+                  rows={5} 
+                  placeholder="Tell us about your project, goals and requirements..." 
+                  value={form.message} 
+                  onChange={e => setForm({ ...form, message: e.target.value })} 
+                />
               </div>
 
               {sent ? (
-                <div className="bg-brand-green-pale border border-brand-green rounded-xl p-5 text-center text-brand-green font-semibold">
-                  ✅ Message sent! We'll respond within 24 hours.
+                <div className="bg-gray-100 border border-gray-300 rounded-lg p-4 text-center text-black font-semibold text-sm mb-4">
+                  ✓ Message sent! We'll respond within 24 hours.
                 </div>
-              ) : (
-                <button onClick={handleSubmit} disabled={loading}
-                  className="btn btn-green w-full justify-center py-4 text-base">
-                  {loading ? 'Sending...' : 'Send Message →'}
-                </button>
-              )}
+              ) : null}
 
-              <p className="text-xs text-slate-400 text-center mt-4">
+              <button onClick={handleSubmit} disabled={loading}
+                className="w-full px-6 py-3 bg-black text-white font-semibold rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 text-base">
+                {loading ? 'Sending...' : 'Send Message →'}
+              </button>
+
+              <p className="text-xs text-gray-500 text-center mt-4">
                 By submitting, you agree to our Terms & Conditions and Privacy Policy.
               </p>
             </div>
