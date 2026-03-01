@@ -2,9 +2,34 @@
 
 import { useState, useEffect } from 'react'
 
-export default function TestimonialsCarousel({ testimonials = [] }) {
+export default function TestimonialsCarousel({ testimonials: initialTestimonials = [] }) {
   const [current, setCurrent] = useState(0)
+  const [testimonials, setTestimonials] = useState(initialTestimonials)
+  const [loading, setLoading] = useState(false)
 
+  // Fetch fresh testimonials on mount and periodically
+  useEffect(() => {
+    const fetchTestimonials = async () => {
+      try {
+        const res = await fetch('/api/testimonials/approved')
+        const data = await res.json()
+        if (data.testimonials) {
+          setTestimonials(data.testimonials)
+          console.log(`[TestimonialsCarousel] Fetched ${data.testimonials.length} approved testimonials`)
+        }
+      } catch (error) {
+        console.error('[TestimonialsCarousel] Error fetching testimonials:', error)
+      }
+    }
+
+    // Fetch on mount
+    fetchTestimonials()
+
+    // Refresh every 10 seconds to catch admin changes
+    const interval = setInterval(fetchTestimonials, 10000)
+    
+    return () => clearInterval(interval)
+  }, [])
   // Debug logging
   useEffect(() => {
     if (testimonials.length > 0) {
