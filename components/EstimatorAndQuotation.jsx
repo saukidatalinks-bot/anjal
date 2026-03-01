@@ -164,18 +164,17 @@ export default function EstimatorAndQuotation({ settings = {}, calculator = {} }
     doc.setFillColor(10, 22, 40)
     doc.roundedRect(margin, y, contentW, 10, 2, 2, 'F')
     doc.setFont('helvetica', 'bold')
-    doc.setFontSize(8)
+    doc.setFontSize(7.5)
     doc.setTextColor(255, 255, 255)
     doc.text('#', margin + 4, y + 6.5)
     doc.text('Item / Service', margin + 12, y + 6.5)
-    doc.text('Category', pageW - margin - 55, y + 6.5)
-    doc.text('Price (USD)', pageW - margin - 28, y + 6.5)
-    doc.text('Price (NGN)', pageW - margin - 6, y + 6.5, { align: 'right' })
+    doc.text('Category', pageW - margin - 60, y + 6.5)
+    doc.text('Price', pageW - margin - 20, y + 6.5, { align: 'center' })
     y += 10
 
     // Table Rows
     selectedItems.forEach((item, idx) => {
-      const rowH = 11
+      const rowH = 18
       const itemNaira = Math.round(parseFloat(item.base_price || 0) * NAIRA_TO_DOLLAR)
 
       // Check if we need a new page
@@ -192,25 +191,29 @@ export default function EstimatorAndQuotation({ settings = {}, calculator = {} }
       doc.setFont('helvetica', 'normal')
       doc.setFontSize(8)
       doc.setTextColor(10, 22, 40)
-      doc.text(String(idx + 1), margin + 4, y + 6.5)
+      doc.text(String(idx + 1), margin + 4, y + 3.5)
 
       const nameLines = doc.splitTextToSize(item.name, 50)
       if (nameLines.length > 1) {
-        doc.text(nameLines[0], margin + 12, y + 6.5)
+        doc.text(nameLines[0], margin + 12, y + 3.5)
         nameLines.slice(1).forEach((line, li) => {
-          doc.text(line, margin + 12, y + 6.5 + (li + 1) * 5)
+          doc.text(line, margin + 12, y + 3.5 + (li + 1) * 4)
         })
       } else {
-        doc.text(item.name, margin + 12, y + 6.5)
+        doc.text(item.name, margin + 12, y + 3.5)
       }
 
       doc.setTextColor(100, 116, 139)
-      doc.text(item.cat || '—', pageW - margin - 55, y + 6.5)
+      doc.setFontSize(7.5)
+      doc.text(item.cat || '—', pageW - margin - 60, y + 3.5)
 
       doc.setTextColor(22, 163, 74)
       doc.setFont('helvetica', 'bold')
-      doc.text(`$${parseFloat(item.base_price).toFixed(2)}`, pageW - margin - 28, y + 6.5)
-      doc.text(`₦${itemNaira.toLocaleString()}`, pageW - margin - 6, y + 6.5, { align: 'right' })
+      doc.setFontSize(7.5)
+      // USD price on first line
+      doc.text(`$${parseFloat(item.base_price).toFixed(2)}`, pageW - margin - 4, y + 3.5, { align: 'right' })
+      // Naira price on second line
+      doc.text(`₦${itemNaira.toLocaleString()}`, pageW - margin - 4, y + 9.5, { align: 'right' })
 
       doc.setTextColor(226, 232, 240)
       doc.line(margin, y + rowH, margin + contentW, y + rowH)
@@ -220,16 +223,17 @@ export default function EstimatorAndQuotation({ settings = {}, calculator = {} }
     // Total
     y += 6
     doc.setFillColor(10, 22, 40)
-    doc.roundedRect(margin, y, contentW, 14, 2, 2, 'F')
+    doc.roundedRect(margin, y, contentW, 20, 2, 2, 'F')
     doc.setFont('helvetica', 'bold')
     doc.setFontSize(10)
     doc.setTextColor(255, 255, 255)
-    doc.text('TOTAL ESTIMATE', margin + 6, y + 9)
+    doc.text('TOTAL ESTIMATE', margin + 6, y + 6)
 
     doc.setTextColor(22, 163, 74)
-    doc.text(`$${total.toFixed(2)} USD`, pageW - margin - 28, y + 9)
-    doc.text(`₦${totalNaira.toLocaleString()}`, pageW - margin - 6, y + 9, { align: 'right' })
-    y += 18
+    doc.setFontSize(9)
+    doc.text(`$${total.toFixed(2)} USD`, pageW - margin - 6, y + 6, { align: 'right' })
+    doc.text(`₦${totalNaira.toLocaleString()}`, pageW - margin - 6, y + 14, { align: 'right' })
+    y += 26
 
     // Additional Notes Section
     if (form.notes) {
