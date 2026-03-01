@@ -11,51 +11,61 @@ export default function HeroSection() {
   }, [])
 
   return (
-    <section ref={heroRef} className="relative min-h-screen w-full bg-white pt-32 pb-20 flex items-center">
-      <div className="container mx-auto px-6 max-w-5xl">
+    <section ref={heroRef} className="relative min-h-screen w-full overflow-hidden pt-32 pb-20 flex items-center">
+      {/* Subtle background gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-white via-white to-gray-50 pointer-events-none" />
+      
+      {/* Refined accent elements */}
+      <div className="absolute top-20 right-0 w-96 h-96 bg-gradient-to-br from-gray-100/40 to-transparent rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-80 h-80 bg-gradient-to-tr from-gray-50/60 to-transparent rounded-full blur-3xl pointer-events-none" />
+
+      <div className="container mx-auto px-6 max-w-5xl relative z-10">
         <div className={`transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-          {/* Badge */}
+          {/* Premium badge */}
           <div className="inline-block mb-8">
-            <div className="px-3 py-1 border border-gray-300 rounded-full text-sm font-medium text-gray-600">
-              Crafting Digital Excellence Since 2023
+            <div className="px-4 py-2 border border-gray-300/80 rounded-full text-xs font-semibold text-gray-700 bg-white/50 backdrop-blur-sm hover:border-gray-400 transition-all">
+              → Crafting Digital Excellence Since 2023
             </div>
           </div>
 
-          {/* Main heading */}
-          <h1 className="text-6xl md:text-7xl font-semibold text-black mb-8 leading-tight">
+          {/* Main heading with premium typography */}
+          <h1 className="text-6xl md:text-7xl lg:text-8xl font-semibold text-black mb-8 leading-tight tracking-tight">
             Building Digital 
-            Solutions That Elevate 
-            Your Business
+            Solutions That 
+            <span className="relative block">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-black via-gray-800 to-black">Elevate Your Business</span>
+            </span>
           </h1>
 
-          {/* Subheading */}
-          <p className="text-xl text-gray-600 mb-12 max-w-2xl leading-relaxed">
-            From concept to production. We craft elegant, scalable digital products for companies that demand excellence. Based in Nigeria. Serving Africa and beyond.
+          {/* Premium subheading */}
+          <p className="text-lg md:text-xl text-gray-700 mb-12 max-w-3xl leading-relaxed font-light">
+            From concept to production. We craft elegant, scalable digital products for companies that demand excellence. Based in Damaturu, Nigeria. Serving Africa and beyond.
           </p>
 
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-6 mb-16">
-            <a href="#quotation" className="px-8 py-4 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors text-center">
+          {/* Premium CTA Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 mb-20">
+            <a href="#quotation" className="group px-8 py-4 bg-black text-white rounded-xl font-semibold hover:bg-gray-900 hover:shadow-2xl transition-all duration-300 text-center border border-black/10">
               Get a Quote
+              <span className="ml-2 group-hover:translate-x-1 inline-block transition-transform">→</span>
             </a>
-            <a href="#contact" className="px-8 py-4 border border-black text-black rounded-lg font-semibold hover:bg-gray-50 transition-colors text-center">
+            <a href="#contact" className="px-8 py-4 border-2 border-gray-300 text-black rounded-xl font-semibold hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 text-center">
               Schedule Consultation
             </a>
           </div>
 
-          {/* Trust metrics */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-8 pt-12 border-t border-gray-200">
-            <div>
-              <div className="text-base font-semibold text-black mb-1">40+</div>
-              <div className="text-sm text-gray-600">Projects Delivered</div>
+          {/* Trust metrics with subtle dividers */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-8 md:gap-12 pt-16 border-t border-gray-200">
+            <div className="group hover:opacity-80 transition-opacity">
+              <div className="text-3xl md:text-4xl font-bold text-black mb-2 bg-gradient-to-r from-black to-gray-700 bg-clip-text text-transparent">40+</div>
+              <div className="text-sm text-gray-600 font-medium">Projects Delivered</div>
             </div>
-            <div>
-              <div className="text-base font-semibold text-black mb-1">100%</div>
-              <div className="text-sm text-gray-600">Code Ownership</div>
+            <div className="group hover:opacity-80 transition-opacity">
+              <div className="text-3xl md:text-4xl font-bold text-black mb-2 bg-gradient-to-r from-black to-gray-700 bg-clip-text text-transparent">100%</div>
+              <div className="text-sm text-gray-600 font-medium">Code Ownership</div>
             </div>
-            <div>
-              <div className="text-base font-semibold text-black mb-1">24/7</div>
-              <div className="text-sm text-gray-600">Support Available</div>
+            <div className="group hover:opacity-80 transition-opacity">
+              <div className="text-3xl md:text-4xl font-bold text-black mb-2 bg-gradient-to-r from-black to-gray-700 bg-clip-text text-transparent">24/7</div>
+              <div className="text-sm text-gray-600 font-medium">Support Available</div>
             </div>
           </div>
         </div>

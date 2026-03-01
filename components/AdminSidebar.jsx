@@ -10,6 +10,7 @@ const navItems = [
   { href: '/admin/services', label: 'Services', icon: '⚡' },
   { href: '/admin/pricing', label: 'Pricing Plans', icon: '💰' },
   { href: '/admin/calculator', label: 'Calculator Items', icon: '🧮' },
+  { href: '/admin/testimonials', label: 'Testimonials', icon: '⭐' },
   { href: '/admin/contacts', label: 'Contact Messages', icon: '📩' },
   { href: '/admin/quotations', label: 'Quotations', icon: '📋' },
   { href: '/admin/settings', label: 'Site Settings', icon: '⚙️' },
