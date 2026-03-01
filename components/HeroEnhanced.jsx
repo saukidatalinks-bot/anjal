@@ -11,13 +11,14 @@ export default function HeroSection() {
   }, [])
 
   return (
-    <section ref={heroRef} className="relative min-h-screen w-full overflow-hidden pt-32 pb-20 flex items-center">
-      {/* Subtle background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-white via-white to-gray-50 pointer-events-none" />
+    <section ref={heroRef} className="relative min-h-screen w-full overflow-hidden pt-32 pb-20 flex items-center bg-gradient-to-br from-apple-light via-white to-gray-100">
+      {/* Sophisticated background gradient with depth */}
+      <div className="absolute inset-0 bg-apple-gradient pointer-events-none opacity-60" />
       
-      {/* Refined accent elements */}
-      <div className="absolute top-20 right-0 w-96 h-96 bg-gradient-to-br from-gray-100/40 to-transparent rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-80 h-80 bg-gradient-to-tr from-gray-50/60 to-transparent rounded-full blur-3xl pointer-events-none" />
+      {/* Premium accent elements with refined blur */}
+      <div className="absolute top-20 right-0 w-96 h-96 bg-gradient-to-br from-blue-100/30 to-transparent rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-80 h-80 bg-gradient-to-tr from-slate-100/40 to-transparent rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/2 left-1/3 w-64 h-64 bg-gradient-to-br from-indigo-100/20 to-transparent rounded-full blur-3xl pointer-events-none" />
 
       <div className="container mx-auto px-6 max-w-5xl relative z-10">
         <div className={`transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>

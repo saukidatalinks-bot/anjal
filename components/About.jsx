@@ -7,19 +7,21 @@ export default function About({ settings = {} }) {
   const address = settings.company_address || 'Damaturu, Yobe State, Nigeria'
 
   return (
-    <section id="about" className="section bg-white">
+    <section id="about" className="section bg-gradient-to-r from-apple-light via-white to-apple-light py-24">
       <div className="container mx-auto px-6">
         <div className="grid lg:grid-cols-2 gap-16 items-start">
           {/* Left side - Content */}
           <div>
-            <div className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">About Us</div>
-            <h2 className="text-5xl md:text-6xl font-semibold text-black mb-8">
+            <div className="inline-block mb-4 px-4 py-2 rounded-full text-xs font-semibold text-apple-blue bg-blue-50 border border-blue-100">
+              → About Anjal Ventures
+            </div>
+            <h2 className="text-5xl md:text-6xl font-semibold text-apple-dark mb-8">
               Technology Partner for African Businesses
             </h2>
-            <p className="text-lg text-gray-600 leading-relaxed mb-6">
+            <p className="text-lg text-apple-space-gray leading-relaxed mb-6 font-light">
               {aboutText}
             </p>
-            <p className="text-base text-gray-600 leading-relaxed mb-12">
+            <p className="text-base text-apple-space-gray leading-relaxed mb-12 font-light">
               Headquartered in {address}, we are a first-mover technology provider focused on delivering world-class digital solutions that are accessible to every business across Africa.
             </p>
 
@@ -31,9 +33,9 @@ export default function About({ settings = {} }) {
                 { title: 'Quality', desc: 'World-class engineering standards applied to every project — no compromises.' },
                 { title: 'Ownership', desc: 'Full code ownership transferred to clients. Zero vendor lock-in.' },
               ].map(v => (
-                <div key={v.title} className="p-6 rounded-lg bg-gray-50 border border-gray-200 hover:bg-gray-100 transition-colors">
-                  <div className="font-semibold text-black text-sm mb-2">{v.title}</div>
-                  <p className="text-xs text-gray-600 leading-relaxed">{v.desc}</p>
+                <div key={v.title} className="p-6 rounded-xl bg-white border border-apple-light-secondary hover:bg-apple-light hover:border-apple-space-gray transition-all shadow-sm">
+                  <div className="font-semibold text-apple-dark text-sm mb-2">{v.title}</div>
+                  <p className="text-xs text-apple-space-gray leading-relaxed font-light">{v.desc}</p>
                 </div>
               ))}
             </div>

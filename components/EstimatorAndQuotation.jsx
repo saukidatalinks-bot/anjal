@@ -303,13 +303,15 @@ export default function EstimatorAndQuotation({ settings = {}, calculator = {} }
   }
 
   return (
-    <section id="estimator-quotation" className="section bg-white">
+    <section id="estimator-quotation" className="section bg-gradient-to-br from-apple-light via-white to-apple-light py-24">
       <div className="container mx-auto px-6 max-w-6xl">
-        <div className="text-center mb-12">
-          <div className="section-tag">Project Estimator & Quotation</div>
-          <h2 className="section-title">Design Your Project & Get Instant Estimate</h2>
-          <p className="section-subtitle mx-auto text-center">
-            Step 1: Configure your project requirements below · Step 2: Fill your details · Step 3: Download your professional quotation PDF
+        <div className="text-center mb-20">
+          <div className="inline-block mb-4 px-4 py-2 rounded-full text-xs font-semibold text-apple-blue bg-blue-50 border border-blue-100">
+            → Estimate Calculator
+          </div>
+          <h2 className="text-5xl md:text-6xl font-semibold text-apple-dark mb-6">Design Your Project & Get Instant Estimate</h2>
+          <p className="text-lg text-apple-space-gray max-w-2xl mx-auto font-light">
+            Step 1: Configure your project requirements · Step 2: Fill your details · Step 3: Download your professional quotation
           </p>
         </div>
 
@@ -318,18 +320,18 @@ export default function EstimatorAndQuotation({ settings = {}, calculator = {} }
           <div className="lg:col-span-2 space-y-8">
             {/* Project Type */}
             {types.length > 0 && (
-              <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-                <label className="text-lg font-bold text-navy mb-4 block">🎯 Project Type</label>
+              <div className="bg-white rounded-2xl p-6 shadow-sm border border-apple-light-secondary">
+                <label className="text-lg font-bold text-apple-dark mb-4 block">🎯 Project Type</label>
                 <div className="grid grid-cols-2 gap-3">
                   {types.map(t => (
                     <button key={t.id} onClick={() => setSelectedType(t)}
                       className={`p-4 rounded-xl border-2 text-left transition-all ${
                         selectedType?.id === t.id
-                          ? 'border-brand-green bg-brand-green-pale text-navy'
-                          : 'border-slate-200 hover:border-slate-300 text-slate-600'
+                          ? 'border-apple-blue bg-blue-50 text-apple-dark'
+                          : 'border-apple-light-secondary hover:border-apple-space-gray text-apple-space-gray'
                       }`}>
                       <div className="text-sm font-semibold">{t.name}</div>
-                      <div className="text-xs text-brand-green font-bold mt-1">from ${parseFloat(t.base_price).toFixed(0)}</div>
+                      <div className="text-xs text-apple-blue font-bold mt-1">from ${parseFloat(t.base_price).toFixed(0)}</div>
                     </button>
                   ))}
                 </div>
@@ -337,13 +339,13 @@ export default function EstimatorAndQuotation({ settings = {}, calculator = {} }
             )}
 
             {/* Scale, Timeline, Support */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-              <label className="text-lg font-bold text-navy mb-4 block">⚙️ Customize Your Setup</label>
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-apple-light-secondary">
+              <label className="text-lg font-bold text-apple-dark mb-4 block">⚙️ Customize Your Setup</label>
               <div className="grid md:grid-cols-3 gap-4">
                 {scales.length > 0 && (
                   <div>
-                    <label className="label">Project Scale</label>
-                    <select className="input-field text-sm" value={selectedScale?.id || ''} onChange={e => setSelectedScale(scales.find(s => s.id === parseInt(e.target.value)))}>
+                    <label className="label text-apple-dark">Project Scale</label>
+                    <select className="input-field text-sm border-apple-light-secondary text-apple-dark" value={selectedScale?.id || ''} onChange={e => setSelectedScale(scales.find(s => s.id === parseInt(e.target.value)))}>
                       {scales.map(s => <option key={s.id} value={s.id}>{s.name} {s.base_price > 0 ? `(+$${parseFloat(s.base_price).toFixed(0)})` : ''}</option>)}
                     </select>
                   </div>
@@ -369,21 +371,21 @@ export default function EstimatorAndQuotation({ settings = {}, calculator = {} }
 
             {/* Add-ons */}
             {addons.length > 0 && (
-              <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-                <label className="text-lg font-bold text-navy mb-4 block">✨ Add-On Features</label>
+              <div className="bg-white rounded-2xl p-6 shadow-sm border border-apple-light-secondary">
+                <label className="text-lg font-bold text-apple-dark mb-4 block">✨ Add-On Features</label>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   {addons.map(addon => (
                     <label key={addon.id} className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${
                       selectedAddons.find(a => a.id === addon.id)
-                        ? 'border-brand-green bg-brand-green-pale'
-                        : 'border-slate-200 hover:border-slate-300'
+                        ? 'border-apple-blue bg-blue-50'
+                        : 'border-apple-light-secondary hover:border-apple-space-gray'
                     }`}>
-                      <input type="checkbox" className="accent-brand-green w-4 h-4"
+                      <input type="checkbox" className="accent-apple-blue w-4 h-4"
                         checked={!!selectedAddons.find(a => a.id === addon.id)}
                         onChange={() => toggleAddon(addon)} />
                       <div>
-                        <div className="text-sm font-semibold text-navy">{addon.name}</div>
-                        <div className="text-xs text-brand-green font-bold">+${parseFloat(addon.base_price).toFixed(0)}</div>
+                        <div className="text-sm font-semibold text-apple-dark">{addon.name}</div>
+                        <div className="text-xs text-apple-blue font-bold">+${parseFloat(addon.base_price).toFixed(0)}</div>
                       </div>
                     </label>
                   ))}
@@ -392,35 +394,35 @@ export default function EstimatorAndQuotation({ settings = {}, calculator = {} }
             )}
 
             {/* Client Information Form */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-              <label className="text-lg font-bold text-navy mb-4 block">👤 Your Information</label>
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-apple-light-secondary">
+              <label className="text-lg font-bold text-apple-dark mb-4 block">👤 Your Information</label>
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div>
-                  <label className="label">Full Name *</label>
-                  <input className="input-field" placeholder="John Doe" value={form.client_name} onChange={e => setForm({ ...form, client_name: e.target.value })} />
+                  <label className="block text-sm font-semibold text-apple-dark mb-2">Full Name *</label>
+                  <input className="w-full px-4 py-2 border border-apple-light-secondary rounded-lg text-sm focus:outline-none focus:border-apple-blue focus:ring-1 focus:ring-blue-100 transition-all bg-white text-apple-dark" placeholder="John Doe" value={form.client_name} onChange={e => setForm({ ...form, client_name: e.target.value })} />
                 </div>
                 <div>
-                  <label className="label">Company / Entity</label>
-                  <input className="input-field" placeholder="Your Company Ltd" value={form.entity_name} onChange={e => setForm({ ...form, entity_name: e.target.value })} />
+                  <label className="block text-sm font-semibold text-apple-dark mb-2">Company / Entity</label>
+                  <input className="w-full px-4 py-2 border border-apple-light-secondary rounded-lg text-sm focus:outline-none focus:border-apple-blue focus:ring-1 focus:ring-blue-100 transition-all bg-white text-apple-dark" placeholder="Your Company Ltd" value={form.entity_name} onChange={e => setForm({ ...form, entity_name: e.target.value })} />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div>
-                  <label className="label">Email Address</label>
-                  <input type="email" className="input-field" placeholder="you@email.com" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
+                  <label className="block text-sm font-semibold text-apple-dark mb-2">Email Address</label>
+                  <input type="email" className="w-full px-4 py-2 border border-apple-light-secondary rounded-lg text-sm focus:outline-none focus:border-apple-blue focus:ring-1 focus:ring-blue-100 transition-all bg-white text-apple-dark" placeholder="you@email.com" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
                 </div>
                 <div>
-                  <label className="label">Phone / WhatsApp</label>
-                  <input className="input-field" placeholder="+234 000 000 0000" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} />
+                  <label className="block text-sm font-semibold text-apple-dark mb-2">Phone / WhatsApp</label>
+                  <input className="w-full px-4 py-2 border border-apple-light-secondary rounded-lg text-sm focus:outline-none focus:border-apple-blue focus:ring-1 focus:ring-blue-100 transition-all bg-white text-apple-dark" placeholder="+234 000 000 0000" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} />
                 </div>
               </div>
               <div className="mb-4">
-                <label className="label">Address</label>
-                <input className="input-field" placeholder="City, Country" value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} />
+                <label className="block text-sm font-semibold text-apple-dark mb-2">Address</label>
+                <input className="w-full px-4 py-2 border border-apple-light-secondary rounded-lg text-sm focus:outline-none focus:border-apple-blue focus:ring-1 focus:ring-blue-100 transition-all bg-white text-apple-dark" placeholder="City, Country" value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} />
               </div>
               <div>
-                <label className="label">Additional Notes</label>
-                <textarea className="input-field" rows={3} placeholder="Any specific requirements..." value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} />
+                <label className="block text-sm font-semibold text-apple-dark mb-2">Additional Notes</label>
+                <textarea className="w-full px-4 py-2 border border-apple-light-secondary rounded-lg text-sm focus:outline-none focus:border-apple-blue focus:ring-1 focus:ring-blue-100 transition-all bg-white text-apple-dark" rows={3} placeholder="Any specific requirements..." value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} />
               </div>
             </div>
           </div>
@@ -428,15 +430,15 @@ export default function EstimatorAndQuotation({ settings = {}, calculator = {} }
           {/* RIGHT SIDE: SUMMARY & ACTION */}
           <div className="lg:col-span-1 flex flex-col gap-4">
             {/* Estimate Summary */}
-            <div className="bg-gradient-to-br from-navy to-navy/90 rounded-2xl p-8 text-center shadow-xl sticky top-8">
+            <div className="bg-gradient-to-br from-apple-dark to-apple-dark-secondary rounded-2xl p-8 text-center shadow-lg sticky top-8">
               <div className="text-xs text-white/40 uppercase tracking-widest mb-3">Your Estimate</div>
               <div className="font-display text-5xl font-bold text-white mb-2">
-                <span className="text-2xl text-brand-gold">$</span>{estimate.toLocaleString()}
+                <span className="text-2xl text-apple-blue">$</span>{estimate.toLocaleString()}
               </div>
               <div className="text-sm text-white/60 mb-1">USD</div>
               <div className="bg-white/10 rounded-lg p-3 mb-6">
                 <div className="text-xs text-white/40 mb-1">Naira Equivalent (at ₦{NAIRA_TO_DOLLAR}/USD)</div>
-                <div className="text-xl font-bold text-brand-green">₦{Math.round(estimate * NAIRA_TO_DOLLAR).toLocaleString()}</div>
+                <div className="text-xl font-bold text-blue-300">₦{Math.round(estimate * NAIRA_TO_DOLLAR).toLocaleString()}</div>
               </div>
               <div className="text-xs text-white/40 mb-8">Indicative estimate · Final quote after consultation</div>
 
@@ -454,16 +456,16 @@ export default function EstimatorAndQuotation({ settings = {}, calculator = {} }
               )}
 
               <button onClick={handleDownloadAndSend} disabled={loading}
-                className="btn btn-green w-full justify-center py-3 text-base disabled:opacity-50 mb-3">
+                className="w-full bg-apple-blue hover:bg-apple-blue-hover text-white font-semibold py-3 rounded-lg transition-colors disabled:opacity-50 mb-3">
                 {loading ? '⏳ Generating...' : '⬇ Download & Send Estimate'}
               </button>
               <p className="text-xs text-white/40">PDF downloads instantly & emailed to our team</p>
             </div>
 
             {/* Info Box */}
-            <div className="bg-brand-green-pale rounded-xl p-4 border border-brand-green/30">
-              <div className="text-xs font-bold text-navy mb-2">💡 How it works:</div>
-              <div className="text-xs text-slate-600 space-y-1">
+            <div className="bg-blue-50 rounded-xl p-4 border border-apple-light-secondary">
+              <div className="text-xs font-bold text-apple-dark mb-2">💡 How it works:</div>
+              <div className="text-xs text-apple-space-gray space-y-1">
                 <p>1️⃣ Configure your project</p>
                 <p>2️⃣ See instant estimate</p>
                 <p>3️⃣ Fill your details</p>

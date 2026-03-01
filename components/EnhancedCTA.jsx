@@ -26,14 +26,17 @@ export default function EnhancedCTA() {
   ]
 
   return (
-    <section className="py-24 bg-white">
+    <section className="py-24 bg-gradient-to-br from-apple-light via-white to-apple-light">
       <div className="container mx-auto px-6">
         {/* Header */}
-        <div className="text-center mb-16 max-w-3xl mx-auto">
-          <h2 className="text-5xl md:text-6xl font-semibold text-black mb-6">
+        <div className="text-center mb-20 max-w-3xl mx-auto">
+          <div className="inline-block mb-4 px-4 py-2 rounded-full text-xs font-semibold text-apple-blue bg-blue-50 border border-blue-100">
+            → Get Started Today
+          </div>
+          <h2 className="text-5xl md:text-6xl font-semibold text-apple-dark mb-6">
             Ready to get started?
           </h2>
-          <p className="text-lg text-gray-600">
+          <p className="text-lg text-apple-space-gray font-light">
             Choose the approach that works best for you. We're here to help at every step of your digital transformation journey.
           </p>
         </div>
@@ -46,22 +49,22 @@ export default function EnhancedCTA() {
               href={cta.link}
               target={cta.link.startsWith('http') ? '_blank' : undefined}
               rel={cta.link.startsWith('http') ? 'noopener noreferrer' : undefined}
-              className="group border border-gray-200 bg-white hover:bg-gray-50 rounded-lg p-8 transition-all duration-200"
+              className="group border border-apple-light-secondary bg-white hover:bg-apple-light hover:border-apple-space-gray rounded-2xl p-8 transition-all duration-200 shadow-sm hover:shadow-md"
             >
               {/* Card content */}
               <div className="flex flex-col h-full">
                 {/* Title */}
-                <h3 className="text-xl font-semibold text-black mb-4">
+                <h3 className="text-xl font-semibold text-apple-dark mb-4">
                   {cta.title}
                 </h3>
 
                 {/* Description */}
-                <p className="text-gray-600 text-sm mb-8 flex-grow leading-relaxed">
+                <p className="text-apple-space-gray text-sm mb-8 flex-grow leading-relaxed font-light">
                   {cta.description}
                 </p>
 
                 {/* CTA Button */}
-                <div className="inline-flex items-center gap-2 text-black font-semibold group-hover:text-gray-700 transition-colors">
+                <div className="inline-flex items-center gap-2 text-apple-blue font-semibold group-hover:text-apple-blue-hover transition-colors">
                   {cta.action}
                   <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
@@ -73,12 +76,12 @@ export default function EnhancedCTA() {
         </div>
 
         {/* Bottom section */}
-        <div className="max-w-2xl mx-auto p-12 bg-gray-50 border border-gray-200 rounded-lg text-center">
-          <h3 className="text-2xl font-semibold text-black mb-4">Not sure which option is right for you?</h3>
-          <p className="text-gray-600 mb-8">
+        <div className="max-w-2xl mx-auto p-12 bg-white border border-apple-light-secondary rounded-2xl text-center shadow-sm">
+          <h3 className="text-2xl font-semibold text-apple-dark mb-4">Not sure which option is right for you?</h3>
+          <p className="text-apple-space-gray mb-8 font-light">
             Let's have a brief conversation to understand your needs and find the best path forward for your project.
           </p>
-          <a href="#contact" className="inline-flex items-center gap-2 px-8 py-3 bg-black text-white font-semibold rounded-lg hover:bg-gray-800 transition-colors">
+          <a href="#contact" className="inline-flex items-center gap-2 px-8 py-3 bg-apple-dark text-white font-semibold rounded-lg hover:bg-apple-dark-secondary transition-colors">
             Talk to Our Team
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />

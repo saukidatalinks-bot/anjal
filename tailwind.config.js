@@ -18,6 +18,21 @@ module.exports = {
           'green-pale': '#dcfce7',
           gold: '#c9a84c',
         },
+        apple: {
+          'dark': '#1d1d1d',
+          'dark-secondary': '#424245',
+          'light': '#f5f5f7',
+          'light-secondary': '#e5e5e7',
+          'space-gray': '#555555',
+          'silver': '#f5f5f7',
+          'blue': '#0071e3',
+          'blue-hover': '#0077ed',
+        },
+      },
+      backgroundImage: {
+        'apple-gradient': 'linear-gradient(180deg, #f5f5f7 0%, #ffffff 100%)',
+        'apple-gradient-subtle': 'linear-gradient(180deg, #ffffff 0%, #f5f5f7 100%)',
+        'apple-dark-gradient': 'linear-gradient(180deg, #1d1d1d 0%, #242424 100%)',
       },
       fontFamily: {
         sans: ['var(--font-dm-sans)', 'sans-serif'],

@@ -46,26 +46,26 @@ export default function TestimonialSubmission() {
   }
 
   return (
-    <section className="py-24 bg-gradient-to-br from-gray-50 via-white to-gray-50">
+    <section id="testimonial-form" className="py-24 bg-gradient-to-br from-apple-light via-white to-apple-light">
       <div className="container mx-auto px-6 max-w-2xl">
         <div className="text-center mb-16">
-          <div className="inline-block mb-4 px-4 py-2 border border-gray-300/80 rounded-full text-xs font-semibold text-gray-700 bg-white/50 backdrop-blur-sm">
+          <div className="inline-block mb-4 px-4 py-2 border border-blue-200 rounded-full text-xs font-semibold text-apple-blue bg-blue-50 backdrop-blur-sm">
             → Share Your Experience
           </div>
-          <h2 className="text-4xl md:text-5xl font-semibold text-black mb-4">
+          <h2 className="text-5xl md:text-6xl font-semibold text-apple-dark mb-6">
             Let Others Know Your Story
           </h2>
-          <p className="text-gray-600">
+          <p className="text-lg text-apple-space-gray font-light">
             Your feedback helps other businesses discover us. Share your experience working with Anjal Ventures.
           </p>
         </div>
 
-        <div className="bg-white/80 backdrop-blur-sm border border-gray-200 rounded-2xl p-8 lg:p-12 shadow-lg shadow-gray-100/50">
+        <div className="bg-white/80 backdrop-blur-sm border border-apple-light-secondary rounded-2xl p-8 lg:p-12 shadow-lg shadow-blue-50/50">
           {submitted ? (
             <div className="text-center py-12">
               <div className="text-5xl mb-4">✓</div>
-              <h3 className="text-2xl font-semibold text-black mb-2">Thank You!</h3>
-              <p className="text-gray-600">
+              <h3 className="text-2xl font-semibold text-apple-dark mb-2">Thank You!</h3>
+              <p className="text-apple-space-gray font-light">
                 Your testimonial has been received and will be reviewed by our team before appearing on our website.
               </p>
             </div>
@@ -74,7 +74,7 @@ export default function TestimonialSubmission() {
               {/* Name and Email */}
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-semibold text-black mb-3">
+                  <label className="block text-sm font-semibold text-apple-dark mb-3">
                     Your Name *
                   </label>
                   <input
@@ -83,11 +83,11 @@ export default function TestimonialSubmission() {
                     placeholder="John Doe"
                     value={form.name}
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-black focus:ring-1 focus:ring-black/10 transition-all bg-white"
+                    className="w-full px-4 py-3 border border-apple-light-secondary rounded-lg text-sm focus:outline-none focus:border-apple-blue focus:ring-1 focus:ring-blue-100 transition-all bg-white"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-black mb-3">
+                  <label className="block text-sm font-semibold text-apple-dark mb-3">
                     Email Address *
                   </label>
                   <input
@@ -96,7 +96,7 @@ export default function TestimonialSubmission() {
                     placeholder="john@company.com"
                     value={form.email}
                     onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-black focus:ring-1 focus:ring-black/10 transition-all bg-white"
+                    className="w-full px-4 py-3 border border-apple-light-secondary rounded-lg text-sm focus:outline-none focus:border-apple-blue focus:ring-1 focus:ring-blue-100 transition-all bg-white"
                   />
                 </div>
               </div>

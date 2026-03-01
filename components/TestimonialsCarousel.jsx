@@ -8,19 +8,19 @@ export default function TestimonialsCarousel({ testimonials = [] }) {
   // If no testimonials, show empty state
   if (!testimonials || testimonials.length === 0) {
     return (
-      <section className="py-24 bg-gradient-to-br from-gray-50 via-white to-gray-50">
+      <section className="py-24 bg-gradient-to-br from-apple-light via-white to-apple-light">
         <div className="container mx-auto px-6">
           <div className="text-center max-w-2xl mx-auto">
-            <div className="inline-block mb-4 px-4 py-2 border border-gray-300/80 rounded-full text-xs font-semibold text-gray-700 bg-white/50 backdrop-blur-sm">
+            <div className="inline-block mb-4 px-4 py-2 border border-blue-200 rounded-full text-xs font-semibold text-apple-blue bg-blue-50 backdrop-blur-sm">
               → Client Testimonials
             </div>
-            <h2 className="text-4xl md:text-5xl font-semibold text-black mb-8">
+            <h2 className="text-5xl md:text-6xl font-semibold text-apple-dark mb-8">
               What Our Clients Say
             </h2>
-            <p className="text-lg text-gray-600 mb-8">
+            <p className="text-lg text-apple-space-gray mb-8 font-light">
               Be the first to share your story working with Anjal Ventures. Submit your testimonial below.
             </p>
-            <a href="#testimonial-form" className="inline-block px-6 py-3 bg-black text-white font-semibold rounded-lg hover:bg-gray-900 transition-colors">
+            <a href="#testimonial-form" className="inline-block px-6 py-3 bg-apple-dark text-white font-semibold rounded-lg hover:bg-apple-dark-secondary transition-colors">
               Submit Your Testimonial ↓
             </a>
           </div>
@@ -36,26 +36,26 @@ export default function TestimonialsCarousel({ testimonials = [] }) {
   const testimonial = testimonials[current]
 
   return (
-    <section className="py-24 bg-gradient-to-br from-gray-50 via-white to-gray-50">
+    <section className="py-24 bg-gradient-to-br from-apple-light via-white to-apple-light">
       <div className="container mx-auto px-6">
         {/* Header */}
         <div className="text-center mb-20 max-w-2xl mx-auto">
-          <div className="inline-block mb-4 px-4 py-2 border border-gray-300/80 rounded-full text-xs font-semibold text-gray-700 bg-white/50 backdrop-blur-sm">
+          <div className="inline-block mb-4 px-4 py-2 border border-blue-200 rounded-full text-xs font-semibold text-apple-blue bg-blue-50 backdrop-blur-sm">
             → Trusted by Industry Leaders
           </div>
-          <h2 className="text-4xl md:text-5xl font-semibold text-black mb-6">
+          <h2 className="text-5xl md:text-6xl font-semibold text-apple-dark mb-6">
             What Our Clients Say
           </h2>
         </div>
 
         {/* Testimonial card - Premium design */}
         <div className="max-w-3xl mx-auto mb-16">
-          <div className="bg-white/80 backdrop-blur-sm border border-gray-200 rounded-2xl p-12 lg:p-16 shadow-lg shadow-gray-100/50">
+          <div className="bg-white/80 backdrop-blur-sm border border-apple-light-secondary rounded-2xl p-12 lg:p-16 shadow-lg shadow-blue-50/50">
             {/* Quote mark */}
             <div className="text-5xl text-gray-300 mb-4">"</div>
 
             {/* Quote */}
-            <blockquote className="text-xl lg:text-2xl text-black leading-relaxed mb-10 font-light">
+            <blockquote className="text-xl lg:text-2xl text-apple-dark leading-relaxed mb-10 font-light">
               {testimonial.message}
             </blockquote>
 
@@ -71,9 +71,9 @@ export default function TestimonialsCarousel({ testimonials = [] }) {
             )}
 
             {/* Author info - Premium styling */}
-            <div className="border-t border-gray-200 pt-8 space-y-1">
-              <p className="font-semibold text-lg text-black">{testimonial.name}</p>
-              {testimonial.role && <p className="text-sm font-medium text-gray-600">{testimonial.role}</p>}
+            <div className="border-t border-apple-light-secondary pt-8 space-y-1">
+              <p className="font-semibold text-lg text-apple-dark">{testimonial.name}</p>
+              {testimonial.role && <p className="text-sm font-medium text-apple-space-gray">{testimonial.role}</p>}
               {testimonial.company && <p className="text-sm text-gray-500">{testimonial.company}</p>}
             </div>
           </div>

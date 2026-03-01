@@ -18,27 +18,29 @@ export default function Pricing({ plans = [], settings = {} }) {
   }
 
   return (
-    <section id="pricing" className="section bg-white py-24">
+    <section id="pricing" className="section bg-gradient-to-br from-apple-light via-white to-apple-light-secondary py-24">
       <div className="container mx-auto px-6">
         <div className="text-center mb-20 max-w-3xl mx-auto">
-          <div className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Pricing</div>
-          <h2 className="text-5xl md:text-6xl font-semibold text-black mb-6">
+          <div className="inline-block mb-4 px-4 py-2 rounded-full text-xs font-semibold text-apple-blue bg-blue-50 border border-blue-100">
+            → Transparent Pricing
+          </div>
+          <h2 className="text-5xl md:text-6xl font-semibold text-apple-dark mb-6">
             Enterprise Quality, African-Market Pricing
           </h2>
-          <p className="text-lg text-gray-600">
-            Professional digital solutions built to international standards, priced for accessibility. Starting from just <span className="font-semibold text-black">$100</span>.
+          <p className="text-lg text-apple-space-gray font-light">
+            Professional digital solutions built to international standards. Starting from just <span className="font-semibold text-apple-dark">$100</span>.
           </p>
         </div>
 
         {plans.length === 0 ? (
-          <div className="text-center py-12 text-gray-400">No pricing plans configured yet.</div>
+          <div className="text-center py-12 text-apple-space-gray">No pricing plans configured yet.</div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto mb-20">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto mb-20">
             {plans.map(plan => (
-              <div key={plan.id} className={`rounded-lg border p-10 flex flex-col transition-all ${
+              <div key={plan.id} className={`rounded-2xl border p-10 flex flex-col transition-all ${
                 plan.is_featured
-                  ? 'border-black bg-black text-white ring-2 ring-black'
-                  : 'border-gray-200 bg-white hover:border-gray-300'
+                  ? 'border-apple-dark bg-gradient-to-br from-apple-dark to-apple-dark-secondary text-white ring-2 ring-apple-dark shadow-2xl scale-105'
+                  : 'border-apple-light-secondary bg-white hover:bg-apple-light hover:border-apple-space-gray shadow-sm hover:shadow-lg'
               }`}>
                 {plan.is_featured && (
                   <div className="text-xs font-semibold text-white/60 uppercase tracking-wider mb-4">

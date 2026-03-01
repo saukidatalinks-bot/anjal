@@ -58,14 +58,17 @@ export default function ProcessTimeline() {
   }, [])
 
   return (
-    <section ref={ref} className="py-24 bg-white">
+    <section ref={ref} className="py-24 bg-gradient-to-br from-white via-apple-light to-white">
       <div className="container mx-auto px-6">
         {/* Header */}
         <div className="text-center mb-20 max-w-3xl mx-auto">
-          <h2 className="text-5xl md:text-6xl font-semibold text-black mb-6">
+          <div className="inline-block mb-4 px-4 py-2 rounded-full text-xs font-semibold text-apple-blue bg-blue-50 border border-blue-100">
+            → Our Process
+          </div>
+          <h2 className="text-5xl md:text-6xl font-semibold text-apple-dark mb-6">
             Our Process
           </h2>
-          <p className="text-lg text-gray-600">
+          <p className="text-lg text-apple-space-gray font-light">
             A structured, transparent approach from concept to launch. Your project progresses through clearly defined phases with regular milestones and updates.
           </p>
         </div>
@@ -73,7 +76,7 @@ export default function ProcessTimeline() {
         {/* Timeline */}
         <div className="relative max-w-3xl mx-auto">
           {/* Vertical line - only on desktop */}
-          <div className="hidden lg:block absolute left-8 top-0 bottom-0 w-px bg-gray-200" />
+          <div className="hidden lg:block absolute left-8 top-0 bottom-0 w-px bg-apple-light-secondary" />
 
           {/* Steps vertical list */}
           <div className="space-y-8 lg:space-y-12">
@@ -92,9 +95,9 @@ export default function ProcessTimeline() {
                 <div className="flex gap-6 lg:gap-8">
                   {/* Timeline dot */}
                   <div className="flex flex-col items-center">
-                    <div className="w-4 h-4 rounded-full border-2 border-black bg-white mt-2 lg:mt-0" />
+                    <div className="w-4 h-4 rounded-full border-2 border-apple-blue bg-blue-50 mt-2 lg:mt-0" />
                     {index < steps.length - 1 && (
-                      <div className="w-px h-12 lg:h-24 bg-gray-200 mt-6" />
+                      <div className="w-px h-12 lg:h-24 bg-apple-light-secondary mt-6" />
                     )}
                   </div>
 

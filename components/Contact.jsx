@@ -67,16 +67,18 @@ export default function Contact({ settings = {}, services = [] }) {
   const phone = settings.company_phone || '+234 000 000 0000'
 
   return (
-    <section id="contact" className="section bg-white py-24">
+    <section id="contact" className="section bg-gradient-to-br from-apple-light via-white to-apple-light py-24">
       <div className="container mx-auto px-6">
         <div className="grid lg:grid-cols-5 gap-16 items-start">
           {/* Left Info */}
           <div className="lg:col-span-2">
-            <div className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Contact Us</div>
-            <h2 className="text-4xl font-semibold text-black mb-6 leading-tight">
+            <div className="inline-block mb-4 px-4 py-2 rounded-full text-xs font-semibold text-apple-blue bg-blue-50 border border-blue-100">
+              → Contact Us
+            </div>
+            <h2 className="text-4xl font-semibold text-apple-dark mb-6 leading-tight">
               Ready to start your project?
             </h2>
-            <p className="text-gray-600 leading-relaxed mb-10 text-base">
+            <p className="text-apple-space-gray leading-relaxed mb-10 text-base font-light">
               From a simple business website to an enterprise platform — we're ready to help. Contact us for a free consultation.
             </p>
 
@@ -88,11 +90,11 @@ export default function Contact({ settings = {}, services = [] }) {
               { label: 'Location', value: address, href: null },
             ].map(({ label, value, href }) => (
               <div key={label} className="mb-6">
-                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">{label}</div>
+                <div className="text-xs font-semibold text-apple-blue uppercase tracking-wider mb-2">{label}</div>
                 {href
                   ? <a href={href} target={href.startsWith('http') ? '_blank' : '_self'} rel="noopener"
-                      className="text-black font-medium hover:text-gray-600 transition-colors">{value}</a>
-                  : <span className="text-black font-medium">{value}</span>
+                      className="text-apple-dark font-medium hover:text-apple-blue transition-colors">{value}</a>
+                  : <span className="text-apple-dark font-medium">{value}</span>
                 }
               </div>
             ))}
@@ -100,21 +102,21 @@ export default function Contact({ settings = {}, services = [] }) {
 
           {/* Right Form */}
           <div className="lg:col-span-3">
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-10">
-              <h3 className="text-2xl font-semibold text-black mb-8">Send us a message</h3>
+            <div className="bg-white border border-apple-light-secondary rounded-2xl p-10 shadow-sm">
+              <h3 className="text-2xl font-semibold text-apple-dark mb-8">Send us a message</h3>
 
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div>
-                  <label className="block text-sm font-medium text-black mb-2">Full Name *</label>
-                  <input className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-black transition-colors" 
+                  <label className="block text-sm font-medium text-apple-dark mb-2">Full Name *</label>
+                  <input className="w-full px-4 py-3 border border-apple-light-secondary rounded-lg text-sm focus:outline-none focus:border-apple-blue focus:ring-1 focus:ring-blue-100 transition-colors" 
                     placeholder="Your full name" 
                     value={form.name} 
                     onChange={e => setForm({ ...form, name: e.target.value })} 
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-black mb-2">Email *</label>
-                  <input type="email" className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-black transition-colors" 
+                  <label className="block text-sm font-medium text-apple-dark mb-2">Email *</label>
+                  <input type="email" className="w-full px-4 py-3 border border-apple-light-secondary rounded-lg text-sm focus:outline-none focus:border-apple-blue focus:ring-1 focus:ring-blue-100 transition-colors" 
                     placeholder="your@email.com" 
                     value={form.email} 
                     onChange={e => setForm({ ...form, email: e.target.value })} 
@@ -124,16 +126,16 @@ export default function Contact({ settings = {}, services = [] }) {
 
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div>
-                  <label className="block text-sm font-medium text-black mb-2">Phone / WhatsApp</label>
-                  <input className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-black transition-colors" 
+                  <label className="block text-sm font-medium text-apple-dark mb-2">Phone / WhatsApp</label>
+                  <input className="w-full px-4 py-3 border border-apple-light-secondary rounded-lg text-sm focus:outline-none focus:border-apple-blue focus:ring-1 focus:ring-blue-100 transition-colors" 
                     placeholder="+234 000 000 0000" 
                     value={form.phone} 
                     onChange={e => setForm({ ...form, phone: e.target.value })} 
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-black mb-2">Service Interested In</label>
-                  <select className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-black transition-colors focus:ring-0" 
+                  <label className="block text-sm font-medium text-apple-dark mb-2">Service Interested In</label>
+                  <select className="w-full px-4 py-3 border border-apple-light-secondary rounded-lg text-sm focus:outline-none focus:border-apple-blue focus:ring-1 focus:ring-blue-100 transition-colors focus:ring-0" 
                     value={form.service} 
                     onChange={e => setForm({ ...form, service: e.target.value })}>
                     <option value="">Select a service...</option>
@@ -144,8 +146,8 @@ export default function Contact({ settings = {}, services = [] }) {
               </div>
 
               <div className="mb-4">
-                <label className="block text-sm font-medium text-black mb-2">Budget Range</label>
-                <select className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-black transition-colors focus:ring-0" 
+                <label className="block text-sm font-medium text-apple-dark mb-2">Budget Range</label>
+                <select className="w-full px-4 py-3 border border-apple-light-secondary rounded-lg text-sm focus:outline-none focus:border-apple-blue focus:ring-1 focus:ring-blue-100 transition-colors focus:ring-0" 
                   value={form.budget} 
                   onChange={e => setForm({ ...form, budget: e.target.value })}>
                   <option value="">Select a budget range...</option>
@@ -158,8 +160,8 @@ export default function Contact({ settings = {}, services = [] }) {
               </div>
 
               <div className="mb-8">
-                <label className="block text-sm font-medium text-black mb-2">Your Message *</label>
-                <textarea className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-black transition-colors" 
+                <label className="block text-sm font-medium text-apple-dark mb-2">Your Message *</label>
+                <textarea className="w-full px-4 py-3 border border-apple-light-secondary rounded-lg text-sm focus:outline-none focus:border-apple-blue focus:ring-1 focus:ring-blue-100 transition-colors" 
                   rows={5} 
                   placeholder="Tell us about your project, goals and requirements..." 
                   value={form.message} 
@@ -168,7 +170,7 @@ export default function Contact({ settings = {}, services = [] }) {
               </div>
 
               {sent ? (
-                <div className="bg-gray-100 border border-gray-300 rounded-lg p-4 text-center text-black font-semibold text-sm mb-4">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center text-apple-blue font-semibold text-sm mb-4">
                   ✓ Message sent! We'll respond within 24 hours.
                 </div>
               ) : null}
