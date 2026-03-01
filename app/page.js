@@ -1,6 +1,9 @@
 import { Toaster } from 'react-hot-toast'
 import Navbar from '@/components/Navbar'
-import Hero from '@/components/Hero'
+import HeroEnhanced from '@/components/HeroEnhanced'
+import TestimonialsCarousel from '@/components/TestimonialsCarousel'
+import StatsSection from '@/components/StatsSection'
+import EnhancedCTA from '@/components/EnhancedCTA'
 import MarqueeBanner from '@/components/MarqueeBanner'
 import About from '@/components/About'
 import Services from '@/components/Services'
@@ -53,12 +56,15 @@ export default async function HomePage() {
     <>
       <Toaster position="top-right" toastOptions={{ className: 'font-sans text-sm' }} />
       <Navbar settings={settings} />
-      <Hero settings={settings} />
+      <HeroEnhanced />
+      <StatsSection />
+      <TestimonialsCarousel />
       <MarqueeBanner services={services} />
       <About settings={settings} />
       <Services services={services} />
       <Portfolio projects={projects} />
       <Pricing plans={pricingPlans} settings={settings} />
+      <EnhancedCTA />
       <EstimatorAndQuotation settings={settings} calculator={calculator} />
       <Contact settings={settings} services={services} />
       <Footer settings={settings} />
