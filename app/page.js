@@ -4,6 +4,9 @@ import HeroEnhanced from '@/components/HeroEnhanced'
 import TestimonialsCarousel from '@/components/TestimonialsCarousel'
 import StatsSection from '@/components/StatsSection'
 import EnhancedCTA from '@/components/EnhancedCTA'
+import CaseStudies from '@/components/CaseStudies'
+import ProcessTimeline from '@/components/ProcessTimeline'
+import FAQSection from '@/components/FAQSection'
 import MarqueeBanner from '@/components/MarqueeBanner'
 import About from '@/components/About'
 import Services from '@/components/Services'
@@ -59,11 +62,14 @@ export default async function HomePage() {
       <HeroEnhanced />
       <StatsSection />
       <TestimonialsCarousel />
+      <CaseStudies />
+      <ProcessTimeline />
       <MarqueeBanner services={services} />
       <About settings={settings} />
       <Services services={services} />
       <Portfolio projects={projects} />
       <Pricing plans={pricingPlans} settings={settings} />
+      <FAQSection />
       <EnhancedCTA />
       <EstimatorAndQuotation settings={settings} calculator={calculator} />
       <Contact settings={settings} services={services} />
