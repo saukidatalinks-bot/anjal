@@ -9,9 +9,10 @@ export async function GET() {
       WHERE is_approved = true 
       ORDER BY created_at DESC
     `
+    console.log(`[API] /testimonials/approved returned ${result.length} testimonials`)
     return Response.json({ testimonials: result })
   } catch (error) {
-    console.error('Error fetching testimonials:', error)
+    console.error('[API] Error fetching testimonials:', error)
     return Response.json({ error: 'Failed to fetch testimonials' }, { status: 500 })
   }
 }

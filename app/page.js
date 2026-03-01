@@ -46,6 +46,11 @@ async function getSiteData() {
       return acc
     }, {})
 
+    console.log(`[HomePage] Loaded ${testimonials.length} approved testimonials`)
+    if (testimonials.length > 0) {
+      console.log('[HomePage] Sample testimonial:', testimonials[0])
+    }
+
     return { settings, projects, services, pricingPlans: plansWithFeatures, calculator, testimonials }
   } catch (err) {
     console.error('Failed to load site data:', err)

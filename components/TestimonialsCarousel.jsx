@@ -1,9 +1,19 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 export default function TestimonialsCarousel({ testimonials = [] }) {
   const [current, setCurrent] = useState(0)
+
+  // Debug logging
+  useEffect(() => {
+    if (testimonials.length > 0) {
+      console.log(`[TestimonialsCarousel] Received ${testimonials.length} testimonials`)
+      console.log('[TestimonialsCarousel] First testimonial:', testimonials[0])
+    } else {
+      console.log('[TestimonialsCarousel] No testimonials received - showing empty state')
+    }
+  }, [testimonials])
 
   // If no testimonials, show empty state
   if (!testimonials || testimonials.length === 0) {
