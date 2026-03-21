@@ -27,6 +27,7 @@ export default function PortalPaymentPage() {
   const [reference, setReference] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [paymentState, setPaymentState] = useState('ready')
 
   useEffect(() => {
     if (!slug) return
@@ -43,23 +44,25 @@ export default function PortalPaymentPage() {
         const stage2 = payload?.stages?.stage2?.status
 
         if (stageNumber === 1 && ['pending', 'verified'].includes(stage1)) {
-          router.replace(`/portal/${slug}/progress`)
+          setPaymentState(stage1)
           return
         }
 
         if (stageNumber === 2) {
           if (stage2 === 'locked') {
-            toast.error('Second payment is not available yet.')
-            router.replace(`/portal/${slug}/progress`)
+            setPaymentState('locked')
             return
           }
           if (['pending', 'verified'].includes(stage2)) {
-            router.replace(`/portal/${slug}/progress`)
+            setPaymentState(stage2)
+            return
           }
         }
+
+        setPaymentState('ready')
       })
       .catch(() => setLoading(false))
-  }, [router, slug, stageNumber])
+  }, [slug, stageNumber])
 
   const handleFileChange = async (event) => {
     const file = event.target.files?.[0]
@@ -134,6 +137,7 @@ export default function PortalPaymentPage() {
 
   const { client, payment } = data
   const amountLabel = stageNumber === 2 ? 'Final payment' : 'Initial payment'
+  const submitDisabled = submitting || uploading || paymentState === 'locked' || paymentState === 'pending' || paymentState === 'verified'
 
   if (submitted) {
     return (
@@ -247,13 +251,49 @@ export default function PortalPaymentPage() {
               </p>
             </div>
 
+            {paymentState === 'locked' && (
+              <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                <p className="text-sm font-medium text-slate-900">Payment not yet available</p>
+                <p className="mt-1 text-sm leading-6 text-slate-600">
+                  This payment stage is currently locked. It will remain on this page until the team unlocks it.
+                </p>
+              </div>
+            )}
+
+            {paymentState === 'pending' && (
+              <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4">
+                <p className="text-sm font-medium text-slate-900">Payment already submitted</p>
+                <p className="mt-1 text-sm leading-6 text-slate-600">
+                  This payment has already been submitted and is waiting for review. You can open the progress page whenever you want.
+                </p>
+              </div>
+            )}
+
+            {paymentState === 'verified' && (
+              <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+                <p className="text-sm font-medium text-slate-900">Payment already verified</p>
+                <p className="mt-1 text-sm leading-6 text-slate-600">
+                  This payment stage has already been verified. You can review the current status on the progress page.
+                </p>
+              </div>
+            )}
+
             <button
               onClick={handleSubmit}
-              disabled={submitting || uploading}
+              disabled={submitDisabled}
               className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {submitting ? 'Submitting...' : 'I Have Transferred the Money'}
+              {submitting ? 'Submitting...' : paymentState === 'locked' ? 'Payment Locked' : paymentState === 'pending' ? 'Already Submitted' : paymentState === 'verified' ? 'Already Verified' : 'I Have Transferred the Money'}
             </button>
+
+            {(paymentState === 'pending' || paymentState === 'verified' || paymentState === 'locked') && (
+              <button
+                onClick={() => router.push(`/portal/${slug}/progress`)}
+                className="mt-3 inline-flex w-full items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+              >
+                Open Progress Page
+              </button>
+            )}
           </aside>
         </div>
       </main>
