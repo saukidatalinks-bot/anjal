@@ -28,20 +28,9 @@ export default function PortalReviewPage() {
       .then((payload) => {
         setData(payload)
         setLoading(false)
-
-        const stage1 = payload?.stages?.stage1?.status
-        const stage2 = payload?.stages?.stage2?.status
-        const stage3 = payload?.stages?.stage3?.status
-        const hasStarted = ['pending', 'verified'].includes(stage1)
-          || ['pending', 'verified', 'active'].includes(stage2)
-          || ['active', 'complete'].includes(stage3)
-
-        if (hasStarted) {
-          router.replace(`/portal/${slug}/progress`)
-        }
       })
       .catch(() => setLoading(false))
-  }, [router, slug])
+  }, [slug])
 
   const handleProceed = () => {
     setProceeding(true)
