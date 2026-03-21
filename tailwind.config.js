@@ -48,6 +48,9 @@ module.exports = {
         'blob': 'blob 7s infinite',
         'blob-delay-2000': 'blob 7s infinite 2s',
         'blob-delay-4000': 'blob 7s infinite 4s',
+        'hero-entrance': 'heroEntrance 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+        'stagger-fade-up': 'staggerFadeUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+        'luxury-gloss': 'luxuryGloss 3s ease-in-out infinite',
       },
       keyframes: {
         float: { '0%,100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-12px)' } },
@@ -58,6 +61,18 @@ module.exports = {
           '0%, 100%': { transform: 'translate(0, 0) scale(1)' },
           '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
           '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+        },
+        heroEntrance: {
+          from: { opacity: '0', transform: 'translateY(30px) scale(0.95)' },
+          to: { opacity: '1', transform: 'translateY(0) scale(1)' },
+        },
+        staggerFadeUp: {
+          from: { opacity: '0', transform: 'translateY(24px) scale(0.96)' },
+          to: { opacity: '1', transform: 'translateY(0) scale(1)' },
+        },
+        luxuryGloss: {
+          '0%, 100%': { 'box-shadow': '0 20px 60px rgba(15, 23, 42, 0.08)' },
+          '50%': { 'box-shadow': '0 30px 90px rgba(15, 23, 42, 0.12)' },
         },
       },
     },

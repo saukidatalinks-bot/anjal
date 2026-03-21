@@ -243,30 +243,30 @@ export default function AdminClientsPage() {
       <AdminSidebar />
 
       <main className="ml-64 flex-1 p-8 md:p-10">
-        <div className="mb-8 rounded-3xl border border-black/5 bg-white px-7 py-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
+        <div className="hero-entrance hero-entrance-delayed-100 mb-8 rounded-3xl border border-black/5 bg-white px-7 py-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)] premium-card">
           <h1 className="font-display text-3xl text-[#1d1d1f] mb-1">Client Operations Command Center</h1>
           <p className="text-slate-600 text-sm">Enterprise-grade control for contract delivery, progress governance, and staged payment compliance.</p>
           <div className="mt-5 grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="rounded-2xl border border-black/5 bg-[#f8f8fb] p-4">
+            <div className="stagger-item rounded-2xl border border-black/5 bg-[#f8f8fb] p-4 premium-card">
               <p className="text-[11px] uppercase tracking-[0.14em] text-slate-500">Client Portals</p>
               <p className="text-2xl font-semibold text-[#1d1d1f] mt-1">{dashboardStats.totalClients}</p>
             </div>
-            <div className="rounded-2xl border border-black/5 bg-[#f8f8fb] p-4">
+            <div className="stagger-item rounded-2xl border border-black/5 bg-[#f8f8fb] p-4 premium-card">
               <p className="text-[11px] uppercase tracking-[0.14em] text-slate-500">Active Programs</p>
               <p className="text-2xl font-semibold text-[#1d1d1f] mt-1">{dashboardStats.activeClients}</p>
             </div>
-            <div className="rounded-2xl border border-black/5 bg-[#f8f8fb] p-4">
+            <div className="stagger-item rounded-2xl border border-black/5 bg-[#f8f8fb] p-4 premium-card">
               <p className="text-[11px] uppercase tracking-[0.14em] text-slate-500">Pending Verifications</p>
               <p className="text-2xl font-semibold text-[#1d1d1f] mt-1">{dashboardStats.pendingPayments}</p>
             </div>
-            <div className="rounded-2xl border border-black/5 bg-[#f8f8fb] p-4">
+            <div className="stagger-item rounded-2xl border border-black/5 bg-[#f8f8fb] p-4 premium-card">
               <p className="text-[11px] uppercase tracking-[0.14em] text-slate-500">Verified Revenue</p>
               <p className="text-2xl font-semibold text-[#1d1d1f] mt-1">{formatMoney(dashboardStats.verifiedAmount, 'NGN')}</p>
             </div>
           </div>
         </div>
 
-        <div className="rounded-3xl border border-black/5 bg-white p-7 mb-8 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
+        <div className="hero-entrance hero-entrance-delayed-200 rounded-3xl border border-black/5 bg-white p-7 mb-8 shadow-[0_20px_60px_rgba(15,23,42,0.08)] premium-card">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-bold text-[#1d1d1f] text-lg">{editingId ? 'Edit Client Portal' : 'Create Client Portal'}</h2>
             {editingId && <button onClick={resetForm} className="text-xs text-slate-500 hover:text-red-500">Cancel Edit</button>}
@@ -362,22 +362,22 @@ export default function AdminClientsPage() {
             <p className="text-xs text-slate-400 mt-2">Use an array of objects: title, description, status, due.</p>
           </div>
 
-          <button onClick={saveClient} disabled={saving} className="inline-flex items-center justify-center px-7 py-3 rounded-xl bg-[#0071e3] hover:bg-[#0077ed] text-white font-semibold transition-colors disabled:opacity-60">
+          <button onClick={saveClient} disabled={saving} className="inline-flex items-center justify-center px-7 py-3 rounded-xl bg-[#0071e3] hover:bg-[#0077ed] text-white font-semibold transition-colors disabled:opacity-60 premium-button">
             {saving ? 'Saving...' : editingId ? 'Update Client' : 'Create Client'}
           </button>
         </div>
 
-        <div className="rounded-3xl border border-black/5 bg-white p-7 mb-8 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
+        <div className="hero-entrance hero-entrance-delayed-300 rounded-3xl border border-black/5 bg-white p-7 mb-8 shadow-[0_20px_60px_rgba(15,23,42,0.08)] premium-card">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 mb-4">
             <h2 className="font-bold text-[#1d1d1f]">Client Portals ({filteredClients.length})</h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-2 w-full lg:w-auto">
               <input
-                className="input-field md:w-56"
+                className="input-field md:w-56 luxury-input"
                 placeholder="Search name, slug, email"
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
               />
-              <select className="input-field" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+              <select className="input-field luxury-input" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
                 <option value="all">All statuses</option>
                 <option value="onboarding">Onboarding</option>
                 <option value="in_progress">In progress</option>
@@ -385,7 +385,7 @@ export default function AdminClientsPage() {
                 <option value="completed">Completed</option>
                 <option value="blocked">Blocked</option>
               </select>
-              <select className="input-field" value={activeFilter} onChange={(e) => setActiveFilter(e.target.value)}>
+              <select className="input-field luxury-input" value={activeFilter} onChange={(e) => setActiveFilter(e.target.value)}>
                 <option value="all">All portals</option>
                 <option value="active">Active only</option>
                 <option value="inactive">Inactive only</option>
@@ -406,7 +406,7 @@ export default function AdminClientsPage() {
 
           <div className="flex flex-col gap-3">
             {filteredClients.map(c => (
-              <div key={c.id} className="rounded-2xl border border-black/5 bg-[#fafafc] p-4 md:p-5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+              <div key={c.id} className="stagger-item rounded-2xl border border-black/5 bg-[#fafafc] p-4 md:p-5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 premium-card premium-hover">
                 <div>
                   <div className="font-semibold text-[#1d1d1f]">{c.client_name} · /clients/{c.slug}</div>
                   <div className="text-xs text-slate-500 mt-1">{c.project_title}</div>
@@ -422,11 +422,11 @@ export default function AdminClientsPage() {
                 </div>
 
                 <div className="flex flex-wrap gap-2">
-                  <a href={`/clients/${c.slug}`} target="_blank" rel="noopener" className="inline-flex items-center px-4 py-2 text-xs rounded-lg bg-[#0071e3] text-white hover:bg-[#0077ed]">Open Portal</a>
-                  <button onClick={() => startEdit(c)} className="inline-flex items-center px-4 py-2 text-xs rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-50">Edit</button>
+                  <a href={`/clients/${c.slug}`} target="_blank" rel="noopener" className="inline-flex items-center px-4 py-2 text-xs rounded-lg bg-[#0071e3] text-white hover:bg-[#0077ed] premium-button">Open Portal</a>
+                  <button onClick={() => startEdit(c)} className="inline-flex items-center px-4 py-2 text-xs rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 premium-button">Edit</button>
                   <button
                     onClick={() => quickStatusUpdate(c, { is_active: c.is_active === false })}
-                    className="inline-flex items-center px-4 py-2 text-xs rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                    className="inline-flex items-center px-4 py-2 text-xs rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 premium-button"
                   >
                     {c.is_active === false ? 'Activate' : 'Deactivate'}
                   </button>
@@ -434,23 +434,23 @@ export default function AdminClientsPage() {
                     onClick={() => quickStatusUpdate(c, {
                       allow_final_payment: c.allow_final_payment !== true,
                     })}
-                    className="inline-flex items-center px-4 py-2 text-xs rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                    className="inline-flex items-center px-4 py-2 text-xs rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 premium-button"
                   >
                     {c.allow_final_payment ? 'Lock Final Pay' : 'Unlock Final Pay'}
                   </button>
-                  <button onClick={() => removeClient(c.id)} className="inline-flex items-center px-4 py-2 text-xs rounded-lg bg-red-50 text-red-700 hover:bg-red-100 border border-red-200">Delete</button>
+                  <button onClick={() => removeClient(c.id)} className="inline-flex items-center px-4 py-2 text-xs rounded-lg bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 premium-button">Delete</button>
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="rounded-3xl border border-black/5 bg-white p-7 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
+        <div className="hero-entrance hero-entrance-delayed-400 rounded-3xl border border-black/5 bg-white p-7 shadow-[0_20px_60px_rgba(15,23,42,0.08)] premium-card">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-bold text-[#1d1d1f]">Payment Verification Queue</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
               <select
-                className="input-field max-w-xs"
+                className="input-field max-w-xs luxury-input"
                 value={selectedClient}
                 onChange={e => setSelectedClient(e.target.value)}
               >
@@ -459,7 +459,7 @@ export default function AdminClientsPage() {
               </select>
 
               <select
-                className="input-field max-w-xs"
+                className="input-field max-w-xs luxury-input"
                 value={paymentStatusFilter}
                 onChange={e => setPaymentStatusFilter(e.target.value)}
               >
@@ -486,7 +486,7 @@ export default function AdminClientsPage() {
             {filteredPayments.length === 0 ? (
               <div className="text-sm text-slate-400 text-center py-8">No payment submissions yet.</div>
             ) : filteredPayments.map(p => (
-              <div key={p.id} className="border border-slate-200 rounded-2xl p-4 bg-[#fafafc]">
+              <div key={p.id} className="stagger-item border border-slate-200 rounded-2xl p-4 bg-[#fafafc] premium-card premium-hover">
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <div className="font-semibold text-[#1d1d1f]">{p.client_name} · {p.project_title}</div>
@@ -502,10 +502,10 @@ export default function AdminClientsPage() {
                 </div>
 
                 <div className="flex flex-wrap gap-2 mt-3">
-                  <button onClick={() => setReceiptPreview(p.receipt_url)} className="inline-flex items-center px-4 py-2 text-xs rounded-lg bg-[#0071e3] text-white hover:bg-[#0077ed]">View Receipt Image</button>
-                  <button onClick={() => askAndUpdatePayment(p, 'verified')} className="inline-flex items-center px-4 py-2 text-xs rounded-lg bg-emerald-600 text-white hover:bg-emerald-700">Verify</button>
-                  <button onClick={() => askAndUpdatePayment(p, 'verified', { unlock_final_payment: true, advance_milestone: true })} className="inline-flex items-center px-4 py-2 text-xs rounded-lg bg-indigo-600 text-white hover:bg-indigo-700">Verify + Unlock Final + Advance</button>
-                  <button onClick={() => askAndUpdatePayment(p, 'rejected')} className="inline-flex items-center px-4 py-2 text-xs rounded-lg bg-red-50 text-red-700 hover:bg-red-100 border border-red-200">Reject</button>
+                  <button onClick={() => setReceiptPreview(p.receipt_url)} className="inline-flex items-center px-4 py-2 text-xs rounded-lg bg-[#0071e3] text-white hover:bg-[#0077ed] premium-button">View Receipt Image</button>
+                  <button onClick={() => askAndUpdatePayment(p, 'verified')} className="inline-flex items-center px-4 py-2 text-xs rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 premium-button">Verify</button>
+                  <button onClick={() => askAndUpdatePayment(p, 'verified', { unlock_final_payment: true, advance_milestone: true })} className="inline-flex items-center px-4 py-2 text-xs rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 premium-button">Verify + Unlock Final + Advance</button>
+                  <button onClick={() => askAndUpdatePayment(p, 'rejected')} className="inline-flex items-center px-4 py-2 text-xs rounded-lg bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 premium-button">Reject</button>
                 </div>
               </div>
             ))}

@@ -125,7 +125,7 @@ export default function ClientPortalDashboard({ slug }) {
       <div className="absolute -bottom-40 -right-20 h-[28rem] w-[28rem] bg-[#0071e3]/10 blur-3xl rounded-full pointer-events-none" />
 
       <main className="relative z-10 container mx-auto px-6 py-10 lg:py-12">
-        <section className="rounded-[2rem] border border-black/5 bg-white/85 shadow-[0_30px_80px_rgba(15,23,42,0.10)] backdrop-blur-2xl p-8 md:p-10 mb-8">
+        <section className="hero-entrance hero-entrance-delayed-100 rounded-[2rem] border border-black/5 bg-white/85 shadow-[0_30px_80px_rgba(15,23,42,0.10)] backdrop-blur-2xl p-8 md:p-10 mb-8 premium-card">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
             <div>
               <div className="inline-flex items-center gap-3 rounded-full border border-black/10 bg-white px-4 py-1.5 mb-5">
@@ -146,20 +146,20 @@ export default function ClientPortalDashboard({ slug }) {
             </div>
           </div>
 
-          <div className="grid md:grid-cols-4 gap-4 mt-8">
-            <div className="rounded-2xl bg-[#f8f8fb] border border-black/5 p-4">
+          <div className="grid md:grid-cols-4 gap-4 mt-8 stagger-item">
+            <div className="stagger-item rounded-2xl bg-[#f8f8fb] border border-black/5 p-4 premium-card">
               <p className="text-[11px] uppercase tracking-wider text-slate-500">Client</p>
               <p className="font-semibold mt-1 text-[#1d1d1f]">{data.client.client_name}</p>
             </div>
-            <div className="rounded-2xl bg-[#f8f8fb] border border-black/5 p-4">
+            <div className="stagger-item rounded-2xl bg-[#f8f8fb] border border-black/5 p-4 premium-card">
               <p className="text-[11px] uppercase tracking-wider text-slate-500">Status</p>
               <p className="font-semibold mt-1 capitalize text-[#1d1d1f]">{(data.client.project_status || 'in_progress').replace('_', ' ')}</p>
             </div>
-            <div className="rounded-2xl bg-[#f8f8fb] border border-black/5 p-4">
+            <div className="stagger-item rounded-2xl bg-[#f8f8fb] border border-black/5 p-4 premium-card">
               <p className="text-[11px] uppercase tracking-wider text-slate-500">Contract Value</p>
               <p className="font-semibold mt-1 text-[#1d1d1f]">{formatMoney(data.paymentPolicy.totalAmount, data.paymentPolicy.currency)}</p>
             </div>
-            <div className="rounded-2xl bg-[#f8f8fb] border border-black/5 p-4">
+            <div className="stagger-item rounded-2xl bg-[#f8f8fb] border border-black/5 p-4 premium-card">
               <p className="text-[11px] uppercase tracking-wider text-slate-500">Current Milestone</p>
               <p className="font-semibold mt-1 text-[#1d1d1f]">#{data.client.current_milestone}</p>
             </div>
@@ -167,7 +167,7 @@ export default function ClientPortalDashboard({ slug }) {
         </section>
 
         <section className="grid lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 rounded-[1.75rem] border border-black/5 bg-white/85 shadow-[0_24px_60px_rgba(15,23,42,0.08)] p-6 md:p-7">
+          <div className="hero-entrance hero-entrance-delayed-200 lg:col-span-2 rounded-[1.75rem] border border-black/5 bg-white/85 shadow-[0_24px_60px_rgba(15,23,42,0.08)] p-6 md:p-7 premium-card">
             <h2 className="text-xl font-semibold mb-5 text-[#1d1d1f]">Delivery Milestone Timeline</h2>
             <div className="space-y-4">
               {milestones.map((m, idx) => {
@@ -176,7 +176,7 @@ export default function ClientPortalDashboard({ slug }) {
                 const done = step < data.client.current_milestone
 
                 return (
-                  <div key={`${m.title}-${idx}`} className="rounded-2xl border border-black/5 bg-[#fafafc] p-4 md:p-5">
+                  <div key={`${m.title}-${idx}`} className="stagger-item rounded-2xl border border-black/5 bg-[#fafafc] p-4 md:p-5 premium-card premium-hover">
                     <div className="flex items-start justify-between gap-4">
                       <div>
                         <p className="text-[11px] uppercase tracking-wide text-slate-500 mb-1">Milestone {step}</p>
@@ -194,7 +194,7 @@ export default function ClientPortalDashboard({ slug }) {
             </div>
           </div>
 
-          <div className="rounded-[1.75rem] border border-black/5 bg-white/85 shadow-[0_24px_60px_rgba(15,23,42,0.08)] p-6 md:p-7">
+          <div className="hero-entrance hero-entrance-delayed-300 rounded-[1.75rem] border border-black/5 bg-white/85 shadow-[0_24px_60px_rgba(15,23,42,0.08)] p-6 md:p-7 premium-card">
             <h2 className="text-xl font-semibold mb-2 text-[#1d1d1f]">Finance and Verification</h2>
             <p className="text-slate-600 text-sm mb-5">Payment terms: 50% upfront and 50% after verified milestone progression from the delivery office.</p>
 
@@ -210,7 +210,7 @@ export default function ClientPortalDashboard({ slug }) {
               <select
                 value={phase}
                 onChange={(e) => setPhase(e.target.value)}
-                className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm"
+                className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm luxury-input"
               >
                 <option value="initial">Initial 50% (Milestone Start)</option>
                 <option value="final" disabled={!data.paymentState.initialVerified}>Final 50% (After Admin Unlock)</option>
@@ -221,7 +221,7 @@ export default function ClientPortalDashboard({ slug }) {
             <div className="rounded-2xl bg-[#f8f8fb] border border-black/5 p-4 mb-4">
               <label className="text-[11px] uppercase tracking-wide text-slate-500 block mb-2">Transfer Reference (Optional)</label>
               <input
-                className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm"
+                className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm luxury-input"
                 value={transferReference}
                 onChange={(e) => setTransferReference(e.target.value)}
                 placeholder="Transaction ID / Narration"
@@ -248,7 +248,7 @@ export default function ClientPortalDashboard({ slug }) {
             <button
               onClick={submitPayment}
               disabled={submitting || uploading || !canSubmitCurrentPhase}
-              className="w-full py-3 rounded-xl font-semibold bg-[#0071e3] hover:bg-[#0077ed] text-white disabled:opacity-40 transition-colors"
+              className="w-full py-3 rounded-xl font-semibold bg-[#0071e3] hover:bg-[#0077ed] text-white disabled:opacity-40 transition-colors premium-button"
             >
               {submitting ? 'Submitting...' : `Submit ${phase === 'initial' ? 'Initial' : 'Final'} Payment Receipt`}
             </button>
@@ -263,14 +263,14 @@ export default function ClientPortalDashboard({ slug }) {
           </div>
         </section>
 
-        <section className="rounded-[1.75rem] border border-black/5 bg-white/85 shadow-[0_24px_60px_rgba(15,23,42,0.08)] p-6 md:p-7 mt-6">
+        <section className="hero-entrance hero-entrance-delayed-400 rounded-[1.75rem] border border-black/5 bg-white/85 shadow-[0_24px_60px_rgba(15,23,42,0.08)] p-6 md:p-7 mt-6 premium-card">
           <h2 className="text-lg font-semibold mb-4 text-[#1d1d1f]">Payment Verification History</h2>
           <div className="space-y-3">
             {data.payments.length === 0 ? (
               <p className="text-slate-500 text-sm">No payment receipts submitted yet.</p>
             ) : (
               data.payments.map((p) => (
-                <div key={p.id} className="rounded-xl border border-black/5 bg-[#fafafc] p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                <div key={p.id} className="stagger-item rounded-xl border border-black/5 bg-[#fafafc] p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3 premium-card premium-hover">
                   <div>
                     <p className="font-medium capitalize text-[#1d1d1f]">{p.payment_phase} Payment - {formatMoney(p.paid_amount, data.paymentPolicy.currency)}</p>
                     <p className="text-xs text-slate-500">Submitted: {new Date(p.submitted_at).toLocaleString()}</p>
