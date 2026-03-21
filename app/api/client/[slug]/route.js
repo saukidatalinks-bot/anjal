@@ -18,7 +18,7 @@ export async function GET(request, { params }) {
 
     const clientRows = await sql`
       SELECT * FROM clients
-      WHERE slug = ${slug} AND is_active = true
+      WHERE LOWER(slug) = LOWER(${slug})
       LIMIT 1
     `
 
