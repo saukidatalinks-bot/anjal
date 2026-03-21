@@ -51,6 +51,10 @@ export async function PUT(request, { params }) {
       payment_account_number,
       payment_account_name,
       payment_note,
+      portal_stage,
+      quotation_content,
+      contract_content,
+      mark_project_complete,
     } = body
 
     const result = await sql`
@@ -74,6 +78,10 @@ export async function PUT(request, { params }) {
         payment_account_number = ${payment_account_number || null},
         payment_account_name = ${payment_account_name || null},
         payment_note = ${payment_note || null},
+        portal_stage = ${portal_stage || 'review'},
+        quotation_content = ${quotation_content || null},
+        contract_content = ${contract_content || null},
+        project_completed_at = ${mark_project_complete ? sql`NOW()` : null},
         updated_at = NOW()
       WHERE id = ${params.id}
       RETURNING *

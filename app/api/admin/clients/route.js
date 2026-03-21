@@ -49,6 +49,8 @@ export async function POST(request) {
       payment_account_number,
       payment_account_name,
       payment_note,
+      quotation_content,
+      contract_content,
     } = body
 
     if (!slug || !client_name || !project_title) {
@@ -59,47 +61,22 @@ export async function POST(request) {
 
     const result = await sql`
       INSERT INTO clients (
-        slug,
-        client_name,
-        company_name,
-        contact_email,
-        project_title,
-        project_description,
-        project_status,
-        total_amount,
-        currency,
-        total_amount_usd,
-        progress_percent,
-        current_milestone,
-        milestones_json,
-        allow_final_payment,
-        is_active,
-        payment_bank,
-        payment_account_number,
-        payment_account_name,
-        payment_note,
-        updated_at
+        slug, client_name, company_name, contact_email, project_title,
+        project_description, project_status, total_amount, currency,
+        total_amount_usd, progress_percent, current_milestone, milestones_json,
+        allow_final_payment, is_active, payment_bank, payment_account_number,
+        payment_account_name, payment_note, portal_stage, quotation_content,
+        contract_content, updated_at
       ) VALUES (
-        ${cleanSlug},
-        ${client_name},
-        ${company_name || null},
-        ${contact_email || null},
-        ${project_title},
-        ${project_description || null},
-        ${project_status || 'in_progress'},
-        ${total_amount || 0},
-        ${currency || 'NGN'},
-        ${total_amount_usd || 0},
-        ${progress_percent || 0},
-        ${current_milestone || 1},
+        ${cleanSlug}, ${client_name}, ${company_name || null}, ${contact_email || null},
+        ${project_title}, ${project_description || null}, ${project_status || 'in_progress'},
+        ${total_amount || 0}, ${currency || 'NGN'}, ${total_amount_usd || 0},
+        ${progress_percent || 0}, ${current_milestone || 1},
         ${JSON.stringify(milestones_json || [])}::jsonb,
-        ${allow_final_payment === true},
-        ${is_active !== false},
-        ${payment_bank || 'Opay'},
-        ${payment_account_number || null},
-        ${payment_account_name || null},
-        ${payment_note || null},
-        NOW()
+        ${allow_final_payment === true}, ${is_active !== false},
+        ${payment_bank || 'Opay'}, ${payment_account_number || null},
+        ${payment_account_name || null}, ${payment_note || null},
+        'review', ${quotation_content || null}, ${contract_content || null}, NOW()
       )
       RETURNING *
     `

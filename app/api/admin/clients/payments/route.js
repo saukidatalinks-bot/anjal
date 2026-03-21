@@ -98,3 +98,31 @@ export async function PUT(request) {
     return NextResponse.json({ error: 'Failed to update payment status' }, { status: 500 })
   }
 }
+
+// PATCH /api/admin/clients/payments — mark project complete
+export async function PATCH(request) {
+  try {
+    await initDb()
+    const sql = getDb()
+    const body = await request.json()
+    const clientId = body?.client_id
+    const action = body?.action
+
+    if (!clientId || action !== 'mark_complete') {
+      return NextResponse.json({ error: 'client_id and action=mark_complete required' }, { status: 400 })
+    }
+
+    await sql`
+      UPDATE clients SET
+        project_completed_at = NOW(),
+        project_status = 'completed',
+        progress_percent = 100,
+        updated_at = NOW()
+      WHERE id = ${clientId}
+    `
+    return NextResponse.json({ success: true })
+  } catch (err) {
+    console.error('Admin mark complete error:', err)
+    return NextResponse.json({ error: 'Failed to mark project complete' }, { status: 500 })
+  }
+}

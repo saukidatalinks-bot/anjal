@@ -1,11 +1,7 @@
-import ClientPortalDashboard from '@/components/ClientPortalDashboard'
+import { redirect } from 'next/navigation'
 
-export const metadata = {
-  title: 'Client Portal - Anjal Ventures',
-  robots: 'noindex, nofollow',
-}
-
+// Permanent redirect to new portal routing
 export default function ClientPortalPage({ params }) {
   const slug = (params?.slug || '').toLowerCase()
-  return <ClientPortalDashboard slug={slug} />
+  redirect(`/portal/${slug}`)
 }
