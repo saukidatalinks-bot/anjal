@@ -140,42 +140,52 @@ body {
   }
 
   .premium-card {
-    @apply transition-all duration-500 ease-out;
+    transition: all 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
     will-change: transform, box-shadow, border-color;
   }
 
   .premium-card:hover {
-    @apply -translate-y-1 shadow-2xl;
+    transform: translateY(-4px);
     box-shadow: 0 30px 90px rgba(15, 23, 42, 0.15);
   }
 
   .premium-button {
-    @apply relative inline-flex items-center justify-center transition-all duration-300 ease-out overflow-hidden;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transition: all 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
     will-change: transform, box-shadow;
   }
 
   .premium-button:hover {
-    @apply -translate-y-0.5;
+    transform: translateY(-2px);
     box-shadow: 0 20px 40px rgba(0, 113, 227, 0.2);
   }
 
   .premium-button:active {
-    @apply translate-y-0;
+    transform: translateY(0);
     box-shadow: 0 10px 20px rgba(0, 113, 227, 0.15);
   }
 
   .luxury-input {
-    @apply transition-all duration-300 ease-out bg-gradient-to-br from-blue-50/50 to-purple-50/30 border border-blue-200/50;
+    width: 100%;
+    transition: all 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    background: linear-gradient(to bottom right, rgba(219, 234, 254, 0.5), rgba(243, 232, 255, 0.3));
+    border: 1px solid rgba(191, 219, 254, 0.5);
     will-change: box-shadow, border-color, background-color;
   }
 
   .luxury-input:focus {
-    @apply border-blue-400 bg-white;
+    border-color: rgb(96, 165, 250);
+    background-color: white;
     box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1);
+    outline: none;
   }
 
   .stagger-item {
-    @apply opacity-0;
+    opacity: 0;
     animation: staggerFadeUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   }
 
@@ -189,11 +199,13 @@ body {
   .stagger-item:nth-child(8) { animation-delay: 560ms; }
 
   .premium-hover {
-    @apply relative transition-all duration-400 ease-out cursor-pointer;
+    position: relative;
+    transition: all 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    cursor: pointer;
   }
 
   .premium-hover:hover {
-    @apply -translate-y-0.5;
+    transform: translateY(-2px);
   }
 
   /* Hardware acceleration for smooth motion */
@@ -267,14 +279,20 @@ body {
 
 /* Modal */
 .modal-overlay {
-  @apply fixed inset-0 z-50 flex items-center justify-center p-6;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
   background: rgba(10, 22, 40, 0.7);
   backdrop-filter: blur(8px);
 }
 
 /* Toast override */
 .toast-custom {
-  font-family: var(--font-dm-sans);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 /* Print styles for quotation */
