@@ -1,15 +1,23 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
 import toast, { Toaster } from 'react-hot-toast'
+
+function formatMoney(value, currency = 'NGN') {
+  return new Intl.NumberFormat('en-NG', {
+    style: 'currency',
+    currency,
+    maximumFractionDigits: 0,
+  }).format(Number(value || 0))
+}
 
 export default function PortalPaymentPage() {
   const { slug, stage } = useParams()
   const router = useRouter()
-  const stageNum = parseInt(stage || '1', 10)
-  const phase = stageNum === 2 ? 'final' : 'initial'
+  const stageNumber = Number(stage || '1')
+  const phase = stageNumber === 2 ? 'final' : 'initial'
 
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -22,49 +30,60 @@ export default function PortalPaymentPage() {
 
   useEffect(() => {
     if (!slug) return
+
     fetch(`/api/portal/${slug}`)
-      .then(r => r.json())
-      .then(d => {
-        setData(d)
+      .then((response) => response.json())
+      .then((payload) => {
+        setData(payload)
         setLoading(false)
 
-        if (!d?.client) return
-        const { stages, client } = d
-        // Guard: stage 2 not yet unlocked
-        if (stageNum === 2) {
-          if (stages.stage2.status === 'locked') {
-            toast.error('Second payment is locked. Please wait for admin to unlock it.')
-            router.replace(`/portal/${slug}/progress`)
-          } else if (stages.stage2.status === 'pending' || stages.stage2.status === 'verified') {
-            router.replace(`/portal/${slug}/progress`)
-          }
+        if (!payload?.client) return
+
+        const stage1 = payload?.stages?.stage1?.status
+        const stage2 = payload?.stages?.stage2?.status
+
+        if (stageNumber === 1 && ['pending', 'verified'].includes(stage1)) {
+          router.replace(`/portal/${slug}/progress`)
+          return
         }
-        // Guard: stage 1 already submitted or verified
-        if (stageNum === 1) {
-          if (stages.stage1.status === 'pending' || stages.stage1.status === 'verified') {
+
+        if (stageNumber === 2) {
+          if (stage2 === 'locked') {
+            toast.error('Second payment is not available yet.')
+            router.replace(`/portal/${slug}/progress`)
+            return
+          }
+          if (['pending', 'verified'].includes(stage2)) {
             router.replace(`/portal/${slug}/progress`)
           }
         }
       })
       .catch(() => setLoading(false))
-  }, [slug, stageNum])
+  }, [router, slug, stageNumber])
 
-  const handleFileChange = async (e) => {
-    const file = e.target.files?.[0]
+  const handleFileChange = async (event) => {
+    const file = event.target.files?.[0]
     if (!file) return
+
     setReceiptFile(file)
     setUploading(true)
     try {
       const formData = new FormData()
       formData.append('file', file)
-      const res = await fetch('/api/client/upload-receipt', { method: 'POST', body: formData })
-      const payload = await res.json()
-      if (!res.ok) throw new Error(payload.error || 'Upload failed')
+
+      const response = await fetch('/api/client/upload-receipt', {
+        method: 'POST',
+        body: formData,
+      })
+      const payload = await response.json()
+      if (!response.ok) throw new Error(payload.error || 'Upload failed')
+
       setReceiptUrl(payload.url)
-      toast.success('Receipt uploaded')
-    } catch (err) {
-      toast.error(err.message)
+      toast.success('Receipt uploaded successfully')
+    } catch (error) {
+      toast.error(error.message)
       setReceiptFile(null)
+      setReceiptUrl('')
     } finally {
       setUploading(false)
     }
@@ -74,7 +93,7 @@ export default function PortalPaymentPage() {
     setSubmitting(true)
     try {
       const amount = data?.payment?.halfAmount || 0
-      const res = await fetch(`/api/portal/${slug}/pay`, {
+      const response = await fetch(`/api/portal/${slug}/pay`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -84,11 +103,11 @@ export default function PortalPaymentPage() {
           receipt_url: receiptUrl || null,
         }),
       })
-      const payload = await res.json()
-      if (!res.ok) throw new Error(payload.error || 'Submission failed')
+      const payload = await response.json()
+      if (!response.ok) throw new Error(payload.error || 'Payment submission failed')
       setSubmitted(true)
-    } catch (err) {
-      toast.error(err.message)
+    } catch (error) {
+      toast.error(error.message)
     } finally {
       setSubmitting(false)
     }
@@ -96,47 +115,43 @@ export default function PortalPaymentPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950/40 to-slate-950 flex items-center justify-center">
-        <div className="text-white/60 animate-pulse text-sm">Loading payment details…</div>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center px-6">
+        <p className="text-sm text-slate-500">Loading payment details...</p>
       </div>
     )
   }
 
   if (!data?.client) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950/40 to-slate-950 flex items-center justify-center text-white">
-        <p>Portal not found.</p>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center px-6">
+        <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+          <h1 className="text-xl font-semibold text-slate-900">Portal not found</h1>
+          <p className="mt-2 text-sm text-slate-500">This payment page is not available.</p>
+        </div>
       </div>
     )
   }
 
   const { client, payment } = data
-
-  const formatMoney = (v, cur = 'NGN') =>
-    new Intl.NumberFormat('en-NG', { style: 'currency', currency: cur, maximumFractionDigits: 0 }).format(Number(v || 0))
+  const amountLabel = stageNumber === 2 ? 'Final payment' : 'Initial payment'
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-emerald-950/30 to-slate-950 flex items-center justify-center px-6">
-        <div className="max-w-md w-full text-center space-y-6">
-          <div className="w-20 h-20 rounded-full bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center mx-auto text-4xl">
-            ✅
+      <div className="min-h-screen bg-slate-50 px-5 py-10 sm:px-6">
+        <Toaster position="top-right" />
+        <div className="mx-auto max-w-lg rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 text-emerald-700">
+            <span className="text-lg font-semibold">OK</span>
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-white mb-2">Payment Submitted!</h1>
-            <p className="text-white/60 text-sm leading-relaxed">
-              Thank you. Your Stage {stageNum} payment submission has been received.<br />
-              An admin will verify your payment shortly.
-            </p>
-          </div>
-          <div className="rounded-xl bg-white/5 border border-white/10 px-5 py-4 text-sm text-white/60">
-            You'll be able to track your project progress from the dashboard.
-          </div>
+          <h1 className="mt-5 text-2xl font-semibold text-slate-900">Payment submitted</h1>
+          <p className="mt-3 text-sm leading-6 text-slate-600">
+            Your payment confirmation has been submitted successfully. Processing begins only after your submission, and the team will verify it shortly.
+          </p>
           <button
             onClick={() => router.push(`/portal/${slug}/progress`)}
-            className="w-full py-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold transition-all duration-300 hover:-translate-y-0.5"
+            className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
           >
-            View Progress Dashboard →
+            Open Progress Page
           </button>
         </div>
       </div>
@@ -144,166 +159,126 @@ export default function PortalPaymentPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950/30 to-slate-950 text-white">
+    <div className="min-h-screen bg-slate-50 text-slate-900">
       <Toaster position="top-right" />
 
-      {/* Header */}
-      <header className="sticky top-0 z-20 backdrop-blur-xl bg-slate-950/80 border-b border-white/5">
-        <div className="max-w-2xl mx-auto px-6 py-4 flex items-center justify-between">
+      <header className="border-b border-slate-200 bg-white">
+        <div className="mx-auto flex max-w-4xl items-center justify-between px-5 py-4 sm:px-6">
           <div className="flex items-center gap-3">
-            <div className="relative w-8 h-8 rounded-full overflow-hidden ring-1 ring-white/20">
-              <Image src="/logo.webp" alt="Anjal Ventures" fill className="object-contain" />
+            <div className="relative h-10 w-10 overflow-hidden rounded-full border border-slate-200 bg-white">
+              <Image src="/logo.webp" alt="Anjal Ventures" fill className="object-contain p-1" />
             </div>
             <div>
-              <p className="text-xs font-semibold tracking-widest uppercase text-white/40">Anjal Ventures</p>
-              <p className="text-sm font-medium text-white">Stage {stageNum} Payment</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Anjal Ventures</p>
+              <p className="text-sm font-medium text-slate-700">Payment Details</p>
             </div>
           </div>
-          <button onClick={() => router.back()} className="text-xs text-white/40 hover:text-white/70 transition-colors">
-            ← Back
+          <button onClick={() => router.push(`/portal/${slug}/review`)} className="text-sm font-medium text-slate-600 transition hover:text-slate-900">
+            Back
           </button>
         </div>
       </header>
 
-      {/* Progress steps */}
-      <div className="max-w-2xl mx-auto px-6 pt-6 pb-2">
-        <div className="flex items-center gap-2">
-          {['Review & Sign', `Stage ${stageNum} Payment`, 'Tracking'].map((step, i) => (
-            <div key={step} className="flex items-center gap-2">
-              <div className={`flex items-center gap-2 text-xs font-medium px-3 py-1.5 rounded-full border ${
-                i === 1
-                  ? 'border-blue-400 bg-blue-500/20 text-blue-300'
-                  : 'border-white/10 bg-white/5 text-white/30'
-              }`}>
-                <span className={`w-1.5 h-1.5 rounded-full ${i === 1 ? 'bg-blue-400' : 'bg-white/20'}`} />
-                {step}
-              </div>
-              {i < 2 && <span className="text-white/20">›</span>}
-            </div>
-          ))}
-        </div>
-      </div>
+      <main className="mx-auto max-w-4xl px-5 py-8 sm:px-6 sm:py-10">
+        <div className="grid gap-6 lg:grid-cols-[1fr_0.95fr]">
+          <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Transfer Information</p>
+            <h1 className="mt-3 text-2xl font-semibold text-slate-900">{amountLabel}</h1>
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              Please review the account details below. The portal will move to processing only after you click the confirmation button at the bottom of this page.
+            </p>
 
-      <main className="max-w-2xl mx-auto px-6 py-8 space-y-6">
-        {/* Stage label */}
-        <div className="rounded-2xl bg-gradient-to-r from-blue-600/20 to-indigo-600/10 border border-blue-500/20 px-6 py-5">
-          <p className="text-xs uppercase tracking-widest text-blue-300/70 mb-1">
-            Stage {stageNum} of 2 — {stageNum === 1 ? 'Initial Payment (50%)' : 'Final Payment (50%)'}
-          </p>
-          <h1 className="text-xl font-bold text-white">{client.project_title}</h1>
-          <p className="text-white/50 text-sm mt-1">Transfer the amount below to the account details provided, then click the button to confirm.</p>
-        </div>
-
-        {/* Amount due */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="rounded-xl bg-white/5 border border-white/10 p-4 text-center">
-            <p className="text-xs text-white/40 uppercase tracking-widest mb-1">Amount Due (NGN)</p>
-            <p className="text-2xl font-bold text-white">{formatMoney(payment.halfAmount, 'NGN')}</p>
-          </div>
-          <div className="rounded-xl bg-white/5 border border-white/10 p-4 text-center">
-            <p className="text-xs text-white/40 uppercase tracking-widest mb-1">Amount Due (USD)</p>
-            <p className="text-2xl font-bold text-white">${payment.halfUSD?.toFixed(2) || '0.00'}</p>
-          </div>
-        </div>
-
-        {/* Bank account details */}
-        <div className="rounded-2xl bg-gradient-to-br from-indigo-600/10 to-blue-600/5 border border-indigo-500/20 overflow-hidden">
-          <div className="px-6 py-4 border-b border-white/5 bg-white/[0.02]">
-            <p className="text-xs uppercase tracking-widest text-indigo-300/70">Transfer To</p>
-            <p className="text-white font-semibold mt-1">Company Payment Account</p>
-          </div>
-          <div className="px-6 py-5 space-y-4">
-            <div className="flex justify-between items-center">
-              <span className="text-white/40 text-sm">Bank</span>
-              <span className="text-white font-semibold text-sm">{payment.bank}</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-white/40 text-sm">Account Number</span>
-              <div className="flex items-center gap-2">
-                <span className="text-white font-mono font-bold text-lg tracking-widest">{payment.accountNumber}</span>
-                <button
-                  onClick={() => { navigator.clipboard.writeText(payment.accountNumber); toast.success('Copied!') }}
-                  className="text-xs text-blue-400 hover:text-blue-300 border border-blue-400/30 hover:border-blue-300/50 px-2 py-0.5 rounded-md transition-colors"
-                >
-                  Copy
-                </button>
+            <div className="mt-8 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+              <div className="space-y-4">
+                <div className="flex items-start justify-between gap-4 border-b border-slate-200 pb-4">
+                  <div>
+                    <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Application</p>
+                    <p className="mt-2 text-base font-semibold text-slate-900">{client.project_title}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Amount</p>
+                    <p className="mt-2 text-base font-semibold text-slate-900">{formatMoney(payment.halfAmount, 'NGN')}</p>
+                    <p className="text-sm text-slate-500">{formatMoney(payment.halfUSD, 'USD')}</p>
+                  </div>
+                </div>
+                <Row label="Bank" value={payment.bank} />
+                <Row label="Account Number" value={payment.accountNumber} copyValue={payment.accountNumber} />
+                <Row label="Account Name" value={payment.accountName} />
+                {payment.note && <Row label="Note" value={payment.note} multiline />}
               </div>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-white/40 text-sm">Account Name</span>
-              <span className="text-white font-semibold text-sm">{payment.accountName}</span>
+          </section>
+
+          <aside className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Confirmation</p>
+            <h2 className="mt-3 text-xl font-semibold text-slate-900">Submit when payment is done</h2>
+            <p className="mt-3 text-sm leading-6 text-slate-600">
+              You can optionally upload a receipt and add a transfer reference before confirming.
+            </p>
+
+            <div className="mt-6 space-y-4">
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">Transfer reference</label>
+                <input
+                  type="text"
+                  value={reference}
+                  onChange={(event) => setReference(event.target.value)}
+                  placeholder="Transaction ID or narration"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-400"
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">Receipt upload (optional)</label>
+                <label className="flex min-h-32 cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-center transition hover:border-slate-400 hover:bg-slate-100">
+                  <input type="file" accept="image/*,application/pdf" onChange={handleFileChange} className="sr-only" />
+                  <p className="text-sm font-medium text-slate-700">
+                    {uploading ? 'Uploading receipt...' : receiptFile ? receiptFile.name : 'Choose a receipt file'}
+                  </p>
+                  <p className="mt-1 text-xs text-slate-500">PNG, JPG or PDF</p>
+                </label>
+              </div>
             </div>
-            {payment.note && (
-              <div className="mt-3 pt-3 border-t border-white/5">
-                <p className="text-xs text-white/40">{payment.note}</p>
-              </div>
-            )}
-          </div>
-        </div>
 
-        {/* Receipt upload (optional) */}
-        <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 space-y-3">
-          <div className="flex items-center justify-between">
-            <p className="text-sm font-semibold text-white">Upload Payment Receipt</p>
-            <span className="text-xs text-white/40 bg-white/5 border border-white/10 px-2.5 py-1 rounded-full">Optional</span>
-          </div>
-          <p className="text-xs text-white/40">Upload a screenshot or photo of your transfer confirmation to help speed up verification.</p>
+            <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-4">
+              <p className="text-sm font-medium text-slate-900">Important</p>
+              <p className="mt-1 text-sm leading-6 text-slate-600">
+                Opening this page does not start processing. Processing starts only when you click the confirmation button below.
+              </p>
+            </div>
 
-          <label className={`flex flex-col items-center justify-center border-2 border-dashed rounded-xl py-8 cursor-pointer transition-all ${
-            receiptFile
-              ? 'border-emerald-500/50 bg-emerald-500/5'
-              : 'border-white/10 hover:border-white/20 bg-white/[0.01]'
-          }`}>
-            <input type="file" accept="image/*,application/pdf" onChange={handleFileChange} className="sr-only" />
-            {uploading ? (
-              <div className="text-center">
-                <div className="w-6 h-6 border-2 border-blue-400 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-                <p className="text-xs text-white/50">Uploading…</p>
-              </div>
-            ) : receiptFile ? (
-              <div className="text-center">
-                <div className="text-2xl mb-2">✅</div>
-                <p className="text-emerald-400 text-sm font-medium">{receiptFile.name}</p>
-                <p className="text-white/30 text-xs mt-1">Click to replace</p>
-              </div>
-            ) : (
-              <div className="text-center">
-                <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-3 text-xl">📎</div>
-                <p className="text-white/60 text-sm font-medium">Tap to upload receipt</p>
-                <p className="text-white/30 text-xs mt-1">PNG, JPG, PDF accepted</p>
-              </div>
-            )}
-          </label>
-        </div>
-
-        {/* Reference */}
-        <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4 space-y-2">
-          <label className="text-sm font-medium text-white">Transfer Reference / Narration <span className="text-white/30 text-xs font-normal">(Optional)</span></label>
-          <input
-            type="text"
-            value={reference}
-            onChange={e => setReference(e.target.value)}
-            placeholder="e.g. Transaction ID or bank narration"
-            className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:border-blue-500/50 focus:bg-white/10 transition-all"
-          />
-        </div>
-
-        {/* Submit button */}
-        <button
-          onClick={handleSubmit}
-          disabled={submitting || uploading}
-          className="w-full py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-base transition-all duration-300 hover:-translate-y-0.5 shadow-lg shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:translate-y-0"
-        >
-          {submitting ? 'Submitting…' : 'I Have Transferred the Money ✓'}
-        </button>
-        <p className="text-center text-xs text-white/30">
-          By clicking above you confirm you have transferred {formatMoney(payment.halfAmount, 'NGN')} to the account above.
-        </p>
-
-        <div className="text-center text-xs text-white/20 pb-8">
-          Anjal Ventures · anjalventures@gmail.com
+            <button
+              onClick={handleSubmit}
+              disabled={submitting || uploading}
+              className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {submitting ? 'Submitting...' : 'I Have Transferred the Money'}
+            </button>
+          </aside>
         </div>
       </main>
+    </div>
+  )
+}
+
+function Row({ label, value, copyValue, multiline = false }) {
+  const handleCopy = async () => {
+    if (!copyValue) return
+    await navigator.clipboard.writeText(copyValue)
+    toast.success('Copied to clipboard')
+  }
+
+  return (
+    <div className={`flex gap-4 ${multiline ? 'flex-col' : 'items-center justify-between'}`}>
+      <p className="min-w-28 text-xs font-medium uppercase tracking-[0.18em] text-slate-500">{label}</p>
+      <div className={`flex ${multiline ? 'w-full' : 'items-center gap-3'} ${multiline ? 'justify-start' : 'justify-end'} flex-1`}>
+        <p className={`text-sm text-slate-900 ${multiline ? 'leading-6' : 'font-medium'}`}>{value}</p>
+        {copyValue && (
+          <button onClick={handleCopy} className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-50">
+            Copy
+          </button>
+        )}
+      </div>
     </div>
   )
 }
