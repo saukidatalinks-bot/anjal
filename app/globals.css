@@ -165,11 +165,12 @@ body {
   }
 
   .luxury-input {
-    @apply transition-all duration-300 ease-out;
+    @apply transition-all duration-300 ease-out bg-gradient-to-br from-blue-50/50 to-purple-50/30 border border-blue-200/50;
     will-change: box-shadow, border-color, background-color;
   }
 
   .luxury-input:focus {
+    @apply border-blue-400 bg-white;
     box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1);
   }
 
@@ -230,15 +231,6 @@ body {
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes luxuryGloss {
-  0%, 100% {
-    box-shadow: 0 20px 60px rgba(15, 23, 42, 0.08);
-  }
-  50% {
-    box-shadow: 0 30px 90px rgba(15, 23, 42, 0.12);
   }
 }
 

@@ -242,33 +242,33 @@ export default function AdminClientsPage() {
       <Toaster position="top-right" />
       <AdminSidebar />
 
-      <main className="ml-64 flex-1 p-8 md:p-10">
-        <div className="hero-entrance hero-entrance-delayed-100 mb-8 rounded-3xl border border-black/5 bg-white px-7 py-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)] premium-card">
-          <h1 className="font-display text-3xl text-[#1d1d1f] mb-1">Client Operations Command Center</h1>
+      <main className="ml-64 flex-1 p-8 md:p-10 bg-gradient-to-br from-slate-50/50 via-white to-blue-50/30">
+        <div className="hero-entrance hero-entrance-delayed-100 mb-8 rounded-3xl border border-blue-200/40 bg-gradient-to-br from-blue-50/80 via-white to-indigo-50/40 px-7 py-6 shadow-[0_20px_60px_rgba(59,130,246,0.06)] premium-card">
+          <h1 className="font-display text-3xl bg-gradient-to-r from-blue-700 to-indigo-600 bg-clip-text text-transparent mb-1">Client Operations Command Center</h1>
           <p className="text-slate-600 text-sm">Enterprise-grade control for contract delivery, progress governance, and staged payment compliance.</p>
           <div className="mt-5 grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="stagger-item rounded-2xl border border-black/5 bg-[#f8f8fb] p-4 premium-card">
+            <div className="stagger-item rounded-2xl border border-indigo-200/40 bg-gradient-to-br from-indigo-50/70 to-blue-50/50 p-4 premium-card">
               <p className="text-[11px] uppercase tracking-[0.14em] text-slate-500">Client Portals</p>
               <p className="text-2xl font-semibold text-[#1d1d1f] mt-1">{dashboardStats.totalClients}</p>
             </div>
-            <div className="stagger-item rounded-2xl border border-black/5 bg-[#f8f8fb] p-4 premium-card">
+            <div className="stagger-item rounded-2xl border border-emerald-200/40 bg-gradient-to-br from-emerald-50/70 to-teal-50/50 p-4 premium-card">
               <p className="text-[11px] uppercase tracking-[0.14em] text-slate-500">Active Programs</p>
               <p className="text-2xl font-semibold text-[#1d1d1f] mt-1">{dashboardStats.activeClients}</p>
             </div>
-            <div className="stagger-item rounded-2xl border border-black/5 bg-[#f8f8fb] p-4 premium-card">
+            <div className="stagger-item rounded-2xl border border-amber-200/40 bg-gradient-to-br from-amber-50/70 to-orange-50/50 p-4 premium-card">
               <p className="text-[11px] uppercase tracking-[0.14em] text-slate-500">Pending Verifications</p>
               <p className="text-2xl font-semibold text-[#1d1d1f] mt-1">{dashboardStats.pendingPayments}</p>
             </div>
-            <div className="stagger-item rounded-2xl border border-black/5 bg-[#f8f8fb] p-4 premium-card">
+            <div className="stagger-item rounded-2xl border border-rose-200/40 bg-gradient-to-br from-rose-50/70 to-pink-50/50 p-4 premium-card">
               <p className="text-[11px] uppercase tracking-[0.14em] text-slate-500">Verified Revenue</p>
               <p className="text-2xl font-semibold text-[#1d1d1f] mt-1">{formatMoney(dashboardStats.verifiedAmount, 'NGN')}</p>
             </div>
           </div>
         </div>
 
-        <div className="hero-entrance hero-entrance-delayed-200 rounded-3xl border border-black/5 bg-white p-7 mb-8 shadow-[0_20px_60px_rgba(15,23,42,0.08)] premium-card">
+        <div className="hero-entrance hero-entrance-delayed-200 rounded-3xl border border-blue-200/40 bg-gradient-to-br from-blue-50/70 to-white p-7 mb-8 shadow-[0_20px_60px_rgba(59,130,246,0.06)] premium-card">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-bold text-[#1d1d1f] text-lg">{editingId ? 'Edit Client Portal' : 'Create Client Portal'}</h2>
+            <h2 className="font-bold bg-gradient-to-r from-blue-700 to-indigo-600 bg-clip-text text-transparent text-lg">{editingId ? 'Edit Client Portal' : 'Create Client Portal'}</h2>
             {editingId && <button onClick={resetForm} className="text-xs text-slate-500 hover:text-red-500">Cancel Edit</button>}
           </div>
 
@@ -367,9 +367,9 @@ export default function AdminClientsPage() {
           </button>
         </div>
 
-        <div className="hero-entrance hero-entrance-delayed-300 rounded-3xl border border-black/5 bg-white p-7 mb-8 shadow-[0_20px_60px_rgba(15,23,42,0.08)] premium-card">
+        <div className="hero-entrance hero-entrance-delayed-300 rounded-3xl border border-emerald-200/40 bg-gradient-to-br from-emerald-50/70 to-white p-7 mb-8 shadow-[0_20px_60px_rgba(16,185,129,0.06)] premium-card">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 mb-4">
-            <h2 className="font-bold text-[#1d1d1f]">Client Portals ({filteredClients.length})</h2>
+            <h2 className="font-bold bg-gradient-to-r from-emerald-700 to-teal-600 bg-clip-text text-transparent">Client Portals ({filteredClients.length})</h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-2 w-full lg:w-auto">
               <input
                 className="input-field md:w-56 luxury-input"
@@ -406,7 +406,7 @@ export default function AdminClientsPage() {
 
           <div className="flex flex-col gap-3">
             {filteredClients.map(c => (
-              <div key={c.id} className="stagger-item rounded-2xl border border-black/5 bg-[#fafafc] p-4 md:p-5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 premium-card premium-hover">
+              <div key={c.id} className="stagger-item rounded-2xl border border-emerald-200/30 bg-gradient-to-br from-emerald-50/40 to-teal-50/20 p-4 md:p-5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 premium-card premium-hover">
                 <div>
                   <div className="font-semibold text-[#1d1d1f]">{c.client_name} · /clients/{c.slug}</div>
                   <div className="text-xs text-slate-500 mt-1">{c.project_title}</div>
@@ -445,9 +445,9 @@ export default function AdminClientsPage() {
           </div>
         </div>
 
-        <div className="hero-entrance hero-entrance-delayed-400 rounded-3xl border border-black/5 bg-white p-7 shadow-[0_20px_60px_rgba(15,23,42,0.08)] premium-card">
+        <div className="hero-entrance hero-entrance-delayed-400 rounded-3xl border border-purple-200/40 bg-gradient-to-br from-purple-50/70 to-white p-7 shadow-[0_20px_60px_rgba(168,85,247,0.06)] premium-card">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-bold text-[#1d1d1f]">Payment Verification Queue</h2>
+            <h2 className="font-bold bg-gradient-to-r from-purple-700 to-pink-600 bg-clip-text text-transparent">Payment Verification Queue</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
               <select
                 className="input-field max-w-xs luxury-input"
@@ -486,7 +486,7 @@ export default function AdminClientsPage() {
             {filteredPayments.length === 0 ? (
               <div className="text-sm text-slate-400 text-center py-8">No payment submissions yet.</div>
             ) : filteredPayments.map(p => (
-              <div key={p.id} className="stagger-item border border-slate-200 rounded-2xl p-4 bg-[#fafafc] premium-card premium-hover">
+              <div key={p.id} className="stagger-item border border-purple-200/30 rounded-2xl p-4 bg-gradient-to-br from-purple-50/40 to-pink-50/20 premium-card premium-hover">
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <div className="font-semibold text-[#1d1d1f]">{p.client_name} · {p.project_title}</div>
