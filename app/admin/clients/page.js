@@ -39,6 +39,11 @@ export default function AdminClientsPage() {
   const [editingId, setEditingId] = useState(null)
   const [saving, setSaving] = useState(false)
   const [selectedClient, setSelectedClient] = useState('all')
+  const [searchText, setSearchText] = useState('')
+  const [statusFilter, setStatusFilter] = useState('all')
+  const [activeFilter, setActiveFilter] = useState('all')
+  const [paymentStatusFilter, setPaymentStatusFilter] = useState('all')
+  const [receiptPreview, setReceiptPreview] = useState('')
 
   const load = async () => {
     try {
@@ -59,9 +64,53 @@ export default function AdminClientsPage() {
   }, [])
 
   const filteredPayments = useMemo(() => {
-    if (selectedClient === 'all') return payments
-    return payments.filter(p => String(p.client_id) === String(selectedClient))
-  }, [payments, selectedClient])
+    let list = payments
+    if (selectedClient !== 'all') {
+      list = list.filter((p) => String(p.client_id) === String(selectedClient))
+    }
+    if (paymentStatusFilter !== 'all') {
+      list = list.filter((p) => p.status === paymentStatusFilter)
+    }
+    return list
+  }, [payments, selectedClient, paymentStatusFilter])
+
+  const filteredClients = useMemo(() => {
+    let list = clients
+    if (statusFilter !== 'all') {
+      list = list.filter((c) => c.project_status === statusFilter)
+    }
+    if (activeFilter !== 'all') {
+      list = list.filter((c) => (activeFilter === 'active' ? c.is_active !== false : c.is_active === false))
+    }
+    if (searchText.trim()) {
+      const q = searchText.toLowerCase().trim()
+      list = list.filter((c) => {
+        return (
+          String(c.client_name || '').toLowerCase().includes(q) ||
+          String(c.slug || '').toLowerCase().includes(q) ||
+          String(c.project_title || '').toLowerCase().includes(q) ||
+          String(c.contact_email || '').toLowerCase().includes(q)
+        )
+      })
+    }
+    return list
+  }, [clients, statusFilter, activeFilter, searchText])
+
+  const dashboardStats = useMemo(() => {
+    const totalClients = clients.length
+    const activeClients = clients.filter((c) => c.is_active !== false).length
+    const pendingPayments = payments.filter((p) => p.status === 'pending').length
+    const verifiedAmount = payments
+      .filter((p) => p.status === 'verified')
+      .reduce((sum, p) => sum + (Number(p.paid_amount) || 0), 0)
+
+    return {
+      totalClients,
+      activeClients,
+      pendingPayments,
+      verifiedAmount,
+    }
+  }, [clients, payments])
 
   const resetForm = () => {
     setEditingId(null)
@@ -74,6 +123,29 @@ export default function AdminClientsPage() {
     setForm({ ...client, milestones_json: client.milestones_json || [] })
     setMilestonesText(JSON.stringify(client.milestones_json || [], null, 2))
     window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const quickStatusUpdate = async (client, update) => {
+    try {
+      const payload = {
+        ...client,
+        ...update,
+        milestones_json: client.milestones_json || [],
+      }
+
+      const res = await fetch(`/api/admin/clients/${client.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Status update failed')
+      toast.success('Client status updated')
+      await load()
+    } catch (err) {
+      toast.error(err.message)
+    }
   }
 
   const saveClient = async () => {
@@ -149,24 +221,58 @@ export default function AdminClientsPage() {
     }
   }
 
+  const askAndUpdatePayment = async (payment, status, extra = {}) => {
+    const note = window.prompt('Optional admin note for this payment action:', '')
+    await updatePayment(payment, status, {
+      ...extra,
+      admin_note: note || null,
+    })
+  }
+
+  const formatMoney = (amount, currency = 'NGN') => {
+    return new Intl.NumberFormat('en-NG', {
+      style: 'currency',
+      currency,
+      maximumFractionDigits: 2,
+    }).format(Number(amount || 0))
+  }
+
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-[#f3f5f8]">
       <Toaster position="top-right" />
       <AdminSidebar />
 
-      <main className="ml-64 flex-1 p-8 bg-slate-50">
-        <div className="mb-6">
-          <h1 className="font-display text-3xl text-navy mb-1">Client Portals</h1>
-          <p className="text-slate-500 text-sm">Full CRM-style control for client dashboard, milestones, and staged payment verification.</p>
+      <main className="ml-64 flex-1 p-8 md:p-10">
+        <div className="mb-8 rounded-3xl border border-black/5 bg-white px-7 py-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
+          <h1 className="font-display text-3xl text-[#1d1d1f] mb-1">Client Operations Command Center</h1>
+          <p className="text-slate-600 text-sm">Enterprise-grade control for contract delivery, progress governance, and staged payment compliance.</p>
+          <div className="mt-5 grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="rounded-2xl border border-black/5 bg-[#f8f8fb] p-4">
+              <p className="text-[11px] uppercase tracking-[0.14em] text-slate-500">Client Portals</p>
+              <p className="text-2xl font-semibold text-[#1d1d1f] mt-1">{dashboardStats.totalClients}</p>
+            </div>
+            <div className="rounded-2xl border border-black/5 bg-[#f8f8fb] p-4">
+              <p className="text-[11px] uppercase tracking-[0.14em] text-slate-500">Active Programs</p>
+              <p className="text-2xl font-semibold text-[#1d1d1f] mt-1">{dashboardStats.activeClients}</p>
+            </div>
+            <div className="rounded-2xl border border-black/5 bg-[#f8f8fb] p-4">
+              <p className="text-[11px] uppercase tracking-[0.14em] text-slate-500">Pending Verifications</p>
+              <p className="text-2xl font-semibold text-[#1d1d1f] mt-1">{dashboardStats.pendingPayments}</p>
+            </div>
+            <div className="rounded-2xl border border-black/5 bg-[#f8f8fb] p-4">
+              <p className="text-[11px] uppercase tracking-[0.14em] text-slate-500">Verified Revenue</p>
+              <p className="text-2xl font-semibold text-[#1d1d1f] mt-1">{formatMoney(dashboardStats.verifiedAmount, 'NGN')}</p>
+            </div>
+          </div>
         </div>
 
-        <div className="admin-card mb-8">
+        <div className="rounded-3xl border border-black/5 bg-white p-7 mb-8 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-bold text-navy text-lg">{editingId ? 'Edit Client Portal' : 'Create Client Portal'}</h2>
-            {editingId && <button onClick={resetForm} className="text-xs text-slate-400 hover:text-red-500">Cancel Edit</button>}
+            <h2 className="font-bold text-[#1d1d1f] text-lg">{editingId ? 'Edit Client Portal' : 'Create Client Portal'}</h2>
+            {editingId && <button onClick={resetForm} className="text-xs text-slate-500 hover:text-red-500">Cancel Edit</button>}
           </div>
 
-          <div className="grid grid-cols-2 gap-4 mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
               <label className="label">Slug *</label>
               <input className="input-field" value={form.slug} onChange={e => setForm({ ...form, slug: e.target.value })} placeholder="adam" />
@@ -214,6 +320,7 @@ export default function AdminClientsPage() {
                 <option value="in_progress">In Progress</option>
                 <option value="review">In Review</option>
                 <option value="completed">Completed</option>
+                <option value="blocked">Blocked</option>
               </select>
             </div>
             <div className="flex flex-col justify-end gap-2 pb-2">
@@ -255,52 +362,134 @@ export default function AdminClientsPage() {
             <p className="text-xs text-slate-400 mt-2">Use an array of objects: title, description, status, due.</p>
           </div>
 
-          <button onClick={saveClient} disabled={saving} className="btn btn-green">
+          <button onClick={saveClient} disabled={saving} className="inline-flex items-center justify-center px-7 py-3 rounded-xl bg-[#0071e3] hover:bg-[#0077ed] text-white font-semibold transition-colors disabled:opacity-60">
             {saving ? 'Saving...' : editingId ? 'Update Client' : 'Create Client'}
           </button>
         </div>
 
-        <div className="admin-card mb-8">
-          <h2 className="font-bold text-navy mb-4">Client Portals ({clients.length})</h2>
+        <div className="rounded-3xl border border-black/5 bg-white p-7 mb-8 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 mb-4">
+            <h2 className="font-bold text-[#1d1d1f]">Client Portals ({filteredClients.length})</h2>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-2 w-full lg:w-auto">
+              <input
+                className="input-field md:w-56"
+                placeholder="Search name, slug, email"
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+              />
+              <select className="input-field" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+                <option value="all">All statuses</option>
+                <option value="onboarding">Onboarding</option>
+                <option value="in_progress">In progress</option>
+                <option value="review">Review</option>
+                <option value="completed">Completed</option>
+                <option value="blocked">Blocked</option>
+              </select>
+              <select className="input-field" value={activeFilter} onChange={(e) => setActiveFilter(e.target.value)}>
+                <option value="all">All portals</option>
+                <option value="active">Active only</option>
+                <option value="inactive">Inactive only</option>
+              </select>
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchText('')
+                  setStatusFilter('all')
+                  setActiveFilter('all')
+                }}
+                className="inline-flex items-center justify-center px-4 rounded-lg border border-slate-200 bg-white text-sm text-slate-600 hover:bg-slate-50"
+              >
+                Reset
+              </button>
+            </div>
+          </div>
+
           <div className="flex flex-col gap-3">
-            {clients.map(c => (
-              <div key={c.id} className="table-row">
+            {filteredClients.map(c => (
+              <div key={c.id} className="rounded-2xl border border-black/5 bg-[#fafafc] p-4 md:p-5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                 <div>
-                  <div className="font-semibold text-navy">{c.client_name} · /clients/{c.slug}</div>
+                  <div className="font-semibold text-[#1d1d1f]">{c.client_name} · /clients/{c.slug}</div>
                   <div className="text-xs text-slate-500 mt-1">{c.project_title}</div>
-                  <div className="text-xs text-slate-400 mt-1">Progress {c.progress_percent}% · Pending payments {c.pending_payments || 0}</div>
+                  <div className="text-xs text-slate-500 mt-1">Progress {c.progress_percent}% · Pending payments {c.pending_payments || 0}</div>
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <span className={`text-[10px] uppercase tracking-[0.12em] px-2.5 py-1 rounded-full border ${c.is_active !== false ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-100 text-slate-600 border-slate-200'}`}>
+                      {c.is_active !== false ? 'Active' : 'Inactive'}
+                    </span>
+                    <span className="text-[10px] uppercase tracking-[0.12em] px-2.5 py-1 rounded-full border border-blue-200 bg-blue-50 text-blue-700">
+                      {(c.project_status || 'in_progress').replace('_', ' ')}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex gap-2">
-                  <a href={`/clients/${c.slug}`} target="_blank" rel="noopener" className="btn btn-primary py-2 px-4 text-xs">Open Portal</a>
-                  <button onClick={() => startEdit(c)} className="btn btn-primary py-2 px-4 text-xs">Edit</button>
-                  <button onClick={() => removeClient(c.id)} className="btn py-2 px-4 text-xs bg-red-50 text-red-600 hover:bg-red-600 hover:text-white">Delete</button>
+
+                <div className="flex flex-wrap gap-2">
+                  <a href={`/clients/${c.slug}`} target="_blank" rel="noopener" className="inline-flex items-center px-4 py-2 text-xs rounded-lg bg-[#0071e3] text-white hover:bg-[#0077ed]">Open Portal</a>
+                  <button onClick={() => startEdit(c)} className="inline-flex items-center px-4 py-2 text-xs rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-50">Edit</button>
+                  <button
+                    onClick={() => quickStatusUpdate(c, { is_active: c.is_active === false })}
+                    className="inline-flex items-center px-4 py-2 text-xs rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                  >
+                    {c.is_active === false ? 'Activate' : 'Deactivate'}
+                  </button>
+                  <button
+                    onClick={() => quickStatusUpdate(c, {
+                      allow_final_payment: c.allow_final_payment !== true,
+                    })}
+                    className="inline-flex items-center px-4 py-2 text-xs rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                  >
+                    {c.allow_final_payment ? 'Lock Final Pay' : 'Unlock Final Pay'}
+                  </button>
+                  <button onClick={() => removeClient(c.id)} className="inline-flex items-center px-4 py-2 text-xs rounded-lg bg-red-50 text-red-700 hover:bg-red-100 border border-red-200">Delete</button>
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="admin-card">
+        <div className="rounded-3xl border border-black/5 bg-white p-7 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-bold text-navy">Payment Verification Queue</h2>
-            <select
-              className="input-field max-w-xs"
-              value={selectedClient}
-              onChange={e => setSelectedClient(e.target.value)}
-            >
-              <option value="all">All clients</option>
-              {clients.map(c => <option key={c.id} value={c.id}>{c.client_name} ({c.slug})</option>)}
-            </select>
+            <h2 className="font-bold text-[#1d1d1f]">Payment Verification Queue</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+              <select
+                className="input-field max-w-xs"
+                value={selectedClient}
+                onChange={e => setSelectedClient(e.target.value)}
+              >
+                <option value="all">All clients</option>
+                {clients.map(c => <option key={c.id} value={c.id}>{c.client_name} ({c.slug})</option>)}
+              </select>
+
+              <select
+                className="input-field max-w-xs"
+                value={paymentStatusFilter}
+                onChange={e => setPaymentStatusFilter(e.target.value)}
+              >
+                <option value="all">All payment states</option>
+                <option value="pending">Pending</option>
+                <option value="verified">Verified</option>
+                <option value="rejected">Rejected</option>
+              </select>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedClient('all')
+                  setPaymentStatusFilter('all')
+                }}
+                className="inline-flex items-center justify-center px-4 rounded-lg border border-slate-200 bg-white text-sm text-slate-600 hover:bg-slate-50"
+              >
+                Reset
+              </button>
+            </div>
           </div>
 
           <div className="flex flex-col gap-3">
             {filteredPayments.length === 0 ? (
               <div className="text-sm text-slate-400 text-center py-8">No payment submissions yet.</div>
             ) : filteredPayments.map(p => (
-              <div key={p.id} className="border border-slate-200 rounded-xl p-4 bg-slate-50">
+              <div key={p.id} className="border border-slate-200 rounded-2xl p-4 bg-[#fafafc]">
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <div className="font-semibold text-navy">{p.client_name} · {p.project_title}</div>
+                    <div className="font-semibold text-[#1d1d1f]">{p.client_name} · {p.project_title}</div>
                     <div className="text-xs text-slate-500 mt-1">/{p.slug} · {p.payment_phase} payment · Amount: {p.paid_amount}</div>
                     <div className="text-xs text-slate-400 mt-1">Submitted: {new Date(p.submitted_at).toLocaleString()}</div>
                     {p.transfer_reference && <div className="text-xs text-slate-500 mt-1">Ref: {p.transfer_reference}</div>}
@@ -313,15 +502,29 @@ export default function AdminClientsPage() {
                 </div>
 
                 <div className="flex flex-wrap gap-2 mt-3">
-                  <a href={p.receipt_url} target="_blank" rel="noopener" className="btn btn-primary py-2 px-4 text-xs">View Receipt</a>
-                  <button onClick={() => updatePayment(p, 'verified')} className="btn btn-green py-2 px-4 text-xs">Verify</button>
-                  <button onClick={() => updatePayment(p, 'verified', { unlock_final_payment: true, advance_milestone: true })} className="btn py-2 px-4 text-xs bg-blue-600 text-white hover:bg-blue-700">Verify + Unlock Final + Advance Milestone</button>
-                  <button onClick={() => updatePayment(p, 'rejected')} className="btn py-2 px-4 text-xs bg-red-50 text-red-600 hover:bg-red-600 hover:text-white">Reject</button>
+                  <button onClick={() => setReceiptPreview(p.receipt_url)} className="inline-flex items-center px-4 py-2 text-xs rounded-lg bg-[#0071e3] text-white hover:bg-[#0077ed]">View Receipt Image</button>
+                  <button onClick={() => askAndUpdatePayment(p, 'verified')} className="inline-flex items-center px-4 py-2 text-xs rounded-lg bg-emerald-600 text-white hover:bg-emerald-700">Verify</button>
+                  <button onClick={() => askAndUpdatePayment(p, 'verified', { unlock_final_payment: true, advance_milestone: true })} className="inline-flex items-center px-4 py-2 text-xs rounded-lg bg-indigo-600 text-white hover:bg-indigo-700">Verify + Unlock Final + Advance</button>
+                  <button onClick={() => askAndUpdatePayment(p, 'rejected')} className="inline-flex items-center px-4 py-2 text-xs rounded-lg bg-red-50 text-red-700 hover:bg-red-100 border border-red-200">Reject</button>
                 </div>
               </div>
             ))}
           </div>
         </div>
+
+        {receiptPreview && (
+          <div className="fixed inset-0 z-50 bg-[#111827]/70 backdrop-blur-sm flex items-center justify-center p-6" onClick={() => setReceiptPreview('')}>
+            <div className="max-w-5xl w-full rounded-2xl overflow-hidden bg-white" onClick={(e) => e.stopPropagation()}>
+              <div className="px-5 py-3 border-b border-slate-200 flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-[#1d1d1f]">Client Payment Receipt</h3>
+                <button type="button" onClick={() => setReceiptPreview('')} className="text-sm text-slate-500 hover:text-[#1d1d1f]">Close</button>
+              </div>
+              <div className="bg-slate-50 p-4">
+                <img src={receiptPreview} alt="Payment receipt" className="w-full max-h-[78vh] object-contain rounded-lg" />
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   )
