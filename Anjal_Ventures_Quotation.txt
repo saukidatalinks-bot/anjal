@@ -1,0 +1,118 @@
+ANJAL VENTURES
+Technology & Digital Solutions
+QUOTATION
+Ref: AV/DEV/2026/001
+FROM:
+Anjal Ventures (Anjal Developers Team)
+BN Reg. No. 9258709 | CAC Certified
+TIN: 2623553716975
+No. 4, MJG Global Ventures Complex,
+Kolomi Ali Street, Sabon Pegi,
+Damaturu, Yobe State, Nigeria
+QUOTATION DETAILS
+Date: February 19, 2026
+Valid Until: March 19, 2026 (30 Days)
+Currency: USD / NGN
+Exchange Rate: $1 = ₦1,350
+Payment Terms: 50% Upfront, 50% on Delivery
+PREPARED FOR:
+Valued Client
+Subject: Comprehensive Web & Mobile Application Development Package
+SCOPE OF SERVICES & ITEMISED QUOTATION
+# Service / Deliverable Description
+Unit 
+Cost 
+(USD)
+Amount 
+(NGN)
+1
+Website Development 
+(Serverless Cloud 
+Infrastructure)
+Fully responsive, production-ready website hosted 
+on serverless cloud infrastructure (AWS Lambda / 
+Vercel / Firebase). Includes:
+• Custom frontend & backend development
+• Cloud-hosted database (NoSQL/SQL)
+• Auto-scaling & high availability
+• SSL certificate & security hardening
+• Admin dashboard & CMS integration
+$65.00 ₦87,750
+2
+Google Play Developer 
+Account
+(Registered & Verified)
+Registered Google Play Console developer 
+account in client's name. Enables:
+• Lifetime app publishing rights
+• Full ownership & access to console
+• Ability to host unlimited future apps
+$25.00 ₦33,750
+3
+.app Domain Registration 
+(1-Year Premium Domain)
+Registration of a branded .app top-level domain 
+name. Includes:
+• Google-managed HTTPS enforcement (free SSL)
+• 1-year domain registration & DNS setup
+• Domain pointing & configuration
+$15.00 ₦20,250
+4
+Android Mobile Application
+(Native Android / Crossplatform)
+Full-featured Android application synced with the 
+web platform. Includes:
+• UI/UX design & development
+• API integration with website backend
+• Push notification support
+• Google Play Store submission & listing
+$40.00 ₦54,000
+# Service / Deliverable Description
+Unit 
+Cost 
+(USD)
+Amount 
+(NGN)
+• Source code delivery to client
+5
+Subsidized Data Vending 
+API Access & Integration
+Exclusive access to Anjal Ventures' subsidized 
+data vending API. Includes:
+• API key provisioning & onboarding
+• Integration into website and Android app
+• Below-market data reselling rates
+• Technical documentation & support
+$25.00 ₦33,750
+Subtotal: $170.00
+Tax / VAT: Nil
+TOTAL: $170.00
+NGN Equivalent: ₦229,500
+TERMS & CONDITIONS
+Payment Schedule
+50% deposit ($85 / ₦114,750) required before project 
+commencement. Balance of 50% ($85 / ₦114,750) payable upon 
+project delivery and handover.
+Delivery Timeline
+Estimated delivery: 2–4 weeks from deposit confirmation, subject 
+to timely provision of required content and assets by client.
+Validity
+This quotation is valid for 30 days from the date of 
+issue (until March 19, 2026). Prices are subject to 
+change after this period.
+Post-Delivery Support
+14-day complimentary bug-fix support included postdelivery. Ongoing maintenance packages available 
+upon request.
+Issued By:
+________________________________
+Anjal Developers Team
+Anjal Ventures | Anjal Developers
+CAC Reg. No. 9258709
+Damaturu, Yobe State, Nigeria
+Client Acceptance:
+________________________________
+Client Name & Signature
+Date: _________________________
+Thank you for considering Anjal Ventures. We are committed to delivering quality digital solutions that drive your business 
+forward.
+For enquiries, please contact the Anjal Developers Team anjalventures@gmail.com | Damaturu, Yobe State, Nigeria
