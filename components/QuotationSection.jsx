@@ -54,7 +54,7 @@ export default function QuotationSection({ settings = {}, calculator = {} }) {
     // ─── Load logo ───
     let logoDataURL = null
     try {
-      const res = await fetch('/logo.png')
+      const res = await fetch('/logo-dark.png')
       if (res.ok) {
         const blob = await res.blob()
         logoDataURL = await new Promise((resolve) => {
@@ -360,7 +360,7 @@ export default function QuotationSection({ settings = {}, calculator = {} }) {
     
     doc.setFontSize(6)
     doc.text(
-      `${settings.company_email || 'contact@anjalventures.com'} • ${settings.company_email2 || 'developers@anjalventures.com'} • ${normalizeCompanyAddress(settings.company_address)}`,
+      `${settings.company_email || 'contact@anjalventures.com'} • ${settings.company_email2 || 'office@anjalsolutionsltd.com'} • ${normalizeCompanyAddress(settings.company_address)}`,
       pageWidth / 2,
       footerY + 10,
       { align: 'center' }

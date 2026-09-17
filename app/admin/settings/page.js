@@ -11,7 +11,7 @@ const SETTING_GROUPS = [
       { key: 'company_name', label: 'Company Name', placeholder: 'Anjal Solutions LTD' },
       { key: 'company_tagline', label: 'Tagline', placeholder: "Building Africa's Digital Infrastructure" },
       { key: 'company_email', label: 'Primary Corporate Email', type: 'email', placeholder: 'contact@anjalventures.com' },
-      { key: 'company_email2', label: 'Engineering / Developer Email', type: 'email', placeholder: 'developers@anjalventures.com' },
+      { key: 'company_email2', label: 'Office & Operations Email', type: 'email', placeholder: 'office@anjalsolutionsltd.com' },
       { key: 'company_phone', label: 'Primary Phone Number', placeholder: '+234 000 000 0000' },
       { key: 'company_phone_alternate', label: 'Alternate Phone Number', placeholder: '+234 000 000 0000' },
       { key: 'company_whatsapp', label: 'WhatsApp Number (digits only)', placeholder: '2348012345678' },

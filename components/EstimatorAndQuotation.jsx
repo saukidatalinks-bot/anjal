@@ -315,7 +315,7 @@ export default function EstimatorAndQuotation({ settings = {}, calculator = {} }
     doc.setTextColor(100, 116, 139)
     doc.text(`Email: ${settings.company_email || 'contact@anjalventures.com'}`, margin, y)
     y += 4
-    doc.text(`Engineering: ${settings.company_email2 || 'developers@anjalventures.com'}`, margin, y)
+    doc.text(`Office: ${settings.company_email2 || 'office@anjalsolutionsltd.com'}`, margin, y)
     y += 4
     doc.text(`Address: ${normalizeCompanyAddress(settings.company_address)}`, margin, y)
 

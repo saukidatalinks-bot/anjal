@@ -145,7 +145,7 @@ export default async function AboutPage() {
   const tin = settings.company_tin || '2623598796685'
   const address = normalizeCompanyAddress(settings.company_address)
   const emailContact = settings.company_email || 'contact@anjalventures.com'
-  const emailDev = settings.company_email2 || 'developers@anjalventures.com'
+  const emailDev = settings.company_email2 || 'office@anjalsolutionsltd.com'
 
   return (
     <PlatformShell settings={settings}>

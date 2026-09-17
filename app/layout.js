@@ -22,12 +22,13 @@ export const metadata = {
   manifest: '/manifest.json',
   icons: {
     icon: [
+      { url: '/favicon.ico' },
       { url: '/favicon.png', sizes: '32x32', type: 'image/png' },
       { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
       { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
     ],
     apple: '/apple-touch-icon.png',
-    shortcut: '/favicon.png',
+    shortcut: '/favicon.ico',
   },
   appleWebApp: {
     capable: true,
@@ -39,13 +40,13 @@ export const metadata = {
   },
   robots: 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1',
   alternates: {
-    canonical: 'https://anjalventures.com',
+    canonical: 'https://anjalsolutionsltd.com',
   },
   openGraph: {
     title: 'Anjal Solutions LTD - Enterprise Software and Digital Products',
     description: 'Custom software platforms, native mobile apps, SaaS architectures, and enterprise web solutions.',
     type: 'website',
-    url: 'https://anjalventures.com',
+    url: 'https://anjalsolutionsltd.com',
     siteName: 'Anjal Solutions LTD',
     locale: 'en_NG',
     images: [
@@ -80,10 +81,11 @@ export default function RootLayout({ children }) {
     '@type': 'Organization',
     name: 'Anjal Solutions LTD',
     alternateName: 'Anjal Ventures',
-    url: 'https://anjalventures.com',
-    logo: 'https://anjalventures.com/logo.png',
+    url: 'https://anjalsolutionsltd.com',
+    logo: 'https://anjalsolutionsltd.com/logo.png',
     description: 'Software development and digital solutions company building enterprise web platforms, mobile apps, and business systems.',
     sameAs: [
+      'https://anjalventures.com',
       'https://facebook.com/anjalventures',
       'https://twitter.com/anjalventures',
       'https://linkedin.com/company/anjal-ventures',
@@ -115,8 +117,8 @@ export default function RootLayout({ children }) {
       },
       {
         '@type': 'ContactPoint',
-        contactType: 'Technical Architecture and Developer Support',
-        email: 'developers@anjalventures.com',
+        contactType: 'Corporate Office and Operations',
+        email: 'office@anjalsolutionsltd.com',
       },
     ],
   }

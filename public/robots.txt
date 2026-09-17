@@ -51,13 +51,7 @@ Allow: /
 Crawl-delay: 1
 
 # Sitemap location
-Sitemap: https://anjalventures.com/sitemap.xml
-Sitemap: https://anjalventures.com/sitemap-projects.xml# Specific rules for Bingbot
-User-agent: Bingbot
-Allow: /
-Crawl-delay: 1
-
-# Sitemap location
+Sitemap: https://anjalsolutionsltd.com/sitemap.xml
 Sitemap: https://anjalventures.com/sitemap.xml
 
 # Prevent bad bots

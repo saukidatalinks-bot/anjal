@@ -1,7 +1,7 @@
 import { getDb, initDb } from '@/lib/db'
 
 export default async function sitemap() {
-  const baseUrl = 'https://anjalventures.com'
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://anjalsolutionsltd.com'
   const lastModified = new Date()
 
   try {

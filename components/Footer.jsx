@@ -5,7 +5,7 @@ import { normalizeCompanyAddress } from '@/lib/company'
 export function Footer({ settings = {} }) {
   const companyName = settings.company_name || 'Anjal Solutions LTD'
   const email1 = settings.company_email || 'contact@anjalventures.com'
-  const email2 = settings.company_email2 || 'developers@anjalventures.com'
+  const email2 = settings.company_email2 || 'office@anjalsolutionsltd.com'
   const cac = (settings.company_cac || '9854225').replace(/^(BN|RC)\s*[:\-\s]?\s*/i, '')
   const tin = settings.company_tin || '2623598796685'
   const address = normalizeCompanyAddress(settings.company_address)
@@ -21,8 +21,8 @@ export function Footer({ settings = {} }) {
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 relative flex-shrink-0">
                 <picture>
-                  <source srcSet="/logo-md.webp" type="image/webp" />
-                  <Image src="/logo.png" alt="Anjal Solutions LTD Logo" fill className="object-contain" onError={() => {}} />
+                  <source srcSet="/logo-dark.webp" type="image/webp" />
+                  <Image src="/logo-dark.png" alt="Anjal Solutions LTD Logo" fill className="object-contain" onError={() => {}} />
                 </picture>
               </div>
               <div>

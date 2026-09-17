@@ -11,7 +11,7 @@ export default function Contact({ settings = {}, services = [] }) {
   const [sent, setSent] = useState(false)
 
   const email1 = settings.company_email || 'contact@anjalventures.com'
-  const email2 = settings.company_email2 || 'developers@anjalventures.com'
+  const email2 = settings.company_email2 || 'office@anjalsolutionsltd.com'
   const address = normalizeCompanyAddress(settings.company_address)
   const cac = normalizeCacNumber(settings.company_cac)
 
@@ -82,10 +82,10 @@ export default function Contact({ settings = {}, services = [] }) {
             />
             <ContactLink
               icon={Terminal}
-              label="Developer & Engineering"
+              label="Corporate Office & Operations"
               value={email2}
               href={`mailto:${email2}`}
-              description="Technical architecture, APIs, integrations & open engineering inquiries."
+              description="Official correspondence, operations & corporate inquiries."
             />
             <ContactLink
               icon={MapPin}

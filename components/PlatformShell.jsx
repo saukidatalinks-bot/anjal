@@ -132,9 +132,9 @@ export function SiteFooter({ settings = {} }) {
               <Mail className="h-4 w-4 text-emerald-400" />
               <span>{settings.company_email || 'contact@anjalventures.com'}</span>
             </a>
-            <a href={`mailto:${settings.company_email2 || 'developers@anjalventures.com'}`} className="flex items-center gap-2 rounded-lg transition hover:text-white">
+            <a href={`mailto:${settings.company_email2 || 'office@anjalsolutionsltd.com'}`} className="flex items-center gap-2 rounded-lg transition hover:text-white">
               <Mail className="h-4 w-4 text-blue-400" />
-              <span>{settings.company_email2 || 'developers@anjalventures.com'}</span>
+              <span>{settings.company_email2 || 'office@anjalsolutionsltd.com'}</span>
             </a>
             <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
               <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-white/35">

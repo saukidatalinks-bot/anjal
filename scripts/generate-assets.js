@@ -21,12 +21,12 @@ try {
 // Configuration
 const CONFIG = {
   brand: {
-    name: 'Anjal Ventures',
-    tagline: 'Web • Mobile • AI Solutions',
+    name: 'Anjal Solutions LTD',
+    tagline: 'Enterprise Software • Digital Infrastructure',
     domain: 'anjalventures.com',
     colors: {
       navy: '#0A1628',
-      gold: '#F59E0B',
+      primary: '#183E63',
       green: '#16A34A',
       white: '#FFFFFF',
       lightGray: '#F3F4F6',

@@ -31,3 +31,7 @@ build/
 # Uploads (local dev only — use Vercel Blob in production)
 public/uploads/*
 !public/uploads/.gitkeep
+
+# Raw local assets
+public/new-logo-*.png
+public/raw-og-*.png
