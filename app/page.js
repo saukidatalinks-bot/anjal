@@ -1,6 +1,7 @@
 import { Toaster } from 'react-hot-toast'
 import PlatformShell from '@/components/PlatformShell'
 import { CtaBand, Hero, PricingBand, ProcessBand, ProjectGrid, ServicesGrid } from '@/components/PlatformSections'
+import MediaBroadcastSection from '@/components/MediaBroadcastSection'
 import { getPlatformData } from '@/lib/platform-data'
 
 export default async function HomePage() {
@@ -10,6 +11,7 @@ export default async function HomePage() {
     <PlatformShell settings={settings}>
       <Toaster position="top-right" />
       <Hero settings={settings} />
+      <MediaBroadcastSection />
       <ServicesGrid services={services} />
       <ProjectGrid
         projects={projects.slice(0, 4)}

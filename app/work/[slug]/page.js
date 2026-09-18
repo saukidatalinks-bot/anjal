@@ -384,6 +384,36 @@ export default async function ProjectDetailPage({ params }) {
               </div>
             )}
 
+            {/* National Media Coverage (TVC News Broadcast) */}
+            {(project.slug === 'mynelfund' || project.id === 'mynelfund' || String(project.title || '').toLowerCase().includes('nelfund')) && (
+              <div className="border-t border-slate-100 pt-12">
+                <div className="flex items-center gap-3">
+                  <span className="font-mono text-xs font-bold text-slate-400 uppercase tracking-wider">Media Spotlight</span>
+                  <span className="rounded-md border border-rose-200 bg-rose-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-rose-700">
+                    TVC News Broadcast
+                  </span>
+                </div>
+                <h3 className="mt-3 text-2xl font-semibold text-slate-950">
+                  National Broadcast Feature: TVC News Breakfast
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                  Abdullahi Adam Usman (student at Ahmadu Bello University, Zaria and Co-Founder of Anjal Solutions LTD) explains the engineering and purpose of My NELFund as an independent companion app for Nigerian tertiary students.
+                </p>
+                <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-black shadow-md">
+                  <div className="relative aspect-video w-full">
+                    <iframe
+                      className="absolute inset-0 h-full w-full"
+                      src="https://www.youtube-nocookie.com/embed/_WaaxLj82_A?si=Y9uXoW0cTRMtY_ZB"
+                      title="TVC News Breakfast: NELFund Beneficiary Develops App for Students"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      referrerPolicy="strict-origin-when-cross-origin"
+                      allowFullScreen
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Additional Project Media Gallery */}
             {media.length > 1 && (
               <div className="border-t border-slate-100 pt-12">
