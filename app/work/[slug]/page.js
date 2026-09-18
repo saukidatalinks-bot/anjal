@@ -388,9 +388,9 @@ export default async function ProjectDetailPage({ params }) {
             {(project.slug === 'mynelfund' || project.id === 'mynelfund' || String(project.title || '').toLowerCase().includes('nelfund')) && (
               <div className="border-t border-slate-100 pt-12">
                 <div className="flex items-center gap-3">
-                  <span className="font-mono text-xs font-bold text-slate-400 uppercase tracking-wider">Media Spotlight</span>
-                  <span className="rounded-md border border-rose-200 bg-rose-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-rose-700">
-                    TVC News Broadcast
+                  <img src="/images/tvc-news-logo.png" alt="TVC News" className="h-7 w-auto object-contain" />
+                  <span className="font-mono text-xs font-semibold text-slate-400 uppercase tracking-wider border-l border-slate-200 pl-3">
+                    National Broadcast Feature
                   </span>
                 </div>
                 <h3 className="mt-3 text-2xl font-semibold text-slate-950">
