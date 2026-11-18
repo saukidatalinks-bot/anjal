@@ -1,4 +1,5 @@
 import { getDb } from '@/lib/db'
+import { revalidatePlatformData } from '@/lib/cache'
 
 // PUT - Update testimonial (allows editing all fields)
 export async function PUT(req, { params }) {
@@ -23,7 +24,7 @@ export async function PUT(req, { params }) {
         return Response.json({ error: 'Testimonial not found' }, { status: 404 })
       }
 
-      console.log(`[API] Testimonial ${id} approval toggled to ${is_approved}`)
+      revalidatePlatformData()
       return Response.json({ testimonial: result[0] })
     }
 
@@ -54,7 +55,7 @@ export async function PUT(req, { params }) {
       return Response.json({ error: 'Testimonial not found' }, { status: 404 })
     }
 
-    console.log(`[API] Testimonial ${id} updated`)
+    revalidatePlatformData()
     return Response.json({ testimonial: result[0] })
   } catch (error) {
     console.error('[API] Error updating testimonial:', error)
@@ -78,7 +79,7 @@ export async function DELETE(req, { params }) {
       return Response.json({ error: 'Testimonial not found' }, { status: 404 })
     }
 
-    console.log(`[API] Testimonial ${id} (${result[0].name}) deleted successfully`)
+    revalidatePlatformData()
     return Response.json({ message: 'Testimonial deleted successfully', id: result[0].id })
   } catch (error) {
     console.error('[API] Error deleting testimonial:', error)

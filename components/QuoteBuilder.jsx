@@ -1,529 +1,521 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
-import toast from 'react-hot-toast'
-import { ArrowRight, Check, Download, FileText, ShieldCheck, Zap, Coins } from 'lucide-react'
-import { EstimateSummary } from '@/components/PlatformSections'
-import { normalizeCompanyAddress, normalizeCacNumber } from '@/lib/company'
+import { useEffect, useId, useMemo, useState } from 'react'
+import { Check, Download, FileCheck2, Send, ShieldCheck } from 'lucide-react'
+import toast, { Toaster } from 'react-hot-toast'
+import { companyDisplayName, managementSignoff } from '@/lib/company'
+import { sendEmailJsNotification } from '@/lib/emailjs'
+import { formatNaira } from '@/lib/format'
+import { generateProposalPdf } from '@/lib/proposal-pdf'
 
-function first(items = []) {
-  return items[0] || null
-}
-
-function priceOf(item) {
+function itemPrice(item) {
   return Number(item?.base_price || 0)
 }
 
-function pdfReference(prefix = 'AS') {
-  const now = new Date()
-  return `${prefix}-PROP-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}-${String(Date.now()).slice(-6)}`
+function isMaintenanceSuite(items = []) {
+  return items.some(item => {
+    const label = String(item?.name || '').toLowerCase()
+    return label.includes('restaurant') || label.includes('delivery') || label.includes('commerce') || label.includes('vendor')
+  })
 }
 
-export default function QuoteBuilder({ settings = {}, calculator = {} }) {
-  const exchangeRate = Number(settings.exchange_rate || 1400)
-  const [type, setType] = useState(null)
-  const [scale, setScale] = useState(null)
-  const [timeline, setTimeline] = useState(null)
-  const [support, setSupport] = useState(null)
+export default function QuoteBuilder({ calculator = {}, settings = {}, initialPackage = '' }) {
+  const platforms = useMemo(() => calculator.platform || [], [calculator.platform])
+  const scopes = useMemo(() => calculator.scope || [], [calculator.scope])
+  const designs = useMemo(() => calculator.design || [], [calculator.design])
+  const timelines = useMemo(() => calculator.timeline || [], [calculator.timeline])
+  const supports = useMemo(() => calculator.support || [], [calculator.support])
+  const addonItems = useMemo(() => calculator.addon || [], [calculator.addon])
+
+  const [platform, setPlatform] = useState(platforms[0] || null)
+  const [scope, setScope] = useState(scopes[0] || null)
+  const [design, setDesign] = useState(designs[0] || null)
+  const [timeline, setTimeline] = useState(timelines[0] || null)
+  const [support, setSupport] = useState(supports[0] || null)
   const [addons, setAddons] = useState([])
+
   const [form, setForm] = useState({
     client_name: '',
     entity_name: '',
     email: '',
-    address: '',
+    phone: '',
     project_title: '',
+    address: '',
     goals: '',
     notes: '',
   })
-  const [loading, setLoading] = useState(false)
 
-  const types = calculator.type || []
-  const scales = calculator.scale || []
-  const timelines = calculator.timeline || []
-  const supports = calculator.support || []
-  const addonItems = calculator.addon || []
+  const [submitting, setSubmitting] = useState(false)
+  const [statusMessage, setStatusMessage] = useState('')
+  const [lastResult, setLastResult] = useState(null)
 
   useEffect(() => {
-    setType(first(types))
-    setScale(first(scales))
-    setTimeline(first(timelines))
-    setSupport(first(supports))
-  }, [calculator])
+    if (!initialPackage || platforms.length === 0) return
+    const query = initialPackage.toLowerCase()
+    const matched = platforms.find(item => item.name.toLowerCase().includes(query) || query.includes(item.name.toLowerCase()))
+    if (matched) setPlatform(matched)
+  }, [initialPackage, platforms])
 
   const selectedItems = useMemo(() => {
-    const items = []
-    if (type) items.push({ ...type, group: 'Project Architecture', calculated_price: priceOf(type) })
-    if (scale) items.push({ ...scale, group: 'Scale & Concurrency', calculated_price: priceOf(scale) })
-    if (timeline && Number(timeline.multiplier || 1) !== 1) {
-      const timelinePrice = Math.round((priceOf(type) + priceOf(scale)) * (Number(timeline.multiplier || 1) - 1))
-      items.push({ ...timeline, group: 'Delivery Velocity', calculated_price: timelinePrice })
-    }
-    if (support) items.push({ ...support, group: 'SLA & Ongoing Support', calculated_price: priceOf(support) })
-    addons.forEach(addon => {
-      items.push({ ...addon, group: 'Specialized Capabilities', calculated_price: priceOf(addon) })
-    })
-    return items
-  }, [type, scale, timeline, support, addons])
+    return [platform, scope, design, timeline, support, ...addons].filter(Boolean)
+  }, [platform, scope, design, timeline, support, addons])
 
-  const total = useMemo(() => {
-    return Math.round(selectedItems.reduce((sum, item) => sum + Number(item.calculated_price || 0), 0))
-  }, [selectedItems])
+  const baseSum = useMemo(() => {
+    return [platform, scope, design, ...addons].filter(Boolean).reduce((sum, item) => sum + itemPrice(item), 0)
+  }, [platform, scope, design, addons])
 
-  const totalNaira = Math.round(total * exchangeRate)
+  const timelineMultiplier = Number(timeline?.multiplier || 1)
+  const supportFee = itemPrice(support)
+  const totalNaira = Math.round(baseSum * timelineMultiplier + supportFee)
+  const requiresMaintenance = isMaintenanceSuite(selectedItems)
 
-  const toggleAddon = (addon) => {
+  const toggleAddon = addon => {
     setAddons(prev =>
-      prev.some(item => item.id === addon.id)
-        ? prev.filter(item => item.id !== addon.id)
-        : [...prev, addon]
+      prev.some(item => item.id === addon.id) ? prev.filter(item => item.id !== addon.id) : [...prev, addon]
     )
   }
 
-  const generatePDF = async (reference) => {
-    const { default: jsPDF } = await import('jspdf')
-    const doc = new jsPDF({ unit: 'mm', format: 'a4' })
-    const pageW = 210
-    const margin = 16
-    const contentW = pageW - margin * 2
-    let y = 18
-
-    const section = (label) => {
-      y += 8
-      doc.setFont('helvetica', 'bold')
-      doc.setFontSize(9.5)
-      doc.setTextColor(10, 22, 40)
-      doc.text(label.toUpperCase(), margin, y)
-      y += 4
-      doc.setDrawColor(226, 232, 240)
-      doc.line(margin, y, pageW - margin, y)
-      y += 6
-    }
-
-    // Institutional Header
-    doc.setFillColor(10, 22, 40)
-    doc.rect(0, 0, pageW, 48, 'F')
-    doc.setTextColor(255, 255, 255)
-    doc.setFont('helvetica', 'bold')
-    doc.setFontSize(20)
-    const cac = normalizeCacNumber(settings.company_cac)
-    const tin = settings.company_tin || '2623598796685'
-    const address = normalizeCompanyAddress(settings.company_address)
-    doc.text('Anjal Solutions LTD', margin, 18)
-
-    doc.setFontSize(8)
-    doc.setFont('helvetica', 'normal')
-    doc.setTextColor(148, 163, 184)
-    doc.text(`RC: ${cac}  |  TIN: ${tin}`, margin, 26)
-    doc.text(`${address}  |  ${settings.company_email || 'contact@anjalventures.com'}`, margin, 32)
-    doc.text('Anjal Solutions LTD (formerly Anjal Ventures) · Project Proposal', margin, 38)
-
-    doc.setTextColor(59, 130, 246)
-    doc.setFont('helvetica', 'bold')
-    doc.setFontSize(10)
-    doc.text('FORMAL PROPOSAL', pageW - margin, 18, { align: 'right' })
-    doc.setTextColor(226, 232, 240)
-    doc.setFont('helvetica', 'normal')
-    doc.setFontSize(8.5)
-    doc.text(reference, pageW - margin, 26, { align: 'right' })
-
-    y = 62
-    doc.setTextColor(15, 23, 42)
-    doc.setFont('helvetica', 'bold')
-    doc.setFontSize(14)
-    doc.text(form.project_title || type?.name || 'Digital Platform Engineering', margin, y)
-    y += 7
-    doc.setFont('helvetica', 'normal')
-    doc.setFontSize(8.5)
-    doc.setTextColor(71, 85, 105)
-    doc.text(
-      doc.splitTextToSize(
-        `Prepared for: ${form.client_name || 'Client Principal'}${form.entity_name ? ` (${form.entity_name})` : ''}  |  Official Channel: ${form.email || 'contact@anjalventures.com'}. This document formalizes the commercial scope, architecture assumptions, and financial investment.`,
-        contentW
-      ),
-      margin,
-      y
-    )
-    y += 14
-
-    section('Client & Enterprise Context')
-    const clientLines = [
-      `Client Principal: ${form.client_name || 'Designated Stakeholder'}`,
-      form.entity_name ? `Organization: ${form.entity_name}` : null,
-      form.email ? `Official Email: ${form.email}` : null,
-      form.address ? `Registered Office: ${form.address}` : null,
-    ].filter(Boolean)
-    doc.setFont('helvetica', 'normal')
-    doc.setFontSize(8.5)
-    doc.setTextColor(71, 85, 105)
-    clientLines.forEach(line => {
-      doc.text(line, margin, y)
-      y += 5
-    })
-
-    section('Itemized Scope & Technical Deliverables')
-    selectedItems.forEach((item, index) => {
-      if (y > 255) {
-        doc.addPage()
-        y = 20
-      }
-      doc.setFont('helvetica', 'bold')
-      doc.setFontSize(8.5)
-      doc.setTextColor(15, 23, 42)
-      doc.text(`${index + 1}. ${item.name} (${item.group})`, margin, y)
-      doc.setTextColor(37, 99, 235)
-      doc.text(`$${Number(item.calculated_price || 0).toLocaleString()}`, pageW - margin, y, { align: 'right' })
-      y += 5
-      if (item.description) {
-        doc.setFont('helvetica', 'normal')
-        doc.setFontSize(8)
-        doc.setTextColor(100, 116, 139)
-        doc.text(doc.splitTextToSize(item.description, contentW - 16), margin + 4, y)
-        y += 5
-      }
-    })
-
-    section('Financial Investment Summary')
-    doc.setFillColor(248, 250, 252)
-    doc.roundedRect(margin, y - 3, contentW, 20, 2, 2, 'F')
-    doc.setFont('helvetica', 'bold')
-    doc.setFontSize(12)
-    doc.setTextColor(10, 22, 40)
-    doc.text('Total Fixed-Price Investment', margin + 5, y + 4)
-    doc.setTextColor(37, 99, 235)
-    doc.text(`$${total.toLocaleString()} USD`, pageW - margin - 5, y + 4, { align: 'right' })
-    doc.setFontSize(8.5)
-    doc.setTextColor(22, 101, 52)
-    doc.text(`NGN ${totalNaira.toLocaleString()} at official rate (NGN ${exchangeRate.toLocaleString()} / USD)`, pageW - margin - 5, y + 11, { align: 'right' })
-    y += 26
-
-    section('Institutional Terms & Handover Guarantee')
-    const terms = [
-      '100% intellectual property, repository ownership, and full-stack source code handover upon completion.',
-      'Milestone payment structure: 50% mobilization deposit, 40% functional milestone delivery, 10% final production launch.',
-      '30-day comprehensive post-launch warranty including bug resolution and performance monitoring.',
-      'Quotation remains valid for 30 calendar days from date of issue.',
-    ]
-    doc.setFont('helvetica', 'normal')
-    doc.setFontSize(8)
-    doc.setTextColor(71, 85, 105)
-    terms.forEach(term => {
-      doc.text(doc.splitTextToSize(`- ${term}`, contentW), margin, y)
-      y += 5
-    })
-
-    if (form.goals || form.notes) {
-      section('Client Specific Requirements')
-      doc.text(doc.splitTextToSize([form.goals, form.notes].filter(Boolean).join('\n'), contentW), margin, y)
-      y += 8
-    }
-
-    doc.setFontSize(7.5)
-    doc.setTextColor(148, 163, 184)
-    const cacFooter = normalizeCacNumber(settings.company_cac)
-    doc.text(`Prepared by Anjal Solutions LTD (formerly Anjal Ventures) · RC: ${cacFooter}`, margin, 288)
-    doc.text(reference, pageW - margin, 288, { align: 'right' })
-    return doc
-  }
-
-  const submit = async () => {
-    if (!form.client_name || !type || !form.email) {
-      toast.error('Client name, email, and project type are required')
+  const handleSubmit = async event => {
+    event.preventDefault()
+    if (submitting) return
+    if (!form.client_name.trim() || !form.email.trim()) {
+      setStatusMessage('Please provide your full name and work email.')
+      toast.error('Please enter your full name and email address.')
       return
     }
-    setLoading(true)
+
+    setSubmitting(true)
+    setStatusMessage('Submitting quotation request and preparing proposal document...')
+
+    const itemizedPayload = selectedItems.map(item => ({
+      name: item.name,
+      category: item.category,
+      price: itemPrice(item),
+      multiplier: Number(item.multiplier || 1),
+    }))
+
     try {
-      const ref = pdfReference()
-      const payload = {
-        ...form,
-        phone: 'N/A',
-        selected_items: selectedItems,
-        total_amount: total,
-        total_naira: totalNaira,
-        client_payload: form,
-        proposal_payload: { type, scale, timeline, support, addons, exchange_rate: exchangeRate },
-        quote_type: 'project',
-        source: 'quote-builder',
-      }
-      const res = await fetch('/api/quotation', {
+      const response = await fetch('/api/quotation', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          ...form,
+          total_amount: totalNaira,
+          total_naira: totalNaira,
+          selected_items: itemizedPayload,
+          client_payload: { ...form, package: platform?.name },
+          proposal_payload: {
+            selected_items: itemizedPayload,
+            total_naira: totalNaira,
+            requires_maintenance: requiresMaintenance,
+            signoff: managementSignoff,
+          },
+          quote_type: 'project',
+          source: 'quote-builder',
+        }),
       })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Submission failed')
-      const doc = await generatePDF(data.reference || ref)
-      doc.save(`Anjal-Solutions-Proposal-${data.reference || ref}.pdf`)
-      toast.success('Official executive proposal generated and saved!')
-    } catch (err) {
-      toast.error(err.message || 'Failed to generate proposal')
+
+      const data = await response.json()
+      if (!response.ok) {
+        throw new Error(data.error || 'Unable to submit quotation request')
+      }
+
+      const reference = data.reference || `AS-${Date.now().toString().slice(-6)}`
+      const emailResult = await sendEmailJsNotification(settings, {
+        from_name: form.client_name,
+        from_email: form.email,
+        phone: form.phone || 'Not provided',
+        service: platform?.name || 'Custom Quotation',
+        budget: formatNaira(totalNaira),
+        message: [
+          `Quotation Reference: ${reference}`,
+          `Company: ${form.entity_name || 'N/A'}`,
+          `Project Title: ${form.project_title || platform?.name || 'Custom Build'}`,
+          `Selected Components: ${selectedItems.map(i => i.name).join(', ')}`,
+          `Estimated Total: ${formatNaira(totalNaira)}`,
+          requiresMaintenance ? 'Note: Maintenance fees apply.' : '',
+          form.goals ? `Goals: ${form.goals}` : '',
+          form.notes ? `Notes: ${form.notes}` : '',
+        ]
+          .filter(Boolean)
+          .join('\n'),
+      })
+
+      const pdfDoc = await generateProposalPdf({
+        reference,
+        settings,
+        form,
+        selectedItems,
+        totalNaira,
+        requiresMaintenance,
+      })
+      pdfDoc.save(`Anjal-Solutions-Proposal-${reference}.pdf`)
+
+      setLastResult({
+        reference,
+        totalNaira,
+        emailSent: emailResult.sent,
+      })
+      setStatusMessage(`Proposal ${reference} generated and downloaded successfully.`)
+      toast.success(`Quotation ${reference} saved & PDF downloaded`)
+    } catch (error) {
+      console.error('Quotation error:', error)
+      setStatusMessage(error.message || 'Quotation submission failed. Please try again.')
+      toast.error(error.message || 'Could not generate proposal')
+    } finally {
+      setSubmitting(false)
     }
-    setLoading(false)
   }
 
   return (
-    <section className="bg-slate-50 px-5 py-16 lg:px-8 border-t border-slate-200">
-      <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[1fr_380px]">
+    <div className="mx-auto max-w-7xl px-5 py-12 lg:px-8 lg:py-16">
+      <Toaster position="top-right" />
+      <form onSubmit={handleSubmit} className="grid gap-8 lg:grid-cols-[1.35fr_.85fr] lg:items-start">
         <div className="space-y-6">
-          {/* Step 1: Engagement Archetype */}
-          <Panel step="01" title="Core System Architecture" desc="Select the fundamental digital product model you are building.">
-            <div className="grid gap-3.5 md:grid-cols-2">
-              {types.map(item => (
-                <Choice
-                  key={item.id}
-                  active={type?.id === item.id}
-                  onClick={() => setType(item)}
-                  title={item.name}
-                  price={priceOf(item)}
-                  text={item.description}
-                />
-              ))}
-            </div>
-          </Panel>
-
-          {/* Step 2: System Scale & Velocity */}
-          <Panel step="02" title="Scale, Velocity & Operating Tier" desc="Define target concurrent capacity, delivery urgency, and SLA commitments.">
-            <div className="grid gap-4 md:grid-cols-3">
-              <Select
-                label="Concurrency Scale"
-                value={scale?.id || ''}
-                onChange={id => setScale(scales.find(item => String(item.id) === id))}
-                items={scales}
-              />
-              <Select
-                label="Delivery Velocity"
-                value={timeline?.id || ''}
-                onChange={id => setTimeline(timelines.find(item => String(item.id) === id))}
-                items={timelines}
-              />
-              <Select
-                label="Post-Launch SLA"
-                value={support?.id || ''}
-                onChange={id => setSupport(supports.find(item => String(item.id) === id))}
-                items={supports}
-              />
-            </div>
-          </Panel>
-
-          {/* Step 3: Technical Add-on Modules */}
-          <Panel step="03" title="Specialized Technical Modules" desc="Equip your platform with institutional add-ons.">
-            <div className="grid gap-3 md:grid-cols-3">
-              {addonItems.map(addon => {
-                const isSelected = addons.some(item => item.id === addon.id)
+          <StepCard
+            step="01"
+            title="Select System Category or Turnkey Suite"
+            description="Choose a turnkey software suite or custom build foundation priced in Nigerian Naira (₦)."
+          >
+            <div className="grid gap-3 sm:grid-cols-2">
+              {platforms.map(item => {
+                const selected = platform?.id === item.id
                 return (
                   <button
-                    key={addon.id}
-                    onClick={() => toggleAddon(addon)}
-                    className={`rounded-2xl border p-4 text-left transition ${
-                      isSelected
-                        ? 'border-2 border-slate-950 bg-slate-50/80 shadow-xs'
-                        : 'border-slate-200 bg-white hover:border-slate-300'
+                    key={item.id}
+                    type="button"
+                    onClick={() => setPlatform(item)}
+                    aria-pressed={selected}
+                    className={`rounded-xl border p-4 text-left transition ${
+                      selected
+                        ? 'border-slate-950 bg-slate-950 text-white shadow-sm'
+                        : 'border-slate-200 bg-white text-slate-900 hover:border-slate-400'
                     }`}
                   >
-                    <div className="flex items-center justify-between mb-3">
-                      <div
-                        className={`flex h-4 w-4 items-center justify-center rounded-md border text-xs transition ${
-                          isSelected ? 'border-slate-950 bg-slate-950 text-white' : 'border-slate-300 bg-white'
-                        }`}
-                      >
-                        {isSelected && <Check className="h-2.5 w-2.5" />}
-                      </div>
-                      <span className="font-mono text-xs font-bold text-blue-600">
-                        +${priceOf(addon).toLocaleString()}
+                    <div className="flex items-start justify-between gap-3">
+                      <span className="text-sm font-semibold">{item.name}</span>
+                      <span className={`shrink-0 font-mono text-xs font-bold ${selected ? 'text-emerald-300' : 'text-blue-700'}`}>
+                        {formatNaira(itemPrice(item))}
                       </span>
                     </div>
-                    <span className="block text-xs font-bold text-slate-950">{addon.name}</span>
-                    {addon.description && (
-                      <span className="mt-1 block text-[11px] leading-relaxed text-slate-500 line-clamp-2">
-                        {addon.description}
-                      </span>
+                    {item.description && (
+                      <p className={`mt-2 text-xs leading-relaxed ${selected ? 'text-slate-300' : 'text-slate-600'}`}>
+                        {item.description}
+                      </p>
                     )}
                   </button>
                 )
               })}
             </div>
-          </Panel>
+          </StepCard>
 
-          {/* Step 4: Client Principal Details */}
-          <Panel step="04" title="Client Principal & Proposal Context" desc="Provide commercial contact details to generate your formal PDF proposal.">
-            <div className="grid gap-4 md:grid-cols-2">
-              <Input
-                label="Your Full Name *"
+          <StepCard
+            step="02"
+            title="Architecture Depth, UI Polish, Timeline & Support"
+            description="Fine-tune complexity, bespoke branding, launch speed, and post-launch SLA coverage."
+          >
+            <div className="grid gap-4 sm:grid-cols-2">
+              <OptionSelect
+                label="Architecture Scope"
+                items={scopes}
+                value={scope?.id}
+                onChange={id => setScope(scopes.find(item => String(item.id) === id) || null)}
+              />
+              <OptionSelect
+                label="Design System Tier"
+                items={designs}
+                value={design?.id}
+                onChange={id => setDesign(designs.find(item => String(item.id) === id) || null)}
+              />
+              <OptionSelect
+                label="Delivery Timeline"
+                items={timelines}
+                value={timeline?.id}
+                onChange={id => setTimeline(timelines.find(item => String(item.id) === id) || null)}
+                isMultiplier
+              />
+              <OptionSelect
+                label="Support & Maintenance Plan"
+                items={supports}
+                value={support?.id}
+                onChange={id => setSupport(supports.find(item => String(item.id) === id) || null)}
+              />
+            </div>
+          </StepCard>
+
+          <StepCard
+            step="03"
+            title="Technical Integrations & Modules"
+            description="Optional production capabilities billed cleanly in Nigerian Naira."
+          >
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {addonItems.map(addon => {
+                const selected = addons.some(item => item.id === addon.id)
+                return (
+                  <button
+                    key={addon.id}
+                    type="button"
+                    onClick={() => toggleAddon(addon)}
+                    aria-pressed={selected}
+                    className={`rounded-xl border p-4 text-left transition ${
+                      selected
+                        ? 'border-slate-950 bg-slate-50 ring-1 ring-slate-950'
+                        : 'border-slate-200 bg-white hover:border-slate-300'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span
+                        className={`flex h-4 w-4 items-center justify-center rounded border ${
+                          selected ? 'border-slate-950 bg-slate-950 text-white' : 'border-slate-300 bg-white'
+                        }`}
+                      >
+                        {selected && <Check className="h-3 w-3" aria-hidden="true" />}
+                      </span>
+                      <span className="font-mono text-xs font-bold text-blue-700">+{formatNaira(itemPrice(addon))}</span>
+                    </div>
+                    <p className="mt-3 text-xs font-semibold text-slate-950">{addon.name}</p>
+                    {addon.description && <p className="mt-1 text-[11px] leading-relaxed text-slate-500">{addon.description}</p>}
+                  </button>
+                )
+              })}
+            </div>
+          </StepCard>
+
+          <StepCard
+            step="04"
+            title="Client & Project Particulars"
+            description="Your details populate the formal downloadable Anjal Solutions LTD PDF proposal."
+          >
+            <div className="grid gap-4 sm:grid-cols-2">
+              <FormInput
+                label="Full Name *"
+                required
+                autoComplete="name"
                 value={form.client_name}
                 onChange={v => setForm({ ...form, client_name: v })}
-                placeholder="e.g. Alex Morgan"
-                required
+                placeholder="e.g. Ibrahim Musa"
               />
-              <Input
+              <FormInput
                 label="Work Email *"
                 type="email"
+                required
+                autoComplete="email"
+                inputMode="email"
                 value={form.email}
                 onChange={v => setForm({ ...form, email: v })}
-                placeholder="alex@company.com"
-                required
+                placeholder="name@organization.com"
               />
-              <Input
-                label="Company / Enterprise Name"
+              <FormInput
+                label="Phone / WhatsApp"
+                type="tel"
+                autoComplete="tel"
+                inputMode="tel"
+                value={form.phone}
+                onChange={v => setForm({ ...form, phone: v })}
+                placeholder="+234 800 000 0000"
+              />
+              <FormInput
+                label="Company / Organization"
+                autoComplete="organization"
                 value={form.entity_name}
                 onChange={v => setForm({ ...form, entity_name: v })}
-                placeholder="e.g. Apex Technologies Ltd."
+                placeholder="Organization Name Ltd"
               />
-              <Input
+              <FormInput
                 label="Project Designation"
                 value={form.project_title}
                 onChange={v => setForm({ ...form, project_title: v })}
-                placeholder="e.g. Apex Multi-Tenant Cloud Portal"
+                placeholder="e.g. Restaurant Ordering & Dispatch Suite"
               />
-              <div className="md:col-span-2">
-                <Input
-                  label="Registered Corporate Address"
-                  value={form.address}
-                  onChange={v => setForm({ ...form, address: v })}
-                  placeholder="e.g. Victoria Island, Lagos / London, UK"
-                />
-              </div>
-              <Textarea
-                label="Core Business Goals & Success Metrics"
+              <FormInput
+                label="City / State Address"
+                autoComplete="street-address"
+                value={form.address}
+                onChange={v => setForm({ ...form, address: v })}
+                placeholder="e.g. Damaturu, Yobe State"
+              />
+              <FormTextarea
+                label="Core Operational Objectives"
                 value={form.goals}
                 onChange={v => setForm({ ...form, goals: v })}
-                placeholder="What operational outcomes or market targets should this build achieve?"
+                placeholder="What business processes or revenue channels should this platform automate?"
               />
-              <Textarea
-                label="Technical Integration Requirements / Notes"
+              <FormTextarea
+                label="Technical & Integration Notes"
                 value={form.notes}
                 onChange={v => setForm({ ...form, notes: v })}
-                placeholder="Detail any third-party APIs (Paystack, Stripe, Twilio), legacy databases, or compliance requirements..."
+                placeholder="Payment gateways (Paystack/Flutterwave), App Store accounts, SMS/WhatsApp providers, or custom APIs..."
               />
             </div>
-          </Panel>
+          </StepCard>
         </div>
 
-        {/* Right Column: Live Investment Summary & Download Action */}
-        <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
-          <EstimateSummary total={total} totalNaira={totalNaira} label="Indicative Investment Scope" />
-
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-xs">
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-xs font-bold uppercase tracking-wider text-slate-900">Configured Line Items</p>
-              <span className="font-mono text-[10px] text-slate-400">{selectedItems.length} items</span>
+        <aside className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm lg:sticky lg:top-24">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+            <div>
+              <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.2em] text-blue-700">Live Summary</p>
+              <h2 className="mt-1 text-lg font-semibold text-slate-950">Formal Naira Estimate</h2>
             </div>
+            <ShieldCheck className="h-5 w-5 text-emerald-600" aria-hidden="true" />
+          </div>
 
-            <div className="max-h-72 space-y-3 overflow-y-auto pr-1">
-              {selectedItems.map(item => (
-                <div key={`${item.group}-${item.id}`} className="flex justify-between gap-3 border-b border-slate-100 pb-2.5 text-xs last:border-0">
-                  <div className="min-w-0 flex-1">
-                    <span className="block font-semibold text-slate-800 truncate">{item.name}</span>
-                    <span className="block text-[10px] text-slate-400">{item.group}</span>
+          <div className="mt-5 space-y-2.5 text-sm">
+            {selectedItems.map(item => (
+              <div key={`${item.category}-${item.id}`} className="flex items-start justify-between gap-3">
+                <span className="text-slate-600">{item.name}</span>
+                <span className="shrink-0 font-mono text-xs font-semibold text-slate-900">
+                  {Number(item.multiplier || 1) !== 1 && itemPrice(item) === 0
+                    ? `×${Number(item.multiplier).toFixed(2)}`
+                    : formatNaira(itemPrice(item))}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-6 rounded-xl border border-slate-800 bg-slate-950 p-5 text-white">
+            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-slate-400">Estimated Total Investment</p>
+            <p className="mt-2 font-mono text-3xl font-bold tracking-tight text-white">{formatNaira(totalNaira)}</p>
+            <p className="mt-2 text-xs text-slate-300">
+              Prepared under {companyDisplayName} commercial standard.
+            </p>
+            {requiresMaintenance && (
+              <p className="mt-2 rounded-md border border-amber-400/30 bg-amber-500/10 px-2.5 py-1.5 text-[11px] text-amber-200">
+                Note: Operational maintenance fees apply to turnkey suite deployments.
+              </p>
+            )}
+          </div>
+
+          <button
+            type="submit"
+            disabled={submitting}
+            className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-slate-950 px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {submitting ? (
+              <>Generating Proposal...</>
+            ) : (
+              <>
+                <Download className="h-4 w-4" aria-hidden="true" />
+                Save Quote & Download Official PDF
+              </>
+            )}
+          </button>
+
+          <p className="mt-3 text-center text-[11px] text-slate-500">
+            Instant PDF download + direct submission to our engineering team.
+          </p>
+
+          <div role="status" aria-live="polite" className="mt-4">
+            {statusMessage && (
+              <div
+                className={`rounded-lg border p-3 text-xs ${
+                  lastResult
+                    ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+                    : 'border-slate-200 bg-slate-50 text-slate-700'
+                }`}
+              >
+                <div className="flex items-start gap-2">
+                  {lastResult ? (
+                    <FileCheck2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" aria-hidden="true" />
+                  ) : (
+                    <Send className="mt-0.5 h-4 w-4 shrink-0 text-blue-600" aria-hidden="true" />
+                  )}
+                  <div>
+                    <p className="font-semibold">{statusMessage}</p>
+                    {lastResult && (
+                      <p className="mt-1 font-mono text-[11px]">
+                        Ref: {lastResult.reference} · Total: {formatNaira(lastResult.totalNaira)}
+                      </p>
+                    )}
                   </div>
-                  <span className="font-mono font-bold text-slate-950">
-                    ${Number(item.calculated_price || 0).toLocaleString()}
-                  </span>
                 </div>
-              ))}
-            </div>
-
-            <button
-              onClick={submit}
-              disabled={loading}
-              className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-slate-950 px-5 py-3.5 text-xs font-bold text-white shadow-sm transition hover:bg-blue-600 disabled:opacity-60"
-            >
-              {loading ? 'Compiling Proposal...' : 'Download Executive Proposal PDF'}
-              {loading ? <FileText className="h-4 w-4" /> : <Download className="h-4 w-4" />}
-            </button>
-
-            <div className="mt-4 flex items-center justify-center gap-1.5 text-[11px] text-slate-400">
-              <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
-              <span>Institutional Guarantee · RC {normalizeCacNumber(settings.company_cac)}</span>
-            </div>
+              </div>
+            )}
           </div>
         </aside>
-      </div>
-    </section>
-  )
-}
-
-function Panel({ step, title, desc, children }) {
-  return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-xs sm:p-8">
-      <div className="mb-6">
-        <div className="flex items-center gap-2">
-          <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 border border-blue-200/60 px-2 py-0.5 rounded-md">
-            Stage {step}
-          </span>
-          <h2 className="text-lg font-semibold tracking-tight text-slate-950">{title}</h2>
-        </div>
-        {desc && <p className="mt-1 text-xs text-slate-500">{desc}</p>}
-      </div>
-      {children}
+      </form>
     </div>
   )
 }
 
-function Choice({ active, onClick, title, price, text }) {
+function StepCard({ step, title, description, children }) {
   return (
-    <button
-      onClick={onClick}
-      className={`rounded-2xl border p-5 text-left transition ${
-        active
-          ? 'border-2 border-slate-950 bg-slate-50/80 shadow-xs'
-          : 'border-slate-200 bg-white hover:border-slate-300'
-      }`}
-    >
-      <div className="flex items-center justify-between">
-        <span className="text-sm font-bold text-slate-950">{title}</span>
-        <span className="font-mono text-xs font-bold text-blue-600">from ${price.toLocaleString()}</span>
+    <section className="rounded-xl border border-slate-200 bg-white p-6">
+      <div className="mb-5 border-b border-slate-100 pb-4">
+        <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.2em] text-blue-700">Step {step}</p>
+        <h2 className="mt-1 text-xl font-semibold tracking-tight text-slate-950">{title}</h2>
+        {description && <p className="mt-1 text-sm text-slate-600">{description}</p>}
       </div>
-      {text && <span className="mt-2 block text-xs leading-relaxed text-slate-600">{text}</span>}
-    </button>
+      {children}
+    </section>
   )
 }
 
-function Select({ label, value, onChange, items }) {
+function OptionSelect({ label, items = [], value, onChange, isMultiplier = false }) {
+  const selectId = useId()
   return (
-    <label className="block">
-      <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-700">{label}</span>
+    <div>
+      <label htmlFor={selectId} className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-600">
+        {label}
+      </label>
       <select
-        value={value}
+        id={selectId}
+        value={value ? String(value) : ''}
         onChange={e => onChange(e.target.value)}
-        className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-xs text-slate-950 outline-none transition focus:border-slate-950 focus:bg-white"
+        className="input-field"
       >
         {items.map(item => (
-          <option key={item.id} value={item.id}>
+          <option key={item.id} value={String(item.id)}>
             {item.name}
+            {isMultiplier
+              ? ` (×${Number(item.multiplier || 1).toFixed(2)})`
+              : itemPrice(item) > 0
+                ? ` (${formatNaira(itemPrice(item))})`
+                : ' (Included)'}
           </option>
         ))}
       </select>
-    </label>
+    </div>
   )
 }
 
-function Input({ label, value, onChange, placeholder = '', type = 'text', required }) {
+function FormInput({ label, value, onChange, type = 'text', required = false, placeholder = '', autoComplete, inputMode }) {
+  const id = useId()
   return (
-    <label className="block">
-      <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-700">
-        {label}{required ? ' *' : ''}
-      </span>
+    <div>
+      <label htmlFor={id} className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-600">
+        {label}
+      </label>
       <input
+        id={id}
         type={type}
+        required={required}
+        autoComplete={autoComplete}
+        inputMode={inputMode}
+        enterKeyHint="next"
         value={value}
-        placeholder={placeholder}
         onChange={e => onChange(e.target.value)}
-        className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-xs text-slate-950 outline-none transition focus:border-slate-950 focus:bg-white"
+        placeholder={placeholder}
+        className="input-field"
       />
-    </label>
+    </div>
   )
 }
 
-function Textarea({ label, value, onChange, placeholder = '' }) {
+function FormTextarea({ label, value, onChange, placeholder = '' }) {
+  const id = useId()
   return (
-    <label className="block">
-      <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-700">{label}</span>
+    <div className="sm:col-span-2">
+      <label htmlFor={id} className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-600">
+        {label}
+      </label>
       <textarea
-        value={value}
-        placeholder={placeholder}
-        onChange={e => onChange(e.target.value)}
+        id={id}
         rows={3}
-        className="w-full rounded-xl border border-slate-200 bg-slate-50/50 p-4 text-xs text-slate-950 outline-none transition focus:border-slate-950 focus:bg-white"
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="input-field"
       />
-    </label>
+    </div>
   )
 }

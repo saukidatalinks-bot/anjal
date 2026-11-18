@@ -1,152 +1,293 @@
-'use client'
-
-import Image from 'next/image'
 import Link from 'next/link'
 import {
   ArrowRight,
-  BarChart3,
-  BriefcaseBusiness,
+  Briefcase,
   Check,
-  Database,
-  Gauge,
-  Globe2,
+  Code2,
+  Globe,
   GraduationCap,
-  Layers3,
-  MonitorSmartphone,
-  Rocket,
+  Landmark,
+  Layers,
   ShieldCheck,
   Smartphone,
   Sparkles,
+  Store,
+  Truck,
 } from 'lucide-react'
-import { formatMoney } from '@/lib/format'
-import { normalizeCacNumber } from '@/lib/company'
+import {
+  companyDisplayName,
+  registeredCacNumber,
+  registeredDunsNumber,
+  registeredOfficeAddress,
+  registeredTinNumber,
+} from '@/lib/company'
+import { formatNaira } from '@/lib/format'
+import { ECOSYSTEM_DIVISIONS } from '@/lib/platform-data'
+import SaukiGoMark from '@/components/SaukiGoMark'
 import ProjectStoreBadges from '@/components/StoreBadges'
 
-const iconMap = {
-  globe: Globe2,
+const SERVICE_ICONS = {
+  globe: Globe,
   smartphone: Smartphone,
-  layers: Layers3,
+  layers: Layers,
+  briefcase: Briefcase,
   sparkles: Sparkles,
-  briefcase: BriefcaseBusiness,
   'graduation-cap': GraduationCap,
-  platform: MonitorSmartphone,
 }
 
-export function SectionIntro({ eyebrow, title, text, align = 'left' }) {
+const DIVISION_ICONS = {
+  mynelfund: Landmark,
+  'anjal-developers': Code2,
+  'sauki-mart': Store,
+  'sauki-delivery': Truck,
+  'anjal-academy': GraduationCap,
+}
+
+export function SectionIntro({ eyebrow, title, description, align = 'left', dark = false }) {
   return (
-    <div className={align === 'center' ? 'mx-auto mb-12 max-w-3xl text-center' : 'mb-12 max-w-3xl'}>
-      <p className="mb-4 text-xs font-bold uppercase tracking-[0.22em] text-blue-700">{eyebrow}</p>
-      <h2 className="text-3xl font-semibold tracking-normal text-slate-950 md:text-5xl">{title}</h2>
-      {text && <p className="mt-5 text-base leading-7 text-slate-600 md:text-lg">{text}</p>}
+    <div className={align === 'center' ? 'mx-auto max-w-3xl text-center' : 'max-w-3xl'}>
+      {eyebrow && (
+        <p className={`mb-2.5 font-mono text-[11px] font-semibold uppercase tracking-[0.22em] ${dark ? 'text-blue-400' : 'text-blue-700'}`}>
+          {eyebrow}
+        </p>
+      )}
+      <h2 className={`text-3xl font-semibold tracking-tight sm:text-4xl ${dark ? 'text-white' : 'text-slate-950'}`}>
+        {title}
+      </h2>
+      {description && (
+        <p className={`mt-3 text-base leading-relaxed ${dark ? 'text-slate-300' : 'text-slate-600'}`}>
+          {description}
+        </p>
+      )}
     </div>
   )
 }
 
-export function Hero({ settings = {} }) {
-  const cacNum = normalizeCacNumber(settings.company_cac)
-  const tinNum = settings.company_tin || '2623598796685'
-  const defaultBadge = `RC: ${cacNum} · TIN: ${tinNum}`
-  const badge = settings.hero_badge && !settings.hero_badge.includes('BN') && !settings.hero_badge.includes('9258709') && !settings.hero_badge.includes('D-U-N-S') && !settings.hero_badge.includes('352294840') ? settings.hero_badge : defaultBadge
-  const title = settings.hero_title || 'We build software and digital platforms that businesses rely on.'
-  const description =
-    settings.hero_description ||
-    'From custom web platforms and mobile applications to business management systems and practical automation, Anjal Solutions LTD turns real business ideas into dependable digital products. Built and maintained from Nigeria.'
-  const tagline = settings.hero_tagline || 'Simple to use. Built to last. Ready to grow.'
+export function Hero({ settings = {}, projects = [] }) {
+  const cac = settings.company_cac || registeredCacNumber
+  const tin = settings.company_tin || registeredTinNumber
+  const duns = settings.company_duns || registeredDunsNumber
 
   return (
-    <section className="relative overflow-hidden border-b border-slate-200 bg-slate-950 text-white">
-      <div className="absolute inset-0">
-        <Image src="/hero-bg.png" alt="" fill priority className="object-cover opacity-20" />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,#07111f_0%,rgba(7,17,31,.93)_46%,rgba(7,17,31,.55)_100%)]" />
-      </div>
-      <div className="relative mx-auto grid min-h-[calc(100vh-80px)] max-w-7xl items-center gap-12 px-5 py-20 lg:grid-cols-[1.05fr_.95fr] lg:px-8">
+    <section className="relative overflow-hidden border-b border-slate-200 bg-white">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:48px_48px] opacity-35 [mask-image:radial-gradient(ellipse_75%_65%_at_50%_0%,#000_55%,transparent_100%)]"
+      />
+      <div className="relative mx-auto grid max-w-7xl gap-10 px-5 py-14 lg:grid-cols-[1.15fr_.85fr] lg:items-center lg:px-8 lg:py-20">
         <div>
-          <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-1.5 text-xs font-semibold tracking-wider text-emerald-300">
-            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-            {badge}
-          </p>
-          <h1 className="max-w-4xl text-5xl font-semibold leading-[1.04] tracking-tight md:text-7xl">
-            {title}
+          <div className="inline-flex flex-wrap items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3.5 py-1.5 font-mono text-[11px] font-medium text-slate-700">
+            <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" aria-hidden="true" />
+            <span>RC: {cac}</span>
+            <span className="text-slate-300" aria-hidden="true">·</span>
+            <span>TIN: {tin}</span>
+            <span className="text-slate-300" aria-hidden="true">·</span>
+            <span>D-U-N-S: {duns}</span>
+          </div>
+
+          <h1 className="mt-6 text-4xl font-semibold leading-[1.06] tracking-tight text-slate-950 sm:text-5xl lg:text-[3.5rem]">
+            {settings.hero_title || 'Dependable software platforms built for real operations.'}
           </h1>
-          <p className="mt-7 max-w-2xl text-lg leading-8 text-white/75">
-            {description}
+
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-slate-600 sm:text-lg">
+            {settings.hero_description ||
+              'Anjal Solutions LTD engineers production web systems, native iOS & Android applications, fintech infrastructure, and practical AI automation for growing enterprises.'}
           </p>
-          <p className="mt-4 text-base font-semibold tracking-wide text-blue-200/90 md:text-lg">
-            {tagline}
-          </p>
-          <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-            <Link href="/app-studio" className="inline-flex items-center justify-center gap-2 rounded-lg bg-white px-5 py-3 text-sm font-bold text-slate-950 transition hover:bg-blue-50">
-              Design an app
-              <Smartphone className="h-4 w-4" />
+
+          <div className="mt-8 flex flex-wrap items-center gap-3">
+            <Link
+              href="/quote"
+              className="inline-flex items-center gap-2 rounded-lg bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
+            >
+              Build a Naira Quote
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
-            <Link href="/work" className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/25 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/10">
-              View work
-              <ArrowRight className="h-4 w-4" />
+            <Link
+              href="/work"
+              className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition hover:border-slate-950 hover:bg-slate-50"
+            >
+              Explore Shipped Products
             </Link>
           </div>
+
+          <dl className="mt-10 grid grid-cols-3 gap-4 border-t border-slate-200 pt-6">
+            <div>
+              <dt className="text-xs font-medium text-slate-500">Live Store Apps</dt>
+              <dd className="mt-1 font-mono text-xl font-semibold text-slate-950 sm:text-2xl">iOS & Android</dd>
+            </div>
+            <div>
+              <dt className="text-xs font-medium text-slate-500">Showcase Systems</dt>
+              <dd className="mt-1 font-mono text-xl font-semibold text-slate-950 sm:text-2xl">{Math.max(projects.length, 6)} Platforms</dd>
+            </div>
+            <div>
+              <dt className="text-xs font-medium text-slate-500">Handover Standard</dt>
+              <dd className="mt-1 font-mono text-xl font-semibold text-slate-950 sm:text-2xl">100% Ownership</dd>
+            </div>
+          </dl>
         </div>
 
-        <div className="grid gap-3">
-          <div className="rounded-lg border border-white/12 bg-white/[0.06] p-5 backdrop-blur">
-            <div className="mb-8 flex items-center justify-between">
-              <p className="text-sm font-semibold text-white/70">Studio operating system</p>
-              <Gauge className="h-5 w-5 text-emerald-300" />
+        {/* Corporate & Product Ledger */}
+        <aside className="rounded-xl border border-slate-800 bg-slate-950 p-6 text-white shadow-xl sm:p-7">
+          <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-5">
+            <div>
+              <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-blue-400">Corporate Registry</p>
+              <p className="mt-1 text-lg font-semibold tracking-tight text-white">{companyDisplayName}</p>
+              <p className="mt-1 text-xs leading-relaxed text-slate-400">{settings.company_address || registeredOfficeAddress}</p>
             </div>
-            <div className="grid gap-3">
-              {[
-                ['Discovery', 'Scope, users, data, risks'],
-                ['Design', 'Flows, interface, content'],
-                ['Engineering', 'Cloud, APIs, admin, QA'],
-                ['Launch', 'Deployment, training, support'],
-              ].map(([label, value]) => (
-                <div key={label} className="grid grid-cols-[110px_1fr] items-center gap-4 rounded-lg border border-white/10 bg-slate-950/35 p-3">
-                  <span className="text-sm font-semibold">{label}</span>
-                  <span className="text-sm text-white/55">{value}</span>
+            <span className="shrink-0 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-emerald-300">
+              Verified
+            </span>
+          </div>
+
+          <div className="mt-5 space-y-3">
+            <Link
+              href="/work/sauki-go"
+              className="group flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-white/[0.03] p-3.5 transition hover:border-blue-500/50 hover:bg-white/[0.06]"
+            >
+              <div className="flex items-center gap-3">
+                <SaukiGoMark className="h-9 w-9 shrink-0" />
+                <div>
+                  <p className="text-sm font-semibold text-white">Sauki Go</p>
+                  <p className="text-xs text-slate-400">Mobile Data, Airtime & Electricity Utility</p>
                 </div>
-              ))}
+              </div>
+              <span className="shrink-0 rounded-full bg-emerald-500/15 px-2.5 py-0.5 font-mono text-[10px] font-semibold text-emerald-300">
+                LIVE
+              </span>
+            </Link>
+
+            <Link
+              href="/work/mynelfund"
+              className="group flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-white/[0.03] p-3.5 transition hover:border-blue-500/50 hover:bg-white/[0.06]"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-600/20 text-blue-300">
+                  <Landmark className="h-4 w-4" aria-hidden="true" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-white">My NELFund</p>
+                  <p className="text-xs text-slate-400">Play Store & App Store · TVC Featured</p>
+                </div>
+              </div>
+              <span className="shrink-0 rounded-full bg-emerald-500/15 px-2.5 py-0.5 font-mono text-[10px] font-semibold text-emerald-300">
+                LIVE
+              </span>
+            </Link>
+
+            <Link
+              href="/work/anjal-islamic-library"
+              className="group flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-white/[0.03] p-3.5 transition hover:border-blue-500/50 hover:bg-white/[0.06]"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-800 text-slate-200">
+                  <Code2 className="h-4 w-4" aria-hidden="true" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-white">Anjal Islamic Library API</p>
+                  <p className="text-xs text-slate-400">Structured Quran, Hadith & Prayer Times API</p>
+                </div>
+              </div>
+              <span className="shrink-0 rounded-full bg-emerald-500/15 px-2.5 py-0.5 font-mono text-[10px] font-semibold text-emerald-300">
+                LIVE
+              </span>
+            </Link>
+
+            <div className="flex items-center justify-between gap-3 rounded-lg border border-dashed border-amber-400/30 bg-amber-500/[0.06] px-3.5 py-3">
+              <div>
+                <p className="text-xs font-semibold text-amber-200">Upcoming Ecosystem Rollout</p>
+                <p className="text-[11px] text-amber-100/75">Sauki Mart · Sauki Delivery · Anjal Academy</p>
+              </div>
+              <span className="shrink-0 rounded-full bg-amber-400/20 px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-amber-200">
+                Coming Soon
+              </span>
             </div>
           </div>
-          <div className="grid grid-cols-3 gap-3">
-            {[
-              ['40+', 'Projects'],
-              ['100%', 'Ownership'],
-              ['24h', 'Response'],
-            ].map(([value, label]) => (
-              <div key={label} className="rounded-lg border border-white/12 bg-white/[0.06] p-4">
-                <p className="text-2xl font-bold">{value}</p>
-                <p className="mt-1 text-xs text-white/45">{label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
+        </aside>
       </div>
     </section>
   )
 }
 
-export function ServicesGrid({ services = [] }) {
+export function EcosystemBand({ divisions = ECOSYSTEM_DIVISIONS }) {
   return (
-    <section className="bg-white px-5 py-20 lg:px-8">
-      <div className="mx-auto max-w-7xl">
-        <SectionIntro
-          eyebrow="Capabilities"
-          title="Systems, not just pages."
-          text="Each engagement combines product strategy, user experience, engineering, deployment, and support."
-        />
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {services.map(service => {
-            const Icon = iconMap[service.icon] || MonitorSmartphone
+    <section className="cv-auto border-b border-slate-200 bg-slate-50 py-16 lg:py-20">
+      <div className="mx-auto max-w-7xl px-5 lg:px-8">
+        <div className="flex flex-wrap items-end justify-between gap-6">
+          <SectionIntro
+            eyebrow="Ecosystem & Divisions"
+            title="Live digital products and upcoming operational platforms."
+            description="Every system under Anjal Solutions LTD is categorized transparently—distinguishing live store products from platforms currently in pre-launch rollout."
+          />
+          <Link
+            href="/about"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-slate-900 underline-offset-4 hover:text-blue-700 hover:underline"
+          >
+            Corporate governance & history
+            <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          </Link>
+        </div>
+
+        <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          {divisions.map(item => {
+            const isComingSoon = item.status === 'COMING SOON'
+            const Icon = DIVISION_ICONS[item.key] || Layers
+
             return (
-              <div key={service.id || service.name} className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm transition hover:border-slate-300 hover:shadow-md">
-                <Icon className="mb-8 h-6 w-6 text-blue-700" />
-                <h3 className="text-xl font-semibold text-slate-950">{service.name}</h3>
-                <p className="mt-3 text-sm leading-6 text-slate-600">{service.description}</p>
-                <div className="mt-6 flex flex-wrap gap-2">
-                  {(service.tags || []).slice(0, 4).map(tag => (
-                    <span key={tag} className="rounded-md bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">{tag}</span>
-                  ))}
+              <article
+                key={item.key}
+                className="flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-6 transition hover:border-slate-300 hover:shadow-sm"
+              >
+                <div>
+                  <div className="flex items-start justify-between gap-3">
+                    {item.brandRule === 'saukigo-g-mark' ? (
+                      <SaukiGoMark className="h-10 w-10" />
+                    ) : (
+                      <div
+                        className={`flex h-10 w-10 items-center justify-center rounded-xl border ${
+                          isComingSoon
+                            ? 'border-amber-200 bg-amber-50 text-amber-700'
+                            : 'border-slate-200 bg-slate-950 text-white'
+                        }`}
+                      >
+                        <Icon className="h-5 w-5" aria-hidden="true" />
+                      </div>
+                    )}
+
+                    <span
+                      className={`rounded-full px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider ${
+                        isComingSoon
+                          ? 'border border-amber-300 bg-amber-50 text-amber-800'
+                          : 'border border-emerald-200 bg-emerald-50 text-emerald-700'
+                      }`}
+                    >
+                      {item.status}
+                    </span>
+                  </div>
+
+                  <p className="mt-4 font-mono text-[11px] uppercase tracking-wider text-slate-500">{item.category}</p>
+                  <h3 className="mt-1 text-xl font-semibold tracking-tight text-slate-950">{item.name}</h3>
+                  <p className="mt-2.5 text-sm leading-relaxed text-slate-600">{item.description}</p>
                 </div>
-              </div>
+
+                <div className="mt-6 border-t border-slate-100 pt-4">
+                  <p className="text-xs font-medium text-slate-500">{item.platforms}</p>
+                  {(item.playStoreUrl || item.appStoreUrl) && (
+                    <ProjectStoreBadges
+                      playStoreUrl={item.playStoreUrl}
+                      appStoreUrl={item.appStoreUrl}
+                      compact
+                      className="mt-3"
+                    />
+                  )}
+                  <Link
+                    href={item.href || '/work'}
+                    className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-blue-700 hover:text-slate-950"
+                  >
+                    {isComingSoon ? 'Preview roadmap' : 'View details'}
+                    <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+                  </Link>
+                </div>
+              </article>
             )
           })}
         </div>
@@ -155,237 +296,266 @@ export function ServicesGrid({ services = [] }) {
   )
 }
 
-export function ProjectGrid({ projects = [], filter = 'all', title = 'Selected work', intro }) {
-  const appsCount = projects.filter(p => p.project_type === 'mobile-app').length
-  const websitesCount = projects.filter(p => p.project_type === 'website' || p.project_type === 'saas').length
-
-  const filtered = projects.filter(project => {
-    if (filter === 'all') return true
-    if (filter === 'apps') return project.project_type === 'mobile-app'
-    if (filter === 'websites') return project.project_type === 'website' || project.project_type === 'saas'
-    return project.project_type === filter
-  })
-
+export function ServicesGrid({ services = [] }) {
   return (
-    <section className="bg-slate-50 px-5 py-24 lg:px-8 border-t border-slate-200">
-      <div className="mx-auto max-w-7xl">
-        <div className="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.22em] text-blue-700">Studio Portfolio</p>
-            <h2 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950 md:text-4xl">{title}</h2>
-            {intro && <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-600">{intro}</p>}
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <Link
-              href="/work"
-              className={`rounded-xl px-4 py-2 text-xs font-bold transition ${
-                filter === 'all'
-                  ? 'bg-slate-950 text-white shadow-sm'
-                  : 'border border-slate-200 bg-white text-slate-700 hover:border-slate-400'
-              }`}
-            >
-              All Systems ({projects.length})
-            </Link>
-            <Link
-              href="/work/apps"
-              className={`rounded-xl px-4 py-2 text-xs font-bold transition ${
-                filter === 'apps'
-                  ? 'bg-slate-950 text-white shadow-sm'
-                  : 'border border-slate-200 bg-white text-slate-700 hover:border-slate-400'
-              }`}
-            >
-              Mobile Apps ({appsCount})
-            </Link>
-            <Link
-              href="/work/websites"
-              className={`rounded-xl px-4 py-2 text-xs font-bold transition ${
-                filter === 'websites'
-                  ? 'bg-slate-950 text-white shadow-sm'
-                  : 'border border-slate-200 bg-white text-slate-700 hover:border-slate-400'
-              }`}
-            >
-              Web & SaaS ({websitesCount})
-            </Link>
-          </div>
+    <section className="cv-auto border-b border-slate-200 bg-white py-16 lg:py-20">
+      <div className="mx-auto max-w-7xl px-5 lg:px-8">
+        <div className="flex flex-wrap items-end justify-between gap-6">
+          <SectionIntro
+            eyebrow="Capabilities · Anjal Developers"
+            title="Software, suites, and technical advisory engineered for reliability."
+            description="From custom enterprise portals and turnkey Naira business suites to structured JSON APIs and institutional training."
+          />
+          <Link
+            href="/services"
+            className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-900 transition hover:border-slate-950"
+          >
+            All engineering services
+            <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          </Link>
         </div>
 
-        {filtered.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-16 text-center text-slate-500">
-            <MonitorSmartphone className="mx-auto h-12 w-12 text-slate-300 mb-3" />
-            <p className="text-base font-semibold text-slate-950">No published projects in this category yet</p>
-            <p className="mt-1 text-sm text-slate-500">Case studies will appear here once published from the admin panel.</p>
-          </div>
-        ) : (
-          <div className="grid gap-8 md:grid-cols-2">
-            {filtered.map(project => (
-              <ProjectCard key={project.id} project={project} />
-            ))}
-          </div>
-        )}
+        <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          {services.map(service => {
+            const Icon = SERVICE_ICONS[service.icon] || Globe
+            const tags = Array.isArray(service.tags) ? service.tags : []
+
+            return (
+              <article
+                key={service.id || service.name}
+                className="flex flex-col justify-between rounded-xl border border-slate-200 bg-slate-50/50 p-6 transition hover:border-slate-300 hover:bg-white"
+              >
+                <div>
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-950">
+                    <Icon className="h-5 w-5" aria-hidden="true" />
+                  </div>
+                  <h3 className="mt-4 text-lg font-semibold tracking-tight text-slate-950">{service.name}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-slate-600">{service.description}</p>
+                </div>
+
+                {tags.length > 0 && (
+                  <div className="mt-5 flex flex-wrap gap-1.5 border-t border-slate-200/70 pt-4">
+                    {tags.map(tag => (
+                      <span
+                        key={tag}
+                        className="rounded-md border border-slate-200 bg-white px-2.5 py-0.5 font-mono text-[11px] font-medium text-slate-600"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </article>
+            )
+          })}
+        </div>
       </div>
     </section>
   )
 }
 
 export function ProjectCard({ project }) {
-  const media = project.media || []
-  const portrait = media.filter(item => item.orientation === 'portrait').slice(0, 4)
-  const primary = media.find(item => item.is_primary) || media[0]
-  const href = `/work/${project.slug || project.id}`
-  const hasStores = Boolean(project.app_store_url || project.play_store_url)
-  const isApp = project.project_type === 'mobile-app'
+  const media = Array.isArray(project.media) ? project.media : []
+  const cover = media.find(m => m.is_primary) || media[0]
+  const isComingSoon = String(project.status || '').toUpperCase().includes('COMING')
+  const outcomes = Array.isArray(project.outcomes) ? project.outcomes : []
+  const tags = Array.isArray(project.tags) ? project.tags : []
+  const isSaukiGo = project.slug === 'sauki-go'
 
   return (
-    <Link href={href} className="group flex flex-col justify-between overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xs transition duration-300 hover:-translate-y-1.5 hover:border-slate-300 hover:shadow-xl">
+    <article className="flex flex-col justify-between overflow-hidden rounded-xl border border-slate-200 bg-white transition hover:border-slate-300 hover:shadow-md">
       <div>
-        {/* Device Frame Staging */}
-        <div className="relative overflow-hidden bg-slate-950">
-          {isApp ? (
-            /* Smartphone Multi-Screen Device Mockup Frame */
-            <div className="relative min-h-[300px] p-6 bg-gradient-to-b from-slate-900 to-slate-950">
-              <div className="mb-3 flex items-center justify-between text-[11px] font-mono text-white/40">
-                <span className="flex items-center gap-1.5">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                  iOS & Android Builds
-                </span>
-                <span>Production Release</span>
-              </div>
-              {portrait.length > 0 ? (
-                <div className="grid grid-cols-4 gap-2.5">
-                  {portrait.map((item, idx) => (
-                    <div
-                      key={item.id || idx}
-                      className="relative aspect-[9/19] overflow-hidden rounded-xl border border-white/20 bg-slate-800 shadow-lg transition duration-500 group-hover:scale-103"
-                    >
-                      <img src={item.url} alt={item.alt || project.title} className="h-full w-full object-cover" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-                    </div>
-                  ))}
-                </div>
-              ) : primary?.url ? (
-                <div className="mx-auto max-w-xs aspect-[9/16] overflow-hidden rounded-2xl border-2 border-white/20 bg-slate-800 shadow-2xl">
-                  <img src={primary.url} alt={primary.alt || project.title} className="h-full w-full object-cover" />
-                </div>
-              ) : (
-                <div className="flex h-56 items-center justify-center text-white/40">
-                  <Smartphone className="h-12 w-12" />
-                </div>
-              )}
-            </div>
-          ) : (
-            /* Browser Viewport Chrome Mockup */
-            <div className="relative bg-slate-900">
-              <div className="flex items-center justify-between border-b border-white/10 bg-slate-950 px-4 py-2.5">
-                <div className="flex items-center gap-1.5">
-                  <span className="h-2.5 w-2.5 rounded-full bg-rose-500/80" />
-                  <span className="h-2.5 w-2.5 rounded-full bg-amber-500/80" />
-                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-500/80" />
-                </div>
-                <div className="rounded-md border border-white/10 bg-white/5 px-3 py-0.5 text-[10px] font-mono text-white/50">
-                  {project.url ? project.url.replace(/^https?:\/\//, '') : `${project.slug || 'system'}.anjalsolutions.com`}
-                </div>
-                <div className="w-10" />
-              </div>
-              <div className="relative aspect-[16/9] overflow-hidden bg-slate-950">
-                {primary?.url ? (
-                  <img
-                    src={primary.url}
-                    alt={primary.alt || project.title}
-                    className="h-full w-full object-cover transition duration-500 group-hover:scale-103"
-                  />
-                ) : (
-                  <div className="flex h-full items-center justify-center text-white/40">
-                    <MonitorSmartphone className="h-14 w-14" />
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Project Information */}
-        <div className="p-7">
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <span className="rounded-md bg-slate-100 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-slate-800">
-                {project.project_type || 'Platform'}
-              </span>
-              {project.industry && (
-                <span className="rounded-md border border-slate-200 px-2 py-0.5 text-[11px] font-semibold text-slate-500">
-                  {project.industry}
-                </span>
-              )}
-            </div>
-            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 uppercase tracking-wider">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-              {project.status || 'Live'}
-            </span>
-          </div>
-
-          <h3 className="text-2xl font-semibold tracking-tight text-slate-950 group-hover:text-blue-600 transition-colors">
-            {project.title}
-          </h3>
-          <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-slate-600">
-            {project.summary || project.description}
-          </p>
-
-          {/* Tags */}
-          {(project.tags || []).length > 0 && (
-            <div className="mt-5 flex flex-wrap gap-1.5">
-              {project.tags.slice(0, 4).map(t => (
-                <span key={t} className="rounded-md bg-slate-50 border border-slate-200/80 px-2 py-0.5 font-mono text-[10px] text-slate-600">
-                  {t}
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Footer & Store Badges Action Bar */}
-      <div className="border-t border-slate-100 px-7 py-4.5 bg-slate-50/40">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          {hasStores ? (
-            <ProjectStoreBadges
-              appStoreUrl={project.app_store_url}
-              playStoreUrl={project.play_store_url}
-              stopPropagation={true}
+        <div className="relative aspect-[16/10] w-full overflow-hidden border-b border-slate-200 bg-slate-950">
+          {cover?.url ? (
+            <img
+              src={cover.url}
+              alt={cover.alt || project.title}
+              width={640}
+              height={400}
+              loading="lazy"
+              decoding="async"
+              className="h-full w-full object-cover object-top"
             />
           ) : (
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-400">
-              {project.client_name ? `Client: ${project.client_name}` : 'Enterprise Platform'}
+            <div className="flex h-full w-full flex-col justify-between bg-[linear-gradient(135deg,#091224_0%,#111e38_100%)] p-6 text-white">
+              <span className="w-fit rounded-full border border-white/15 bg-white/10 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-amber-200">
+                {project.status || 'UPCOMING'}
+              </span>
+              <div>
+                <p className="font-mono text-[11px] uppercase tracking-wider text-blue-300">{project.industry}</p>
+                <p className="mt-1 text-xl font-semibold tracking-tight">{project.title}</p>
+              </div>
             </div>
           )}
-          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-950 transition group-hover:text-blue-600 ml-auto">
-            <span>Case study</span>
-            <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-1" />
+
+          <div className="absolute left-3 top-3 flex items-center gap-2">
+            <span
+              className={`rounded-full px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider shadow-sm ${
+                isComingSoon
+                  ? 'bg-amber-400 text-slate-950'
+                  : 'bg-emerald-500 text-slate-950'
+              }`}
+            >
+              {project.status || 'LIVE'}
+            </span>
           </div>
         </div>
+
+        <div className="p-6">
+          <div className="flex items-center gap-3">
+            {isSaukiGo && <SaukiGoMark className="h-8 w-8 shrink-0" />}
+            <div>
+              <p className="font-mono text-[11px] uppercase tracking-wider text-slate-500">
+                {project.industry || project.project_type}
+              </p>
+              <h3 className="text-xl font-semibold tracking-tight text-slate-950">{project.title}</h3>
+            </div>
+          </div>
+
+          <p className="mt-3 text-sm leading-relaxed text-slate-600">{project.summary || project.description}</p>
+
+          {outcomes.length > 0 && (
+            <ul className="mt-4 space-y-1.5 border-t border-slate-100 pt-4 text-xs text-slate-600">
+              {outcomes.slice(0, 3).map(out => (
+                <li key={out} className="flex items-start gap-2">
+                  <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" aria-hidden="true" />
+                  <span>{out}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
-    </Link>
+
+      <div className="border-t border-slate-100 bg-slate-50/70 px-6 py-4">
+        {(project.play_store_url || project.app_store_url) && (
+          <ProjectStoreBadges
+            playStoreUrl={project.play_store_url}
+            appStoreUrl={project.app_store_url}
+            compact
+            className="mb-3"
+          />
+        )}
+
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-wrap gap-1.5">
+            {tags.slice(0, 2).map(tag => (
+              <span
+                key={tag}
+                className="rounded border border-slate-200 bg-white px-2 py-0.5 font-mono text-[10px] text-slate-600"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+          <Link
+            href={`/work/${project.slug}`}
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-950 hover:text-blue-700"
+          >
+            Case study
+            <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+          </Link>
+        </div>
+      </div>
+    </article>
+  )
+}
+
+export function ProjectGrid({
+  projects = [],
+  title = 'Selected systems and digital platforms',
+  intro = 'Production applications, developer APIs, and upcoming rollouts built by Anjal Solutions LTD.',
+  filter = 'all',
+}) {
+  const filtered = projects.filter(p => {
+    if (filter === 'apps') return p.project_type === 'mobile-app'
+    if (filter === 'websites') return p.project_type !== 'mobile-app'
+    return true
+  })
+
+  return (
+    <section className="cv-auto border-b border-slate-200 bg-white py-16 lg:py-20">
+      <div className="mx-auto max-w-7xl px-5 lg:px-8">
+        <div className="flex flex-wrap items-end justify-between gap-6">
+          <SectionIntro eyebrow="Portfolio Ledger" title={title} description={intro} />
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href="/work"
+              className={`rounded-lg px-3.5 py-2 text-xs font-semibold transition ${
+                filter === 'all' ? 'bg-slate-950 text-white' : 'border border-slate-200 bg-white text-slate-700 hover:border-slate-400'
+              }`}
+            >
+              All ({projects.length})
+            </Link>
+            <Link
+              href="/work/apps"
+              className={`rounded-lg px-3.5 py-2 text-xs font-semibold transition ${
+                filter === 'apps' ? 'bg-slate-950 text-white' : 'border border-slate-200 bg-white text-slate-700 hover:border-slate-400'
+              }`}
+            >
+              Mobile Apps
+            </Link>
+            <Link
+              href="/work/websites"
+              className={`rounded-lg px-3.5 py-2 text-xs font-semibold transition ${
+                filter === 'websites' ? 'bg-slate-950 text-white' : 'border border-slate-200 bg-white text-slate-700 hover:border-slate-400'
+              }`}
+            >
+              Web & APIs
+            </Link>
+          </div>
+        </div>
+
+        <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {filtered.map(project => (
+            <ProjectCard key={project.id || project.slug} project={project} />
+          ))}
+        </div>
+      </div>
+    </section>
   )
 }
 
 export function ProcessBand() {
+  const steps = [
+    {
+      num: '01',
+      title: 'Architecture & Commercial Scope',
+      body: 'Fixed Naira quotation, database schema design, API boundary mapping, and milestone delivery schedule before code begins.',
+    },
+    {
+      num: '02',
+      title: 'Production Engineering Sprints',
+      body: 'Clean Next.js, Flutter, or FastAPI implementation with structured error recovery, offline tolerance, and weekly build checkpoints.',
+    },
+    {
+      num: '03',
+      title: 'Security, QA & Store Governance',
+      body: 'Accessibility checks, Web Vitals optimization, payment webhook verification, and Apple App Store / Google Play compliance reviews.',
+    },
+    {
+      num: '04',
+      title: '100% Ownership & Continuity',
+      body: 'Full transfer of source repositories, production cloud environments, documentation, and optional operational maintenance SLAs.',
+    },
+  ]
+
   return (
-    <section className="border-y border-slate-200 bg-white px-5 py-20 lg:px-8">
-      <div className="mx-auto max-w-7xl">
+    <section className="cv-auto border-b border-slate-800 bg-slate-950 py-16 text-white lg:py-20">
+      <div className="mx-auto max-w-7xl px-5 lg:px-8">
         <SectionIntro
-          eyebrow="Delivery Standard"
-          title="A clear studio process from idea to launch."
-          text="Strategy, interface design, engineering, deployment, and support stay connected from the first call."
+          dark
+          eyebrow="Delivery Discipline"
+          title="Built cleanly from architecture note to live production."
+          description="Every client system follows verifiable milestones, documented code ownership, and predictable Naira commercials."
         />
-        <div className="grid gap-4 md:grid-cols-4">
-          {[
-            [Rocket, 'Scope', 'Define users, workflows, data, risks, and success criteria.'],
-            [MonitorSmartphone, 'Prototype', 'Design high-confidence screens and key product flows.'],
-            [Database, 'Build', 'Implement frontend, backend, admin, integrations, and QA.'],
-            [ShieldCheck, 'Launch', 'Deploy, monitor, train, and support the operating team.'],
-          ].map(([Icon, label, text]) => (
-            <div key={label} className="rounded-lg border border-slate-200 p-5">
-              <Icon className="mb-8 h-6 w-6 text-emerald-700" />
-              <h3 className="font-semibold">{label}</h3>
-              <p className="mt-3 text-sm leading-6 text-slate-600">{text}</p>
+
+        <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+          {steps.map(step => (
+            <div key={step.num} className="rounded-xl border border-white/10 bg-white/[0.03] p-6">
+              <p className="font-mono text-xs font-semibold text-blue-400">{step.num}</p>
+              <h3 className="mt-3 text-base font-semibold text-white">{step.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-slate-300">{step.body}</p>
             </div>
           ))}
         </div>
@@ -394,68 +564,136 @@ export function ProcessBand() {
   )
 }
 
-export function PricingBand({ plans = [] }) {
-  if (!plans.length) return null
+export function PricingBand({ pricingPlans = [] }) {
   return (
-    <section className="bg-slate-950 px-5 py-20 text-white lg:px-8">
-      <div className="mx-auto max-w-7xl">
-        <SectionIntro
-          eyebrow="Investment"
-          title="Start small, scale into a serious platform."
-          text="Pricing depends on scope, integrations, timeline, and support requirements."
-        />
-        <div className="grid gap-4 md:grid-cols-3">
-          {plans.map(plan => (
-            <div key={plan.id} className={`rounded-lg border p-6 ${plan.is_featured ? 'border-blue-400 bg-blue-500/10' : 'border-white/12 bg-white/[0.04]'}`}>
-              <p className="text-sm font-semibold text-white/60">{plan.name}</p>
-              <p className="mt-4 text-4xl font-bold">{plan.price}</p>
-              <p className="mt-2 min-h-10 text-sm text-white/55">{plan.price_note}</p>
-              <div className="mt-8 space-y-3">
-                {(plan.features || []).map(feature => (
-                  <p key={feature} className="flex gap-2 text-sm text-white/70">
-                    <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-emerald-300" />
-                    {feature}
+    <section className="cv-auto border-b border-slate-200 bg-slate-50 py-16 lg:py-20">
+      <div className="mx-auto max-w-7xl px-5 lg:px-8">
+        <div className="flex flex-wrap items-end justify-between gap-6">
+          <SectionIntro
+            eyebrow="Transparent Naira Commercials"
+            title="Clear starting packages and ready-to-launch suites in ₦."
+            description="Choose a custom engagement tier or deploy a complete operational suite across web, mobile, and dispatch."
+          />
+          <Link
+            href="/quote"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-blue-700 hover:text-slate-950"
+          >
+            Open interactive Naira calculator
+            <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          </Link>
+        </div>
+
+        <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {pricingPlans.map(plan => {
+            const features = Array.isArray(plan.features) ? plan.features : []
+            const isFeatured = Boolean(plan.is_featured)
+            const displayPrice = formatNaira(plan.price)
+
+            return (
+              <article
+                key={plan.id || plan.name}
+                className={`flex flex-col justify-between rounded-xl border p-6 transition ${
+                  isFeatured
+                    ? 'border-slate-950 bg-slate-950 text-white shadow-xl'
+                    : 'border-slate-200 bg-white text-slate-950 hover:border-slate-300'
+                }`}
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-2">
+                    <h3 className="text-lg font-semibold tracking-tight">{plan.name}</h3>
+                    {isFeatured && (
+                      <span className="rounded-full bg-blue-600 px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-white">
+                        Popular
+                      </span>
+                    )}
+                  </div>
+
+                  <p className={`mt-4 font-mono text-3xl font-bold tracking-tight ${isFeatured ? 'text-white' : 'text-slate-950'}`}>
+                    {displayPrice}
                   </p>
-                ))}
-              </div>
-            </div>
-          ))}
+                  {plan.price_note && (
+                    <p className={`mt-2 text-xs leading-relaxed ${isFeatured ? 'text-slate-300' : 'text-slate-600'}`}>
+                      {plan.price_note}
+                    </p>
+                  )}
+
+                  <ul className={`mt-6 space-y-2.5 border-t pt-5 text-sm ${isFeatured ? 'border-white/10 text-slate-200' : 'border-slate-100 text-slate-700'}`}>
+                    {features.map(feat => (
+                      <li key={feat} className="flex items-start gap-2.5">
+                        <Check
+                          className={`mt-0.5 h-4 w-4 shrink-0 ${isFeatured ? 'text-emerald-400' : 'text-emerald-600'}`}
+                          aria-hidden="true"
+                        />
+                        <span>{feat}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <Link
+                  href={`/quote?package=${encodeURIComponent(plan.name)}`}
+                  className={`mt-8 inline-flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold transition ${
+                    isFeatured
+                      ? 'bg-white text-slate-950 hover:bg-blue-50'
+                      : 'bg-slate-950 text-white hover:bg-blue-700'
+                  }`}
+                >
+                  {plan.cta_text || `Request ${plan.name}`}
+                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                </Link>
+              </article>
+            )
+          })}
         </div>
       </div>
     </section>
   )
 }
 
-export function CtaBand({ settings = {} }) {
+export function CtaBand() {
   return (
-    <section className="bg-white px-5 py-20 lg:px-8">
-      <div className="mx-auto grid max-w-7xl gap-8 rounded-lg border border-slate-200 bg-slate-50 p-8 md:grid-cols-[1fr_auto] md:items-center">
-        <div>
-          <p className="mb-3 text-xs font-bold uppercase tracking-[0.22em] text-blue-700">Start a serious build</p>
-          <h2 className="text-3xl font-semibold tracking-normal md:text-4xl">Turn the next product idea into a structured proposal.</h2>
-          <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-600">Use App Studio for mobile ideas or the quote builder for websites, dashboards, and SaaS systems.</p>
-        </div>
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <Link href="/app-studio" className="inline-flex items-center justify-center gap-2 rounded-lg bg-slate-950 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700">
-            App Studio
-            <Smartphone className="h-4 w-4" />
-          </Link>
-          <Link href="/quote" className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 px-5 py-3 text-sm font-bold text-slate-950 hover:border-slate-950">
-            Quote builder
-            <BarChart3 className="h-4 w-4" />
-          </Link>
+    <section className="cv-auto bg-white py-16 lg:py-20">
+      <div className="mx-auto max-w-7xl px-5 lg:px-8">
+        <div className="grid gap-8 rounded-2xl border border-slate-200 bg-slate-50 p-8 lg:grid-cols-[1fr_auto] lg:items-center lg:p-10">
+          <div>
+            <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-blue-700">
+              Start a Verified Engagement
+            </p>
+            <h2 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">
+              Generate a formal Naira proposal or speak directly with engineering.
+            </h2>
+            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-600 sm:text-base">
+              Configure your system scope for an instant branded PDF estimate from {companyDisplayName}, or contact our Damaturu team for turnkey Restaurant, Delivery, E-Commerce, or custom builds.
+            </p>
+          </div>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Link
+              href="/quote"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
+            >
+              Build Naira Quote
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+            <Link
+              href="/contact"
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition hover:border-slate-950"
+            >
+              Contact Office
+            </Link>
+          </div>
         </div>
       </div>
     </section>
   )
 }
 
-export function EstimateSummary({ total, totalNaira, label = 'Estimated investment' }) {
+export function EstimateSummary({ total, totalNaira, label = 'Estimated Investment' }) {
+  const nairaAmount = Number(totalNaira ?? total ?? 0)
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-      <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">{label}</p>
-      <p className="mt-3 text-4xl font-bold text-slate-950">{formatMoney(total)}</p>
-      <p className="mt-1 text-sm font-semibold text-emerald-700">{formatMoney(totalNaira, 'NGN')}</p>
+    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">{label}</p>
+      <p className="mt-2 font-mono text-3xl font-bold tracking-tight text-slate-950">{formatNaira(nairaAmount)}</p>
+      <p className="mt-1 text-xs text-slate-500">All figures denominated in Nigerian Naira (₦)</p>
     </div>
   )
 }

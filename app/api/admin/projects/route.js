@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { revalidatePath } from 'next/cache'
+import { revalidatePlatformData } from '@/lib/cache'
 import { getDb, initDb, seedDefaults, slugify } from '@/lib/db'
 
 async function uniqueSlug(sql, title, preferredSlug) {
@@ -94,8 +94,7 @@ export async function POST(request) {
       `
     }
 
-    revalidatePath('/', 'layout')
-    revalidatePath('/work', 'layout')
+    revalidatePlatformData()
     return NextResponse.json((await attachMedia(sql, result))[0], { status: 201 })
   } catch (err) {
     return NextResponse.json({ error: err.message }, { status: 500 })

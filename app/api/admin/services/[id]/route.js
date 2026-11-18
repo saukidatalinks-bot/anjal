@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { revalidatePath } from 'next/cache'
+import { revalidatePlatformData } from '@/lib/cache'
 import { getDb } from '@/lib/db'
 
 export async function PUT(request, { params }) {
@@ -11,8 +11,7 @@ export async function PUT(request, { params }) {
         tags=${tags||[]}, display_order=${display_order||0}, is_active=${is_active!==false}
       WHERE id = ${params.id} RETURNING *
     `
-    // Revalidate homepage to show updated service
-    revalidatePath('/', 'layout')
+    revalidatePlatformData()
     return NextResponse.json(result[0])
   } catch (err) {
     return NextResponse.json({ error: err.message }, { status: 500 })
@@ -23,8 +22,7 @@ export async function DELETE(request, { params }) {
   try {
     const sql = getDb()
     await sql`DELETE FROM services WHERE id = ${params.id}`
-    // Revalidate homepage
-    revalidatePath('/', 'layout')
+    revalidatePlatformData()
     return NextResponse.json({ success: true })
   } catch (err) {
     return NextResponse.json({ error: err.message }, { status: 500 })

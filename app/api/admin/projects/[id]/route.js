@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { revalidatePath } from 'next/cache'
+import { revalidatePlatformData } from '@/lib/cache'
 import { getDb, initDb, slugify } from '@/lib/db'
 
 async function uniqueSlug(sql, title, preferredSlug, excludeId) {
@@ -104,9 +104,7 @@ export async function PUT(request, { params }) {
       `
     }
 
-    revalidatePath('/', 'layout')
-    revalidatePath('/work', 'layout')
-    revalidatePath(`/work/${finalSlug}`)
+    revalidatePlatformData()
     return NextResponse.json(await getProject(sql, params.id))
   } catch (err) {
     return NextResponse.json({ error: err.message }, { status: 500 })
@@ -118,8 +116,7 @@ export async function DELETE(request, { params }) {
     await initDb()
     const sql = getDb()
     await sql`DELETE FROM projects WHERE id = ${params.id}`
-    revalidatePath('/', 'layout')
-    revalidatePath('/work', 'layout')
+    revalidatePlatformData()
     return NextResponse.json({ success: true })
   } catch (err) {
     return NextResponse.json({ error: err.message }, { status: 500 })

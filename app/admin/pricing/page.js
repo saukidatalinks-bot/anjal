@@ -1,9 +1,19 @@
 'use client'
-import { useState, useEffect } from 'react'
-import AdminSidebar from '@/components/AdminSidebar'
-import toast, { Toaster } from 'react-hot-toast'
 
-const BLANK = { name: '', price: '', price_note: '', is_featured: false, cta_text: 'Get Started', display_order: 0, is_active: true, features: [] }
+import { useEffect, useState } from 'react'
+import toast, { Toaster } from 'react-hot-toast'
+import AdminSidebar from '@/components/AdminSidebar'
+import { formatNaira } from '@/lib/format'
+
+const BLANK = {
+  name: '',
+  price: '',
+  price_note: '',
+  is_featured: false,
+  cta_text: 'Request Quote',
+  display_order: 0,
+  features: [],
+}
 
 export default function AdminPricing() {
   const [plans, setPlans] = useState([])
@@ -14,23 +24,25 @@ export default function AdminPricing() {
 
   const load = async () => {
     const res = await fetch('/api/admin/pricing')
-    setPlans(await res.json())
+    const data = await res.json()
+    setPlans(Array.isArray(data) ? data : [])
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    load()
+  }, [])
 
   const addFeature = () => {
     if (!newFeature.trim()) return
-    setForm(f => ({ ...f, features: [...f.features, newFeature.trim()] }))
+    setForm(prev => ({ ...prev, features: [...prev.features, newFeature.trim()] }))
     setNewFeature('')
   }
 
-  const removeFeature = (i) => {
-    setForm(f => ({ ...f, features: f.features.filter((_, idx) => idx !== i) }))
-  }
-
   const handleSave = async () => {
-    if (!form.name || !form.price) { toast.error('Name and price are required'); return }
+    if (!form.name || !form.price) {
+      toast.error('Plan name and Naira price are required')
+      return
+    }
     setSaving(true)
     try {
       const res = await fetch(editing ? `/api/admin/pricing/${editing}` : '/api/admin/pricing', {
@@ -38,130 +50,212 @@ export default function AdminPricing() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
       })
-      if (res.ok) { toast.success(editing ? 'Updated!' : 'Created!'); setForm(BLANK); setEditing(null); load() }
-      else { const d = await res.json(); toast.error(d.error || 'Save failed') }
-    } catch { toast.error('Save failed') }
-    setSaving(false)
+      if (!res.ok) {
+        const d = await res.json()
+        throw new Error(d.error || 'Save failed')
+      }
+      toast.success(editing ? 'Pricing plan updated' : 'Pricing plan created')
+      setForm(BLANK)
+      setEditing(null)
+      load()
+    } catch (error) {
+      toast.error(error.message || 'Save failed')
+    } finally {
+      setSaving(false)
+    }
   }
 
-  const handleEdit = (p) => {
-    setEditing(p.id)
-    // Ensure features is always an array of strings
-    const featureArray = Array.isArray(p.features) ? p.features.map(f => typeof f === 'string' ? f : f.feature || '') : []
-    setForm({ ...p, features: featureArray })
+  const handleEdit = plan => {
+    setEditing(plan.id)
+    setForm({
+      ...plan,
+      features: (plan.features || []).map(f => (typeof f === 'string' ? f : f.feature)),
+    })
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  const handleDelete = async (id) => {
+  const handleDelete = async id => {
     if (!confirm('Delete this pricing plan?')) return
     await fetch(`/api/admin/pricing/${id}`, { method: 'DELETE' })
-    toast.success('Deleted'); load()
+    toast.success('Pricing plan deleted')
+    load()
   }
 
   return (
-    <div className="flex min-h-screen">
+    <div className="min-h-screen bg-slate-50">
       <Toaster position="top-right" />
       <AdminSidebar />
-      <main className="ml-64 flex-1 p-8">
-        <div className="mb-6">
-          <h1 className="font-display text-3xl text-navy mb-1">Pricing Plans</h1>
-          <p className="text-slate-500 text-sm">Manage all pricing plans, features and CTAs shown on your pricing section.</p>
+      <main className="p-4 sm:p-6 lg:ml-64 lg:p-8">
+        <div className="mb-8">
+          <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-blue-700">Commercials (₦)</p>
+          <h1 className="mt-1 text-3xl font-semibold tracking-tight text-slate-950">Naira Pricing Plans</h1>
+          <p className="mt-1 text-sm text-slate-600">Manage all packages displayed on the home, services, and pricing bands.</p>
         </div>
 
-        {/* FORM */}
-        <div className="admin-card mb-8">
-          <h2 className="font-bold text-navy mb-5 flex items-center gap-2">
-            {editing ? '✏️ Edit Plan' : '➕ Add New Plan'}
-            {editing && <button onClick={() => { setEditing(null); setForm(BLANK) }} className="text-xs text-slate-400 hover:text-red-500 ml-2">Cancel</button>}
-          </h2>
+        <section className="mb-8 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="mb-5 flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-slate-950">{editing ? 'Edit Pricing Plan' : 'Add Pricing Plan'}</h2>
+            {editing && (
+              <button
+                type="button"
+                onClick={() => {
+                  setEditing(null)
+                  setForm(BLANK)
+                }}
+                className="text-xs font-semibold text-red-600 hover:underline"
+              >
+                Cancel Edit
+              </button>
+            )}
+          </div>
 
-          <div className="grid grid-cols-2 gap-4 mb-5">
+          <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <label className="label">Plan Name *</label>
-              <input className="input-field" placeholder="e.g. Business, Starter, Enterprise" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
+              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-600">Plan Name *</label>
+              <input
+                className="input-field"
+                placeholder="e.g. Restaurant & Ordering Suite"
+                value={form.name}
+                onChange={e => setForm({ ...form, name: e.target.value })}
+              />
             </div>
             <div>
-              <label className="label">Price Display *</label>
-              <input className="input-field" placeholder='e.g. $350 or "Custom"' value={form.price} onChange={e => setForm({ ...form, price: e.target.value })} />
-            </div>
-            <div>
-              <label className="label">Price Note / Subtitle</label>
-              <input className="input-field" placeholder="One-time · Full business platform" value={form.price_note} onChange={e => setForm({ ...form, price_note: e.target.value })} />
-            </div>
-            <div>
-              <label className="label">CTA Button Text</label>
-              <input className="input-field" placeholder="Get Started" value={form.cta_text} onChange={e => setForm({ ...form, cta_text: e.target.value })} />
-            </div>
-            <div>
-              <label className="label">Display Order</label>
-              <input type="number" className="input-field" value={form.display_order} onChange={e => setForm({ ...form, display_order: parseInt(e.target.value) || 0 })} />
-            </div>
-            <div className="flex flex-col justify-end gap-3">
-              <label className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
-                <input type="checkbox" className="accent-brand-green" checked={form.is_featured} onChange={e => setForm({ ...form, is_featured: e.target.checked })} />
-                Featured / Most Popular (dark styling)
+              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-600">
+                Price (₦ or Custom) *
               </label>
-              <label className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
-                <input type="checkbox" className="accent-brand-green" checked={form.is_active} onChange={e => setForm({ ...form, is_active: e.target.checked })} />
-                Active (visible on site)
+              <input
+                className="input-field"
+                placeholder="e.g. ₦849,999"
+                value={form.price}
+                onChange={e => setForm({ ...form, price: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-600">Price Subtitle</label>
+              <input
+                className="input-field"
+                placeholder="e.g. One-time deployment · Maintenance fees apply"
+                value={form.price_note || ''}
+                onChange={e => setForm({ ...form, price_note: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-600">CTA Label</label>
+              <input
+                className="input-field"
+                placeholder="e.g. Deploy Restaurant Suite"
+                value={form.cta_text || ''}
+                onChange={e => setForm({ ...form, cta_text: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-600">Display Order</label>
+              <input
+                type="number"
+                className="input-field"
+                value={form.display_order || 0}
+                onChange={e => setForm({ ...form, display_order: parseInt(e.target.value, 10) || 0 })}
+              />
+            </div>
+            <div className="flex items-end pb-2">
+              <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-slate-700">
+                <input
+                  type="checkbox"
+                  checked={Boolean(form.is_featured)}
+                  onChange={e => setForm({ ...form, is_featured: e.target.checked })}
+                />
+                Mark as Featured / Popular tier
               </label>
             </div>
           </div>
 
-          {/* Features */}
-          <div className="mb-5">
-            <label className="label">Plan Features</label>
-            <div className="flex flex-col gap-2 mb-3">
-              {form.features.map((f, i) => (
-                <div key={i} className="flex items-center gap-2 bg-slate-50 rounded-lg px-4 py-2">
-                  <span className="text-brand-green font-bold">✓</span>
-                  <span className="text-sm text-slate-700 flex-1">{f}</span>
-                  <button onClick={() => removeFeature(i)} className="text-red-400 hover:text-red-600 text-xs">Remove</button>
-                </div>
+          <div className="mt-5">
+            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-600">Included Deliverables</label>
+            <div className="mb-3 flex flex-wrap gap-2">
+              {form.features.map((feat, idx) => (
+                <span
+                  key={`${feat}-${idx}`}
+                  className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-700"
+                >
+                  {feat}
+                  <button
+                    type="button"
+                    onClick={() => setForm(prev => ({ ...prev, features: prev.features.filter((_, i) => i !== idx) }))}
+                    className="font-bold text-red-500 hover:text-red-700"
+                  >
+                    ×
+                  </button>
+                </span>
               ))}
             </div>
             <div className="flex gap-2">
-              <input className="input-field flex-1" placeholder="Add a feature..." value={newFeature} onChange={e => setNewFeature(e.target.value)} onKeyDown={e => e.key === 'Enter' && addFeature()} />
-              <button onClick={addFeature} className="btn btn-primary px-5">+ Add</button>
+              <input
+                className="input-field flex-1"
+                placeholder="Add deliverable bullet..."
+                value={newFeature}
+                onChange={e => setNewFeature(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    addFeature()
+                  }
+                }}
+              />
+              <button type="button" onClick={addFeature} className="rounded-lg bg-slate-900 px-4 py-2 text-xs font-semibold text-white">
+                + Add
+              </button>
             </div>
           </div>
 
-          <button onClick={handleSave} disabled={saving} className="btn btn-green">
-            {saving ? 'Saving...' : editing ? '✓ Update Plan' : '+ Add Plan'}
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={saving}
+            className="mt-5 rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-800 disabled:opacity-60"
+          >
+            {saving ? 'Saving...' : editing ? 'Update Plan' : 'Create Plan'}
           </button>
-        </div>
+        </section>
 
-        {/* PREVIEW + LIST */}
-        <div className="admin-card">
-          <h2 className="font-bold text-navy mb-5">All Pricing Plans ({plans.length})</h2>
-          {plans.length === 0 ? (
-            <p className="text-slate-400 text-sm text-center py-8">No pricing plans yet.</p>
-          ) : (
-            <div className="flex flex-col gap-3">
-              {plans.map(p => (
-                <div key={p.id} className="table-row">
-                  <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-sm font-bold ${p.is_featured ? 'bg-navy text-white' : 'bg-slate-100 text-slate-600'}`}>
-                      {p.price}
-                    </div>
-                    <div>
-                      <div className="font-semibold text-navy text-sm flex items-center gap-2">
-                        {p.name}
-                        {p.is_featured && <span className="status-badge bg-brand-green text-white text-[10px]">Featured</span>}
-                        {!p.is_active && <span className="status-badge bg-slate-100 text-slate-500 text-[10px]">Hidden</span>}
-                      </div>
-                      <div className="text-xs text-slate-400 mt-0.5">{p.price_note} · {(p.features || []).length} features</div>
-                    </div>
+        <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h2 className="mb-4 text-lg font-semibold text-slate-950">All Plans ({plans.length})</h2>
+          <div className="space-y-3">
+            {plans.map(p => (
+              <div key={p.id} className="flex flex-wrap items-center justify-between gap-4 rounded-lg bg-slate-50 p-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-slate-950">{p.name}</span>
+                    <span className="font-mono text-sm font-bold text-blue-700">{formatNaira(p.price)}</span>
+                    {p.is_featured && (
+                      <span className="rounded bg-blue-600 px-2 py-0.5 font-mono text-[10px] font-semibold uppercase text-white">
+                        Featured
+                      </span>
+                    )}
                   </div>
-                  <div className="flex gap-2">
-                    <button onClick={() => handleEdit(p)} className="btn btn-primary py-2 px-4 text-xs">✏️ Edit</button>
-                    <button onClick={() => handleDelete(p.id)} className="btn py-2 px-4 text-xs bg-red-50 text-red-600 hover:bg-red-600 hover:text-white">🗑</button>
-                  </div>
+                  <p className="mt-1 text-xs text-slate-500">
+                    {p.price_note || 'No subtitle'} · {(p.features || []).length} deliverables
+                  </p>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleEdit(p)}
+                    className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-800"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(p.id)}
+                    className="rounded-lg bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
       </main>
     </div>
   )

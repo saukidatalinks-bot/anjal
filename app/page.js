@@ -1,26 +1,37 @@
-import { Toaster } from 'react-hot-toast'
 import PlatformShell from '@/components/PlatformShell'
-import { CtaBand, Hero, PricingBand, ProcessBand, ProjectGrid, ServicesGrid } from '@/components/PlatformSections'
+import ProjectShowcaseCarousel from '@/components/ProjectShowcaseCarousel'
 import MediaBroadcastSection from '@/components/MediaBroadcastSection'
-import { getPlatformData } from '@/lib/platform-data'
+import {
+  CtaBand,
+  EcosystemBand,
+  Hero,
+  PricingBand,
+  ProcessBand,
+  ServicesGrid,
+} from '@/components/PlatformSections'
+import { ECOSYSTEM_DIVISIONS, getPlatformData } from '@/lib/platform-data'
+
+export const revalidate = 300
+
+export const metadata = {
+  title: 'Anjal Solutions LTD | Enterprise Software, Mobile Apps & Digital Systems',
+  description:
+    'Anjal Solutions LTD (RC: 9854225 · D-U-N-S: 352297161) engineers Sauki Go, My NELFund, enterprise web applications, native mobile platforms, and structured JSON APIs from Nigeria.',
+}
 
 export default async function HomePage() {
   const { settings, projects, services, pricingPlans } = await getPlatformData()
 
   return (
     <PlatformShell settings={settings}>
-      <Toaster position="top-right" />
-      <Hero settings={settings} />
+      <Hero settings={settings} projects={projects} />
+      <ProjectShowcaseCarousel projects={projects} />
+      <EcosystemBand divisions={ECOSYSTEM_DIVISIONS} />
       <MediaBroadcastSection />
       <ServicesGrid services={services} />
-      <ProjectGrid
-        projects={projects.slice(0, 4)}
-        title="Proof of serious execution."
-        intro="A curated view of active platforms, apps, SaaS systems, and digital infrastructure delivered or managed by Anjal Solutions LTD."
-      />
       <ProcessBand />
-      <PricingBand plans={pricingPlans} />
-      <CtaBand settings={settings} />
+      <PricingBand pricingPlans={pricingPlans} />
+      <CtaBand />
     </PlatformShell>
   )
 }

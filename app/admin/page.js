@@ -1,115 +1,164 @@
 'use client'
 
-import AdminSidebar from '@/components/AdminSidebar'
-import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { ArrowRight, BriefcaseBusiness, FileText, Inbox, Smartphone } from 'lucide-react'
+import Link from 'next/link'
+import { FolderKanban, MessageSquare, ReceiptText, Settings } from 'lucide-react'
+import AdminSidebar from '@/components/AdminSidebar'
+import { formatNaira } from '@/lib/format'
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState(null)
-  const [messages, setMessages] = useState([])
-  const [submissions, setSubmissions] = useState([])
+  const [stats, setStats] = useState({
+    projects: 0,
+    quotations: 0,
+    contacts: 0,
+    unreadContacts: 0,
+    services: 0,
+  })
+  const [quotations, setQuotations] = useState([])
+  const [contacts, setContacts] = useState([])
 
   useEffect(() => {
     Promise.all([
-      fetch('/api/admin/projects').then(r => r.json()),
-      fetch('/api/admin/contacts').then(r => r.json()),
-      fetch('/api/admin/quotations').then(r => r.json()),
-      fetch('/api/admin/app-studio').then(r => r.json()),
-    ]).then(([projects, contacts, quotations, studio]) => {
-      const safeContacts = Array.isArray(contacts) ? contacts : []
-      const safeQuotes = Array.isArray(quotations) ? quotations : []
-      setStats({
-        projects: Array.isArray(projects) ? projects.length : 0,
-        apps: (Array.isArray(projects) ? projects : []).filter(p => p.project_type === 'mobile-app').length,
-        contacts: safeContacts.length,
-        unread: safeContacts.filter(c => !c.is_read).length,
-        quotations: safeQuotes.length,
-        appLeads: studio?.submissions?.length || 0,
-      })
-      setMessages(safeContacts.slice(0, 5))
-      setSubmissions((studio?.submissions || []).slice(0, 5))
-    }).catch(() => {})
-  }, [])
+      fetch('/api/admin/projects').then(r => r.json()).catch(() => []),
+      fetch('/api/admin/quotations').then(r => r.json()).catch(() => []),
+      fetch('/api/admin/contacts').then(r => r.json()).catch(() => []),
+      fetch('/api/admin/services').then(r => r.json()).catch(() => []),
+    ]).then(([projectsData, quotationsData, contactsData, servicesData]) => {
+      const safeProjects = Array.isArray(projectsData) ? projectsData : []
+      const safeQuotations = Array.isArray(quotationsData) ? quotationsData : []
+      const safeContacts = Array.isArray(contactsData) ? contactsData : []
+      const safeServices = Array.isArray(servicesData) ? servicesData : []
 
-  const tiles = [
-    { label: 'Projects', value: stats?.projects ?? '-', icon: BriefcaseBusiness, href: '/admin/projects' },
-    { label: 'Mobile apps', value: stats?.apps ?? '-', icon: Smartphone, href: '/admin/projects' },
-    { label: 'Proposals', value: stats?.quotations ?? '-', icon: FileText, href: '/admin/quotations' },
-    { label: 'Leads', value: stats?.contacts ?? '-', icon: Inbox, href: '/admin/contacts', badge: stats?.unread },
-  ]
+      setQuotations(safeQuotations.slice(0, 5))
+      setContacts(safeContacts.slice(0, 5))
+      setStats({
+        projects: safeProjects.length,
+        quotations: safeQuotations.length,
+        contacts: safeContacts.length,
+        unreadContacts: safeContacts.filter(c => !c.is_read).length,
+        services: safeServices.length,
+      })
+    })
+  }, [])
 
   return (
     <div className="min-h-screen bg-slate-50">
       <AdminSidebar />
-      <main className="ml-64 p-8">
-        <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">
+      <main className="p-4 sm:p-6 lg:ml-64 lg:p-8">
+        <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="mb-2 text-xs font-bold uppercase tracking-[0.22em] text-blue-700">Admin</p>
-            <h1 className="text-3xl font-semibold tracking-normal text-slate-950">Operations dashboard</h1>
-            <p className="mt-2 text-sm text-slate-500">Manage the public platform, proposals, App Studio leads, and content.</p>
+            <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-blue-700">
+              Operations Console
+            </p>
+            <h1 className="mt-1 text-3xl font-semibold tracking-tight text-slate-950">Anjal Solutions Overview</h1>
           </div>
-          <Link href="/app-studio" target="_blank" className="inline-flex items-center gap-2 rounded-lg bg-slate-950 px-4 py-2.5 text-sm font-bold text-white hover:bg-blue-700">
-            Preview App Studio
-            <ArrowRight className="h-4 w-4" />
+          <Link
+            href="/admin/projects"
+            className="inline-flex items-center gap-2 rounded-lg bg-slate-950 px-4 py-2.5 text-xs font-semibold text-white hover:bg-blue-700"
+          >
+            Manage Projects
           </Link>
         </div>
 
-        <div className="mb-8 grid gap-4 md:grid-cols-4">
-          {tiles.map(tile => {
-            const Icon = tile.icon
-            return (
-              <Link key={tile.label} href={tile.href} className="relative rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300 hover:shadow-md">
-                <Icon className="mb-8 h-5 w-5 text-blue-700" />
-                <p className="text-4xl font-bold text-slate-950">{tile.value}</p>
-                <p className="mt-1 text-sm font-semibold text-slate-500">{tile.label}</p>
-                {tile.badge > 0 && <span className="absolute right-4 top-4 rounded-full bg-red-600 px-2 py-0.5 text-xs font-bold text-white">{tile.badge}</span>}
-              </Link>
-            )
-          })}
+        <div className="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <StatCard label="Portfolio Projects" value={stats.projects} href="/admin/projects" icon={FolderKanban} />
+          <StatCard label="Naira Quotations" value={stats.quotations} href="/admin/quotations" icon={ReceiptText} />
+          <StatCard
+            label="Contact Inquiries"
+            value={stats.contacts}
+            sub={`${stats.unreadContacts} unread`}
+            href="/admin/contacts"
+            icon={MessageSquare}
+          />
+          <StatCard label="Active Services" value={stats.services} href="/admin/services" icon={Settings} />
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
-          <Panel title="Recent leads" href="/admin/contacts">
-            {messages.length === 0 ? <Empty text="No contact leads yet." /> : messages.map(message => (
-              <Row key={message.id} title={message.name} meta={[message.email, message.service].filter(Boolean).join(' / ')} value={new Date(message.created_at).toLocaleDateString()} />
-            ))}
-          </Panel>
-          <Panel title="App Studio submissions" href="/admin/app-studio">
-            {submissions.length === 0 ? <Empty text="No App Studio submissions yet." /> : submissions.map(item => (
-              <Row key={item.id} title={item.app_name} meta={`${item.client_name || 'Client'} / ${item.preset_key || 'preset'}`} value={`$${Number(item.total_amount || 0).toLocaleString()}`} />
-            ))}
-          </Panel>
+          <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-base font-semibold text-slate-950">Recent Quotations</h2>
+              <Link href="/admin/quotations" className="text-xs font-semibold text-blue-700 hover:underline">
+                View all
+              </Link>
+            </div>
+            {quotations.length === 0 ? (
+              <p className="rounded-lg border border-dashed border-slate-200 p-6 text-center text-sm text-slate-500">
+                No quotation requests yet.
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {quotations.map(q => (
+                  <div key={q.id} className="flex items-center justify-between gap-4 rounded-lg bg-slate-50 p-3.5">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-slate-950">
+                        {q.project_title || q.client_name || 'Untitled Quotation'}
+                      </p>
+                      <p className="mt-0.5 truncate font-mono text-xs text-slate-500">
+                        {q.reference || `#${q.id}`} · {q.email}
+                      </p>
+                    </div>
+                    <p className="shrink-0 font-mono text-xs font-bold text-slate-900">
+                      {formatNaira(q.total_naira || q.total_amount || 0)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+
+          <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-base font-semibold text-slate-950">Recent Contact Messages</h2>
+              <Link href="/admin/contacts" className="text-xs font-semibold text-blue-700 hover:underline">
+                View all
+              </Link>
+            </div>
+            {contacts.length === 0 ? (
+              <p className="rounded-lg border border-dashed border-slate-200 p-6 text-center text-sm text-slate-500">
+                No contact inquiries yet.
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {contacts.map(c => (
+                  <div key={c.id} className="flex items-center justify-between gap-4 rounded-lg bg-slate-50 p-3.5">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-slate-950">{c.name}</p>
+                      <p className="mt-0.5 truncate text-xs text-slate-500">
+                        {c.email} · {c.service || 'General Inquiry'}
+                      </p>
+                    </div>
+                    <span
+                      className={`shrink-0 rounded-full px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase ${
+                        c.is_read ? 'bg-slate-200 text-slate-700' : 'bg-blue-100 text-blue-700'
+                      }`}
+                    >
+                      {c.is_read ? 'Read' : 'New'}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
         </div>
       </main>
     </div>
   )
 }
 
-function Panel({ title, href, children }) {
+function StatCard({ label, value, sub, href, icon: Icon }) {
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-sm font-bold uppercase tracking-[0.18em] text-slate-500">{title}</h2>
-        <Link href={href} className="text-sm font-bold text-blue-700">Open</Link>
+    <Link
+      href={href}
+      className="flex items-start justify-between rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300"
+    >
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">{label}</p>
+        <p className="mt-2 font-mono text-3xl font-semibold text-slate-950">{value}</p>
+        {sub && <p className="mt-1 text-xs font-medium text-blue-700">{sub}</p>}
       </div>
-      <div className="space-y-3">{children}</div>
-    </section>
-  )
-}
-
-function Row({ title, meta, value }) {
-  return (
-    <div className="flex items-center justify-between gap-4 rounded-lg bg-slate-50 p-4">
-      <div className="min-w-0">
-        <p className="truncate text-sm font-bold text-slate-950">{title || 'Untitled'}</p>
-        <p className="mt-1 truncate text-xs text-slate-500">{meta}</p>
+      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-slate-900">
+        <Icon className="h-5 w-5" aria-hidden="true" />
       </div>
-      <p className="text-xs font-bold text-slate-500">{value}</p>
-    </div>
+    </Link>
   )
-}
-
-function Empty({ text }) {
-  return <p className="rounded-lg border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">{text}</p>
 }

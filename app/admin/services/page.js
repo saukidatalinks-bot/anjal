@@ -51,7 +51,7 @@ export default function AdminServices() {
     <div className="flex min-h-screen">
       <Toaster position="top-right" />
       <AdminSidebar />
-      <main className="ml-64 flex-1 p-8">
+      <main className="lg:ml-64 flex-1 p-4 sm:p-6 lg:p-8">
         <div className="mb-6">
           <h1 className="font-display text-3xl text-navy mb-1">Services</h1>
           <p className="text-slate-500 text-sm">Manage the service cards displayed on your homepage. These also appear in contact form dropdowns.</p>

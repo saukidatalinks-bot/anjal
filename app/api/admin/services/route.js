@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { revalidatePath } from 'next/cache'
+import { revalidatePlatformData } from '@/lib/cache'
 import { getDb } from '@/lib/db'
 
 export async function GET() {
@@ -17,8 +17,7 @@ export async function POST(request) {
       VALUES (${name}, ${description||null}, ${icon||'🌐'}, ${tags||[]}, ${display_order||0}, ${is_active!==false})
       RETURNING *
     `
-    // Revalidate homepage to show new service
-    revalidatePath('/', 'layout')
+    revalidatePlatformData()
     return NextResponse.json(result[0], { status: 201 })
   } catch (err) {
     return NextResponse.json({ error: err.message }, { status: 500 })

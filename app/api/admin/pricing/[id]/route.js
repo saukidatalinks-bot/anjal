@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { revalidatePath } from 'next/cache'
+import { revalidatePlatformData } from '@/lib/cache'
 import { getDb } from '@/lib/db'
 
 export async function GET(request, { params }) {
@@ -33,8 +33,7 @@ export async function PUT(request, { params }) {
         await sql`INSERT INTO pricing_features (plan_id, feature, display_order) VALUES (${params.id}, ${features[i]}, ${i})`
       }
     }
-    // Revalidate homepage to show updated pricing
-    revalidatePath('/', 'layout')
+    revalidatePlatformData()
     return NextResponse.json({ ...result[0], features: features || [] })
   } catch (err) {
     return NextResponse.json({ error: err.message }, { status: 500 })
@@ -45,8 +44,7 @@ export async function DELETE(request, { params }) {
   try {
     const sql = getDb()
     await sql`DELETE FROM pricing_plans WHERE id = ${params.id}`
-    // Revalidate homepage to remove pricing plan
-    revalidatePath('/', 'layout')
+    revalidatePlatformData()
     return NextResponse.json({ success: true })
   } catch (err) {
     return NextResponse.json({ error: err.message }, { status: 500 })

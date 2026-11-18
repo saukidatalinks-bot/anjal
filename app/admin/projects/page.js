@@ -164,7 +164,7 @@ export default function AdminProjects() {
     <div className="min-h-screen bg-slate-50">
       <Toaster position="top-right" />
       <AdminSidebar />
-      <main className="ml-64 p-8">
+      <main className="p-4 sm:p-6 lg:ml-64 lg:p-8">
         <div className="mb-8">
           <p className="mb-2 text-xs font-bold uppercase tracking-[0.22em] text-blue-700">Portfolio</p>
           <h1 className="text-3xl font-semibold tracking-normal text-slate-950">Projects and media</h1>

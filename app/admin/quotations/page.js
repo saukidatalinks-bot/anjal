@@ -1,9 +1,10 @@
 'use client'
 
-import AdminSidebar from '@/components/AdminSidebar'
-import toast, { Toaster } from 'react-hot-toast'
-import { Mail, MessageCircle, Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { Trash2 } from 'lucide-react'
+import toast, { Toaster } from 'react-hot-toast'
+import AdminSidebar from '@/components/AdminSidebar'
+import { formatNaira } from '@/lib/format'
 
 export default function AdminQuotations() {
   const [quotations, setQuotations] = useState([])
@@ -15,12 +16,14 @@ export default function AdminQuotations() {
     setQuotations(Array.isArray(data) ? data : [])
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    load()
+  }, [])
 
-  const remove = async (id) => {
-    if (!confirm('Delete this proposal record?')) return
+  const deleteQuote = async id => {
+    if (!confirm('Delete this quotation record?')) return
     await fetch(`/api/admin/quotations?id=${id}`, { method: 'DELETE' })
-    toast.success('Proposal deleted')
+    toast.success('Quotation deleted')
     load()
   }
 
@@ -28,78 +31,90 @@ export default function AdminQuotations() {
     <div className="min-h-screen bg-slate-50">
       <Toaster position="top-right" />
       <AdminSidebar />
-      <main className="ml-64 p-8">
+      <main className="p-4 sm:p-6 lg:ml-64 lg:p-8">
         <div className="mb-8">
-          <p className="mb-2 text-xs font-bold uppercase tracking-[0.22em] text-blue-700">Proposals</p>
-          <h1 className="text-3xl font-semibold tracking-normal text-slate-950">Quotations and proposal requests</h1>
-          <p className="mt-2 text-sm text-slate-500">{quotations.length} total records from quote builder and legacy forms.</p>
+          <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-blue-700">
+            Commercial Pipeline
+          </p>
+          <h1 className="mt-1 text-3xl font-semibold tracking-tight text-slate-950">Naira Quotation Requests</h1>
+          <p className="mt-1 text-sm text-slate-600">{quotations.length} submitted proposal configurations</p>
         </div>
 
         <div className="space-y-4">
           {quotations.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-slate-300 bg-white p-12 text-center text-sm text-slate-500">No proposals yet.</div>
-          ) : quotations.map(q => {
-            const items = safeJson(q.selected_items, [])
-            const payload = safeJson(q.proposal_payload, {})
-            return (
-              <article key={q.id} className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-                <button onClick={() => setExpanded(expanded === q.id ? null : q.id)} className="flex w-full items-start justify-between gap-4 text-left">
-                  <div>
-                    <div className="mb-2 flex flex-wrap gap-2">
-                      <span className="rounded-md bg-blue-50 px-2 py-1 text-xs font-bold text-blue-700">{q.reference || `AS-${q.id}`}</span>
-                      <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-bold text-slate-600">{q.quote_type || 'project'}</span>
-                      <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-bold text-slate-600">{q.status || 'new'}</span>
-                    </div>
-                    <h2 className="text-lg font-semibold text-slate-950">{q.project_title || q.client_name || 'Untitled proposal'}</h2>
-                    <p className="mt-1 text-sm text-slate-500">{[q.client_name, q.entity_name, q.email, q.phone].filter(Boolean).join(' / ')}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xl font-bold text-blue-700">${Number(q.total_amount || 0).toLocaleString()}</p>
-                    <p className="mt-1 text-xs text-slate-500">{new Date(q.created_at).toLocaleDateString()}</p>
-                  </div>
-                </button>
+            <div className="rounded-xl border border-slate-200 bg-white p-10 text-center text-sm text-slate-500">
+              No quotation requests submitted yet.
+            </div>
+          ) : (
+            quotations.map(q => {
+              const items = Array.isArray(q.selected_items) ? q.selected_items : []
+              const amount = Number(q.total_naira || q.total_amount || 0)
 
-                {expanded === q.id && (
-                  <div className="mt-5 border-t border-slate-100 pt-5">
-                    <div className="grid gap-5 lg:grid-cols-[1fr_.8fr]">
-                      <div className="rounded-lg bg-slate-50 p-4">
-                        <p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Selected scope</p>
-                        <div className="space-y-2">
-                          {items.length === 0 ? <p className="text-sm text-slate-500">No line items stored.</p> : items.map((item, index) => (
-                            <div key={`${item.id || item.name}-${index}`} className="flex justify-between gap-4 border-b border-slate-200 pb-2 text-sm last:border-0">
-                              <span className="text-slate-700">{item.name}</span>
-                              <span className="font-bold text-slate-950">${Number(item.calculated_price || item.base_price || 0).toLocaleString()}</span>
+              return (
+                <article
+                  key={q.id}
+                  className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300"
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-4">
+                    <button
+                      type="button"
+                      onClick={() => setExpanded(expanded === q.id ? null : q.id)}
+                      className="text-left"
+                    >
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h2 className="text-base font-semibold text-slate-950">{q.client_name}</h2>
+                        {q.reference && (
+                          <span className="rounded bg-slate-100 px-2 py-0.5 font-mono text-[11px] font-semibold text-slate-700">
+                            {q.reference}
+                          </span>
+                        )}
+                      </div>
+                      <p className="mt-1 text-xs text-slate-500">
+                        {q.project_title || q.entity_name || 'Custom Software Engagement'} · {q.email}
+                        {q.phone ? ` · ${q.phone}` : ''}
+                      </p>
+                    </button>
+
+                    <div className="flex items-center gap-3">
+                      <span className="font-mono text-lg font-bold text-slate-950">{formatNaira(amount)}</span>
+                      <button
+                        type="button"
+                        onClick={() => deleteQuote(q.id)}
+                        aria-label="Delete quotation"
+                        className="rounded-lg bg-red-50 p-2 text-red-600 hover:bg-red-100"
+                      >
+                        <Trash2 className="h-4 w-4" aria-hidden="true" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {expanded === q.id && (
+                    <div className="mt-4 border-t border-slate-100 pt-4 text-sm text-slate-700">
+                      {items.length > 0 && (
+                        <div className="mb-3 grid gap-2 sm:grid-cols-2">
+                          {items.map((item, idx) => (
+                            <div
+                              key={`${item.name}-${idx}`}
+                              className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2 text-xs"
+                            >
+                              <span className="font-medium text-slate-800">{item.name}</span>
+                              <span className="font-mono font-semibold text-slate-900">
+                                {Number(item.price || 0) > 0 ? formatNaira(item.price) : `×${Number(item.multiplier || 1).toFixed(2)}`}
+                              </span>
                             </div>
                           ))}
                         </div>
-                      </div>
-                      <div className="rounded-lg bg-slate-50 p-4">
-                        <p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Notes</p>
-                        <p className="whitespace-pre-wrap text-sm leading-6 text-slate-600">{q.notes || payload?.notes || 'No notes provided.'}</p>
-                      </div>
+                      )}
+                      {q.address && <p className="text-xs text-slate-500">Address: {q.address}</p>}
+                      {q.notes && <p className="mt-2 rounded-lg bg-slate-50 p-3 text-xs text-slate-700">{q.notes}</p>}
                     </div>
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      {q.email && <a href={`mailto:${q.email}?subject=Your Anjal Solutions Proposal`} className="inline-flex items-center gap-2 rounded-lg bg-slate-950 px-4 py-2 text-sm font-bold text-white"><Mail className="h-4 w-4" />Email</a>}
-                      {q.phone && <a href={`https://wa.me/${String(q.phone).replace(/[^0-9]/g, '')}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-4 py-2 text-sm font-bold text-white"><MessageCircle className="h-4 w-4" />WhatsApp</a>}
-                      <button onClick={() => remove(q.id)} className="inline-flex items-center gap-2 rounded-lg bg-red-50 px-4 py-2 text-sm font-bold text-red-700"><Trash2 className="h-4 w-4" />Delete</button>
-                    </div>
-                  </div>
-                )}
-              </article>
-            )
-          })}
+                  )}
+                </article>
+              )
+            })
+          )}
         </div>
       </main>
     </div>
   )
-}
-
-function safeJson(value, fallback) {
-  if (!value) return fallback
-  if (typeof value !== 'string') return value
-  try {
-    return JSON.parse(value)
-  } catch {
-    return fallback
-  }
 }

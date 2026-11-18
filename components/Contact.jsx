@@ -1,227 +1,315 @@
 'use client'
 
-import { useState } from 'react'
-import toast from 'react-hot-toast'
-import { Mail, MapPin, Send, Terminal, Building2, CheckCircle2, FileCheck, ArrowRight } from 'lucide-react'
-import { normalizeCompanyAddress, normalizeCacNumber } from '@/lib/company'
+import { useId, useState } from 'react'
+import { CheckCircle2, Mail, MapPin, MessageCircle, Phone, Send, ShieldCheck } from 'lucide-react'
+import toast, { Toaster } from 'react-hot-toast'
+import {
+  companyDisplayName,
+  officialEmails,
+  officialPhone,
+  officialWhatsapp,
+  registeredCacNumber,
+  registeredDunsNumber,
+  registeredOfficeAddress,
+  registeredTinNumber,
+} from '@/lib/company'
+import { sendEmailJsNotification } from '@/lib/emailjs'
+
+const BUDGET_RANGES = [
+  '₦150,000 – ₦449,999 (Launch / Delivery System)',
+  '₦500,000 – ₦649,999 (Growth / E-Commerce Suite)',
+  '₦849,999+ (Restaurant Suite / Custom App)',
+  'Enterprise Custom SLA',
+]
 
 export default function Contact({ settings = {}, services = [] }) {
-  const [form, setForm] = useState({ name: '', email: '', service: '', budget: '', message: '' })
-  const [loading, setLoading] = useState(false)
-  const [sent, setSent] = useState(false)
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    service: services[0]?.name || 'Custom Software & Web Engineering',
+    budget: BUDGET_RANGES[0],
+    message: '',
+  })
+  const [submitting, setSubmitting] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
+  const [statusNote, setStatusNote] = useState('')
 
-  const email1 = settings.company_email || 'contact@anjalventures.com'
-  const email2 = settings.company_email2 || 'office@anjalsolutionsltd.com'
-  const address = normalizeCompanyAddress(settings.company_address)
-  const cac = normalizeCacNumber(settings.company_cac)
+  const nameId = useId()
+  const emailId = useId()
+  const phoneId = useId()
+  const serviceId = useId()
+  const budgetId = useId()
+  const messageId = useId()
 
-  const handleSubmit = async () => {
-    if (!form.name || !form.email || !form.message) {
-      toast.error('Name, email, and message are required')
+  const whatsappDigits = (settings.company_whatsapp || officialWhatsapp).replace(/[^0-9]/g, '')
+  const primaryEmail = settings.company_email || officialEmails.general
+  const secondaryEmail = settings.company_email2 || officialEmails.secondary
+  const devEmail = settings.company_email3 || officialEmails.developer
+  const phoneDisplay = settings.company_phone || officialPhone
+  const officeAddress = settings.company_address || registeredOfficeAddress
+
+  const handleSubmit = async event => {
+    event.preventDefault()
+    if (submitting) return
+    if (!form.name.trim() || !form.email.trim() || !form.message.trim()) {
+      setStatusNote('Please complete your name, email address, and project message.')
+      toast.error('Please fill all required fields.')
       return
     }
-    setLoading(true)
+
+    setSubmitting(true)
+    setStatusNote('Sending inquiry to Anjal Solutions LTD...')
+
     try {
-      await fetch('/api/contact', {
+      const response = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
       })
-
-      const pubKey = settings?.emailjs_public_key
-      const serviceId = settings?.emailjs_service_id
-      const templateId = settings?.emailjs_template_id
-
-      if (pubKey && serviceId && templateId && typeof window !== 'undefined') {
-        try {
-          if (!window._ejsInit) {
-            const emailjs = (await import('@emailjs/browser')).default
-            emailjs.init(pubKey)
-            window._ejsInit = emailjs
-          }
-          await window._ejsInit.send(serviceId, templateId, {
-            from_name: form.name,
-            from_email: form.email,
-            phone: 'N/A',
-            service: form.service || 'Not specified',
-            budget: form.budget || 'Not specified',
-            message: form.message,
-            to_email: email1,
-          })
-        } catch {
-          toast.error('Message saved, but email notification failed.')
-        }
+      const data = await response.json()
+      if (!response.ok) {
+        throw new Error(data.error || 'Could not send message')
       }
 
-      setSent(true)
-      toast.success("Message sent. We'll respond swiftly.")
-      setForm({ name: '', email: '', service: '', budget: '', message: '' })
-    } catch {
-      toast.error('Failed to send message. Please try again.')
+      await sendEmailJsNotification(settings, {
+        from_name: form.name,
+        from_email: form.email,
+        phone: form.phone || 'Not provided',
+        service: form.service,
+        budget: form.budget,
+        message: form.message,
+      })
+
+      setSubmitted(true)
+      setStatusNote('Inquiry received. Our engineering desk will respond shortly.')
+      toast.success('Inquiry delivered to Anjal Solutions LTD')
+    } catch (error) {
+      console.error('Contact submission error:', error)
+      setStatusNote(error.message || 'Submission failed. Please try again or reach us via WhatsApp.')
+      toast.error(error.message || 'Failed to submit inquiry')
+    } finally {
+      setSubmitting(false)
     }
-    setLoading(false)
   }
 
   return (
-    <section id="contact" className="bg-slate-50 px-5 py-20 lg:px-8">
-      <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[.85fr_1.15fr]">
-        <aside>
-          <p className="mb-4 text-xs font-bold uppercase tracking-[0.22em] text-blue-700">Official Communications</p>
-          <h2 className="text-4xl font-semibold tracking-normal text-slate-950">Direct studio access. No runaround.</h2>
-          <p className="mt-5 text-base leading-7 text-slate-600">
-            Connect directly with our leadership and engineering teams. We respond promptly with structured technical and commercial next steps.
-          </p>
-
-          <div className="mt-10 space-y-4">
-            <ContactLink
-              icon={Mail}
-              label="Corporate & Partnerships"
-              value={email1}
-              href={`mailto:${email1}`}
-              description="New business inquiries, corporate engagements & client onboarding."
-            />
-            <ContactLink
-              icon={Terminal}
-              label="Corporate Office & Operations"
-              value={email2}
-              href={`mailto:${email2}`}
-              description="Official correspondence, operations & corporate inquiries."
-            />
-            <ContactLink
-              icon={MapPin}
-              label="Registered Headquarters"
-              value={address}
-              description={`Damaturu, Yobe State, Nigeria · RC: ${cac}`}
-            />
-            <div className="pt-1">
-              <a
-                href="/docs/certificate-anjal-solutions-ltd.pdf"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-700 hover:text-blue-900 transition"
-              >
-                <FileCheck className="h-3.5 w-3.5 text-emerald-600" />
-                <span>View Official CAC Certificate (RC {cac})</span>
-                <ArrowRight className="h-3.5 w-3.5" />
-              </a>
+    <section className="mx-auto max-w-7xl px-5 py-12 lg:px-8 lg:py-16">
+      <Toaster position="top-right" />
+      <div className="grid gap-10 lg:grid-cols-[.9fr_1.1fr] lg:items-start">
+        <div className="space-y-6">
+          <div className="rounded-xl border border-slate-800 bg-slate-950 p-6 text-white sm:p-8">
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 font-mono text-[11px] text-emerald-300">
+              <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
+              <span>{companyDisplayName}</span>
             </div>
-          </div>
-
-          <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <div className="flex items-center gap-3">
-              <span className="flex h-3 w-3 relative">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-              </span>
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-900">Guaranteed Response SLA</span>
-            </div>
-            <p className="mt-2 text-xs leading-relaxed text-slate-500">
-              All inquiries received via official emails receive a written technical response within 24 business hours.
+            <h2 className="mt-4 text-2xl font-semibold tracking-tight text-white">Direct Corporate Channels</h2>
+            <p className="mt-2 text-sm leading-relaxed text-slate-300">
+              Reach management, client delivery, or our developer desk directly by email, phone, or WhatsApp.
             </p>
-          </div>
-        </aside>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-10">
-          <h3 className="text-xl font-semibold text-slate-950">Initiate a Project Brief</h3>
-          <p className="mt-1 text-sm text-slate-500">Provide high-level context and we will prepare a dedicated project evaluation.</p>
+            <dl className="mt-6 space-y-4 border-t border-white/10 pt-5 text-sm">
+              <div className="flex items-start gap-3">
+                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-blue-400" aria-hidden="true" />
+                <div>
+                  <dt className="text-xs font-semibold uppercase tracking-wider text-slate-400">Headquarters</dt>
+                  <dd className="mt-1 text-slate-200">{officeAddress}</dd>
+                </div>
+              </div>
 
-          <div className="mt-8 grid gap-5 md:grid-cols-2">
-            <Input label="Your Name" value={form.name} onChange={v => setForm({ ...form, name: v })} placeholder="e.g. Alex Morgan" required />
-            <Input label="Work Email" type="email" value={form.email} onChange={v => setForm({ ...form, email: v })} placeholder="alex@company.com" required />
-            
-            <label className="block">
-              <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-700">Project Type</span>
-              <select className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-950 focus:bg-white" value={form.service} onChange={e => setForm({ ...form, service: e.target.value })}>
-                <option value="">Select scope</option>
-                {services.map(s => <option key={s.id || s.name} value={s.name}>{s.name}</option>)}
-                <option value="Mobile App (iOS & Android)">Mobile App (iOS & Android)</option>
-                <option value="Web Platform & Cloud System">Web Platform & Cloud System</option>
-                <option value="SaaS Architecture">SaaS Architecture</option>
-                <option value="AI & Process Automation">AI & Process Automation</option>
-                <option value="Strategic Architecture Consultation">Strategic Architecture Consultation</option>
-              </select>
-            </label>
+              <div className="flex items-start gap-3">
+                <Phone className="mt-0.5 h-4 w-4 shrink-0 text-blue-400" aria-hidden="true" />
+                <div>
+                  <dt className="text-xs font-semibold uppercase tracking-wider text-slate-400">Telephone & WhatsApp</dt>
+                  <dd className="mt-1 flex flex-wrap gap-3">
+                    <a href={`tel:${phoneDisplay.replace(/\s+/g, '')}`} className="font-mono text-white hover:text-blue-300">
+                      {phoneDisplay}
+                    </a>
+                    <a
+                      href={`https://wa.me/${whatsappDigits}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 rounded bg-emerald-500/20 px-2 py-0.5 text-xs font-semibold text-emerald-300 hover:bg-emerald-500/30"
+                    >
+                      <MessageCircle className="h-3.5 w-3.5" aria-hidden="true" />
+                      WhatsApp Chat
+                    </a>
+                  </dd>
+                </div>
+              </div>
 
-            <label className="block">
-              <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-700">Estimated Budget</span>
-              <select className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-950 focus:bg-white" value={form.budget} onChange={e => setForm({ ...form, budget: e.target.value })}>
-                <option value="">Select target budget</option>
-                <option>$1,000 - $3,000 (Sprint Launch)</option>
-                <option>$3,000 - $7,000 (Production System)</option>
-                <option>$7,000 - $15,000 (Enterprise Product)</option>
-                <option>$15,000+ (Custom Infrastructure)</option>
-                <option>To be evaluated with team</option>
-              </select>
-            </label>
+              <div className="flex items-start gap-3">
+                <Mail className="mt-0.5 h-4 w-4 shrink-0 text-blue-400" aria-hidden="true" />
+                <div>
+                  <dt className="text-xs font-semibold uppercase tracking-wider text-slate-400">Official Email Desks</dt>
+                  <dd className="mt-1 space-y-1">
+                    <a href={`mailto:${primaryEmail}`} className="block text-slate-200 hover:text-white">
+                      {primaryEmail} <span className="text-xs text-slate-400">(Corporate Office)</span>
+                    </a>
+                    <a href={`mailto:${secondaryEmail}`} className="block text-slate-200 hover:text-white">
+                      {secondaryEmail} <span className="text-xs text-slate-400">(Client Desk)</span>
+                    </a>
+                    <a href={`mailto:${devEmail}`} className="block text-slate-200 hover:text-white">
+                      {devEmail} <span className="text-xs text-slate-400">(Engineering & APIs)</span>
+                    </a>
+                  </dd>
+                </div>
+              </div>
+            </dl>
 
-            <label className="md:col-span-2 block">
-              <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-700">Project Scope & Objectives *</span>
-              <textarea
-                rows={5}
-                value={form.message}
-                onChange={e => setForm({ ...form, message: e.target.value })}
-                placeholder="Describe what you are building, target timeline, and any specific technical requirements..."
-                className="w-full rounded-xl border border-slate-200 bg-slate-50/50 p-4 text-sm text-slate-900 outline-none transition focus:border-slate-950 focus:bg-white"
-                required
-              />
-            </label>
-          </div>
-
-          {sent && (
-            <div className="mt-6 flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-semibold text-emerald-800">
-              <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
-              <span>Your message has been transmitted directly to our studio team. An engineer will follow up shortly.</span>
+            <div className="mt-6 rounded-lg border border-white/10 bg-white/[0.04] p-3.5 font-mono text-xs text-slate-300">
+              RC: {settings.company_cac || registeredCacNumber} · TIN: {settings.company_tin || registeredTinNumber} · D-U-N-S: {settings.company_duns || registeredDunsNumber}
             </div>
-          )}
+          </div>
+        </div>
 
-          <button
-            onClick={handleSubmit}
-            disabled={loading}
-            className="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-slate-950 px-6 py-3.5 text-sm font-bold text-white shadow-sm transition hover:bg-blue-600 disabled:opacity-60"
-          >
-            {loading ? 'Transmitting Brief...' : 'Send Message'}
-            <Send className="h-4 w-4" />
-          </button>
+        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+          <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.2em] text-blue-700">Project & Advisory Form</p>
+          <h2 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">Send a Brief to Engineering</h2>
+          <p className="mt-1 text-sm text-slate-600">Share your objectives, preferred tier, or partnership inquiry below.</p>
+
+          {submitted ? (
+            <div className="mt-8 rounded-xl border border-emerald-200 bg-emerald-50 p-6 text-emerald-900">
+              <CheckCircle2 className="h-8 w-8 text-emerald-600" aria-hidden="true" />
+              <h3 className="mt-3 text-lg font-semibold">Message Received</h3>
+              <p className="mt-2 text-sm leading-relaxed text-emerald-800">
+                Thank you for contacting {companyDisplayName}. Our team will follow up via email or {phoneDisplay}.
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setSubmitted(false)
+                  setStatusNote('')
+                  setForm(prev => ({ ...prev, message: '' }))
+                }}
+                className="mt-4 rounded-lg bg-slate-950 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-700"
+              >
+                Send another message
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label htmlFor={nameId} className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-600">
+                    Full Name *
+                  </label>
+                  <input
+                    id={nameId}
+                    type="text"
+                    required
+                    autoComplete="name"
+                    value={form.name}
+                    onChange={e => setForm({ ...form, name: e.target.value })}
+                    placeholder="Your name"
+                    className="input-field"
+                  />
+                </div>
+                <div>
+                  <label htmlFor={emailId} className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-600">
+                    Email Address *
+                  </label>
+                  <input
+                    id={emailId}
+                    type="email"
+                    required
+                    autoComplete="email"
+                    inputMode="email"
+                    value={form.email}
+                    onChange={e => setForm({ ...form, email: e.target.value })}
+                    placeholder="you@company.com"
+                    className="input-field"
+                  />
+                </div>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label htmlFor={phoneId} className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-600">
+                    Phone / WhatsApp
+                  </label>
+                  <input
+                    id={phoneId}
+                    type="tel"
+                    autoComplete="tel"
+                    inputMode="tel"
+                    value={form.phone}
+                    onChange={e => setForm({ ...form, phone: e.target.value })}
+                    placeholder="+234..."
+                    className="input-field"
+                  />
+                </div>
+                <div>
+                  <label htmlFor={serviceId} className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-600">
+                    Service Area
+                  </label>
+                  <select
+                    id={serviceId}
+                    value={form.service}
+                    onChange={e => setForm({ ...form, service: e.target.value })}
+                    className="input-field"
+                  >
+                    {services.map(s => (
+                      <option key={s.id || s.name} value={s.name}>
+                        {s.name}
+                      </option>
+                    ))}
+                    <option value="Restaurant & Ordering Suite">Restaurant & Ordering Suite</option>
+                    <option value="Delivery & Rider Logistics System">Delivery & Rider Logistics System</option>
+                    <option value="ICT Consulting & Training">ICT Consulting & Training</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor={budgetId} className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-600">
+                  Estimated Budget (₦)
+                </label>
+                <select
+                  id={budgetId}
+                  value={form.budget}
+                  onChange={e => setForm({ ...form, budget: e.target.value })}
+                  className="input-field"
+                >
+                  {BUDGET_RANGES.map(range => (
+                    <option key={range} value={range}>
+                      {range}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor={messageId} className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-600">
+                  Project Scope or Inquiry *
+                </label>
+                <textarea
+                  id={messageId}
+                  rows={4}
+                  required
+                  value={form.message}
+                  onChange={e => setForm({ ...form, message: e.target.value })}
+                  placeholder="Tell us about your operational requirements, timeline, or desired suite..."
+                  className="input-field"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={submitting}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-slate-950 px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <Send className="h-4 w-4" aria-hidden="true" />
+                {submitting ? 'Sending Message...' : 'Send Inquiry to Anjal Solutions'}
+              </button>
+
+              <p role="status" aria-live="polite" className="min-h-[1.25rem] text-xs text-slate-600">
+                {statusNote}
+              </p>
+            </form>
+          )}
         </div>
       </div>
     </section>
-  )
-}
-
-function ContactLink({ icon: Icon, label, value, href, description }) {
-  const content = (
-    <div className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300 hover:shadow-md">
-      <div className="flex items-start gap-4">
-        <div className="rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-slate-900 transition group-hover:bg-slate-950 group-hover:text-white">
-          <Icon className="h-5 w-5" />
-        </div>
-        <div className="min-w-0 flex-1">
-          <span className="block text-[11px] font-bold uppercase tracking-wider text-slate-400">{label}</span>
-          <span className="mt-1 block font-mono text-sm font-semibold text-slate-950 break-all">{value}</span>
-          {description && (
-            <span className="mt-1.5 block text-xs leading-relaxed text-slate-500">{description}</span>
-          )}
-        </div>
-      </div>
-    </div>
-  )
-  if (!href) return content
-  return <a href={href} className="block transition hover:-translate-y-0.5">{content}</a>
-}
-
-function Input({ label, value, onChange, placeholder = '', type = 'text', required }) {
-  return (
-    <label className="block">
-      <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-700">
-        {label}{required ? ' *' : ''}
-      </span>
-      <input
-        type={type}
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        placeholder={placeholder}
-        className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm text-slate-950 outline-none transition focus:border-slate-950 focus:bg-white"
-      />
-    </label>
   )
 }

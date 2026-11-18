@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { revalidatePath } from 'next/cache'
+import { revalidatePlatformData } from '@/lib/cache'
 import { getDb } from '@/lib/db'
 
 export async function GET() {
@@ -18,8 +18,7 @@ export async function POST(request) {
         ON CONFLICT (key) DO UPDATE SET value = ${value}, updated_at = NOW()
       `
     }
-    // Revalidate homepage so updated settings show immediately
-    revalidatePath('/', 'layout')
+    revalidatePlatformData()
     return NextResponse.json({ success: true })
   } catch (err) {
     return NextResponse.json({ error: err.message }, { status: 500 })

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { revalidatePath } from 'next/cache'
+import { revalidatePlatformData } from '@/lib/cache'
 import { getDb, initDb } from '@/lib/db'
 
 export async function GET(request, { params }) {
@@ -33,7 +33,7 @@ export async function POST(request, { params }) {
       VALUES (${params.id}, ${media_type || 'image'}, ${url}, ${alt || null}, ${orientation || 'landscape'}, ${display_order || 0}, ${is_primary === true})
       RETURNING *
     `
-    revalidatePath('/work', 'layout')
+    revalidatePlatformData()
     return NextResponse.json(result[0], { status: 201 })
   } catch (err) {
     return NextResponse.json({ error: err.message }, { status: 500 })
@@ -48,7 +48,7 @@ export async function DELETE(request, { params }) {
     const mediaId = searchParams.get('mediaId')
     if (!mediaId) return NextResponse.json({ error: 'mediaId is required' }, { status: 400 })
     await sql`DELETE FROM project_media WHERE id = ${mediaId} AND project_id = ${params.id}`
-    revalidatePath('/work', 'layout')
+    revalidatePlatformData()
     return NextResponse.json({ success: true })
   } catch (err) {
     return NextResponse.json({ error: err.message }, { status: 500 })

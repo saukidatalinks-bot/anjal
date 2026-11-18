@@ -1,19 +1,18 @@
 import { NextResponse } from 'next/server'
-import { getDb, initDb } from '@/lib/db'
+import { getDb } from '@/lib/db'
 
 export async function POST(request) {
   try {
-    await initDb()
-    const sql = getDb()
     const { name, email, phone, service, budget, message } = await request.json()
 
     if (!name || !email || !message) {
       return NextResponse.json({ error: 'Name, email and message are required' }, { status: 400 })
     }
 
+    const sql = getDb()
     await sql`
       INSERT INTO contact_submissions (name, email, phone, service, budget, message)
-      VALUES (${name}, ${email}, ${phone||null}, ${service||null}, ${budget||null}, ${message})
+      VALUES (${name}, ${email}, ${phone || null}, ${service || null}, ${budget || null}, ${message})
     `
 
     return NextResponse.json({ success: true })
