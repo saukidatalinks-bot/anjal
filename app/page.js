@@ -16,7 +16,7 @@ export const revalidate = 300
 export const metadata = {
   title: 'Anjal Solutions LTD | Enterprise Software, Mobile Apps & Digital Systems',
   description:
-    'Anjal Solutions LTD (RC: 9854225 · D-U-N-S: 352297161) engineers Sauki Go, My NELFund, enterprise web applications, native mobile platforms, and structured JSON APIs from Nigeria.',
+    'Software built to run your business without friction. Custom web platforms, iOS & Android apps, and payment infrastructure engineered in Nigeria (RC: 9854225 · D-U-N-S: 352297161).',
 }
 
 export default async function HomePage() {
@@ -24,10 +24,10 @@ export default async function HomePage() {
 
   return (
     <PlatformShell settings={settings}>
-      <Hero settings={settings} projects={projects} />
+      <Hero settings={settings} />
+      <MediaBroadcastSection />
       <ProjectShowcaseCarousel projects={projects} />
       <EcosystemBand divisions={ECOSYSTEM_DIVISIONS} />
-      <MediaBroadcastSection />
       <ServicesGrid services={services} />
       <ProcessBand />
       <PricingBand pricingPlans={pricingPlans} />

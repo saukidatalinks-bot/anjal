@@ -18,12 +18,12 @@ import {
   companyDisplayName,
   registeredCacNumber,
   registeredDunsNumber,
-  registeredOfficeAddress,
   registeredTinNumber,
 } from '@/lib/company'
 import { formatNaira } from '@/lib/format'
 import { ECOSYSTEM_DIVISIONS } from '@/lib/platform-data'
 import SaukiGoMark from '@/components/SaukiGoMark'
+import HeroInterviewPlayer from '@/components/HeroInterviewPlayer'
 import ProjectStoreBadges from '@/components/StoreBadges'
 
 const SERVICE_ICONS = {
@@ -96,18 +96,14 @@ export function SectionIntro({ eyebrow, title, description, align = 'left', dark
   )
 }
 
-export function Hero({ settings = {}, projects = [] }) {
+export function Hero({ settings = {} }) {
   const cac = settings.company_cac || registeredCacNumber
   const tin = settings.company_tin || registeredTinNumber
   const duns = settings.company_duns || registeredDunsNumber
 
   return (
-    <section className="relative overflow-hidden border-b border-slate-200 bg-white">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:48px_48px] opacity-35 [mask-image:radial-gradient(ellipse_75%_65%_at_50%_0%,#000_55%,transparent_100%)]"
-      />
-      <div className="relative mx-auto grid max-w-7xl gap-10 px-5 py-14 lg:grid-cols-[1.15fr_.85fr] lg:items-center lg:px-8 lg:py-20">
+    <section className="border-b border-slate-200 bg-white">
+      <div className="mx-auto grid max-w-7xl gap-10 px-5 py-12 lg:grid-cols-[1fr_1.04fr] lg:items-center lg:px-8 lg:py-16">
         <div>
           <div className="inline-flex flex-wrap items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3.5 py-1.5 font-mono text-[11px] font-medium text-slate-700">
             <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" aria-hidden="true" />
@@ -118,123 +114,49 @@ export function Hero({ settings = {}, projects = [] }) {
             <span>D-U-N-S: {duns}</span>
           </div>
 
-          <h1 className="mt-6 text-4xl font-semibold leading-[1.06] tracking-tight text-slate-950 sm:text-5xl lg:text-[3.5rem]">
-            {settings.hero_title || 'Dependable software platforms built for real operations.'}
+          <h1 className="mt-5 text-4xl font-semibold leading-[1.08] tracking-tight text-slate-950 sm:text-5xl">
+            {settings.hero_title || 'Software built to run your business without friction.'}
           </h1>
 
-          <p className="mt-5 max-w-2xl text-base leading-relaxed text-slate-600 sm:text-lg">
+          <p className="mt-5 max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg">
             {settings.hero_description ||
-              'Anjal Solutions LTD engineers production web systems, native iOS & Android applications, fintech infrastructure, and practical AI automation for growing enterprises.'}
+              'We design, build, and maintain custom web platforms, iOS and Android apps, and payment infrastructure for Nigerian businesses—backed by a track record of live apps on the App Store and Google Play.'}
           </p>
 
-          <div className="mt-8 flex flex-wrap items-center gap-3">
+          <div className="mt-7 flex flex-wrap items-center gap-3">
             <Link
               href="/quote"
               className="inline-flex items-center gap-2 rounded-lg bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
             >
-              Build a Naira Quote
+              Estimate Your Project
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
             <Link
-              href="/work"
+              href="/work/apps"
               className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition hover:border-slate-950 hover:bg-slate-50"
             >
-              Explore Shipped Products
+              See Live Apps
             </Link>
           </div>
 
-          <dl className="mt-10 grid grid-cols-3 gap-4 border-t border-slate-200 pt-6">
-            <div>
-              <dt className="text-xs font-medium text-slate-500">Live Store Apps</dt>
-              <dd className="mt-1 font-mono text-xl font-semibold text-slate-950 sm:text-2xl">iOS & Android</dd>
+          <div className="mt-8 flex flex-wrap items-center gap-6 border-t border-slate-200 pt-5">
+            <div className="flex items-center gap-2.5">
+              <SaukiGoMark className="h-8 w-8" decorative />
+              <span className="text-xs font-semibold text-slate-700">Sauki Go</span>
             </div>
-            <div>
-              <dt className="text-xs font-medium text-slate-500">Showcase Systems</dt>
-              <dd className="mt-1 font-mono text-xl font-semibold text-slate-950 sm:text-2xl">{Math.max(projects.length, 6)} Platforms</dd>
+            <div className="flex items-center gap-2.5">
+              <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white p-1">
+                <img src="/logos/nelfund-mark.webp" alt="" aria-hidden="true" width={28} height={28} className="h-full w-full object-contain" />
+              </span>
+              <span className="text-xs font-semibold text-slate-700">My NELFund</span>
             </div>
-            <div>
-              <dt className="text-xs font-medium text-slate-500">Handover Standard</dt>
-              <dd className="mt-1 font-mono text-xl font-semibold text-slate-950 sm:text-2xl">100% Ownership</dd>
-            </div>
-          </dl>
+            <span className="text-xs font-medium text-slate-500">Live on Apple App Store & Google Play</span>
+          </div>
         </div>
 
-        <aside className="rounded-xl border border-slate-800 bg-slate-950 p-6 text-white shadow-xl sm:p-7">
-          <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-5">
-            <div>
-              <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-blue-400">Corporate Registry</p>
-              <p className="mt-1 text-lg font-semibold tracking-tight text-white">{companyDisplayName}</p>
-              <p className="mt-1 text-xs leading-relaxed text-slate-400">{settings.company_address || registeredOfficeAddress}</p>
-            </div>
-            <span className="shrink-0 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-emerald-300">
-              Verified
-            </span>
-          </div>
-
-          <div className="mt-5 space-y-3">
-            <Link
-              href="/work/sauki-go"
-              className="group flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-white/[0.03] p-3.5 transition hover:border-blue-500/50 hover:bg-white/[0.06]"
-            >
-              <div className="flex items-center gap-3">
-                <SaukiGoMark className="h-9 w-9" />
-                <div>
-                  <p className="text-sm font-semibold text-white">Sauki Go</p>
-                  <p className="text-xs text-slate-400">Mobile Data, Airtime & Electricity Utility</p>
-                </div>
-              </div>
-              <span className="shrink-0 rounded-full bg-emerald-500/15 px-2.5 py-0.5 font-mono text-[10px] font-semibold text-emerald-300">
-                LIVE
-              </span>
-            </Link>
-
-            <Link
-              href="/work/mynelfund"
-              className="group flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-white/[0.03] p-3.5 transition hover:border-blue-500/50 hover:bg-white/[0.06]"
-            >
-              <div className="flex items-center gap-3">
-                <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white p-1">
-                  <img src="/logos/nelfund-mark.webp" alt="My NELFund" width={36} height={36} className="h-full w-full object-contain" />
-                </span>
-                <div>
-                  <p className="text-sm font-semibold text-white">My NELFund</p>
-                  <p className="text-xs text-slate-400">Play Store & App Store · TVC Featured</p>
-                </div>
-              </div>
-              <span className="shrink-0 rounded-full bg-emerald-500/15 px-2.5 py-0.5 font-mono text-[10px] font-semibold text-emerald-300">
-                LIVE
-              </span>
-            </Link>
-
-            <Link
-              href="/work/anjal-islamic-library"
-              className="group flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-white/[0.03] p-3.5 transition hover:border-blue-500/50 hover:bg-white/[0.06]"
-            >
-              <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white p-1">
-                  <img src="/logo-sm.webp" alt="Anjal Islamic Library API" width={28} height={28} className="h-7 w-7 object-contain" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-white">Anjal Islamic Library API</p>
-                  <p className="text-xs text-slate-400">Structured Quran, Hadith & Prayer Times API</p>
-                </div>
-              </div>
-              <span className="shrink-0 rounded-full bg-emerald-500/15 px-2.5 py-0.5 font-mono text-[10px] font-semibold text-emerald-300">
-                LIVE
-              </span>
-            </Link>
-
-            <div className="flex items-center justify-between gap-3 rounded-lg border border-dashed border-amber-400/30 bg-amber-500/[0.06] px-3.5 py-3">
-              <div>
-                <p className="text-xs font-semibold text-amber-200">Upcoming Ecosystem Rollout</p>
-                <p className="text-[11px] text-amber-100/75">Sauki Mart · Sauki Delivery · Anjal Academy</p>
-              </div>
-              <span className="shrink-0 rounded-full bg-amber-400/20 px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-amber-200">
-                Coming Soon
-              </span>
-            </div>
-          </div>
-        </aside>
+        <div>
+          <HeroInterviewPlayer />
+        </div>
       </div>
     </section>
   )
