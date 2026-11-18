@@ -1,9 +1,8 @@
-import { getDb, initDb } from '@/lib/db'
+import { getDb } from '@/lib/db'
 import { headers } from 'next/headers'
 
 export async function POST(request) {
   try {
-    await initDb()
     const sql = getDb()
 
     const body = await request.json()

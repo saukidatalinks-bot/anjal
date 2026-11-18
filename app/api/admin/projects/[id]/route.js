@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { revalidatePlatformData } from '@/lib/cache'
-import { getDb, initDb, slugify } from '@/lib/db'
+import { getDb, slugify } from '@/lib/db'
 
 async function uniqueSlug(sql, title, preferredSlug, excludeId) {
   const base = slugify(preferredSlug || title) || `project-${excludeId}`
@@ -22,7 +22,6 @@ async function getProject(sql, id) {
 
 export async function GET(request, { params }) {
   try {
-    await initDb()
     const sql = getDb()
     const project = await getProject(sql, params.id)
     if (!project) return NextResponse.json({ error: 'Not found' }, { status: 404 })
@@ -34,7 +33,6 @@ export async function GET(request, { params }) {
 
 export async function PUT(request, { params }) {
   try {
-    await initDb()
     const sql = getDb()
     const body = await request.json()
     const {
@@ -113,7 +111,6 @@ export async function PUT(request, { params }) {
 
 export async function DELETE(request, { params }) {
   try {
-    await initDb()
     const sql = getDb()
     await sql`DELETE FROM projects WHERE id = ${params.id}`
     revalidatePlatformData()

@@ -53,6 +53,16 @@ export default async function ProjectDetailPage({ params }) {
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
             {isSaukiGo && <SaukiGoMark className="h-11 w-11" />}
+            {project.slug === 'mynelfund' && (
+              <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-white p-1.5">
+                <img src="/logos/nelfund-mark.webp" alt="My NELFund" width={36} height={36} className="h-full w-full object-contain" />
+              </span>
+            )}
+            {project.slug === 'sauki-mart' && (
+              <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-white p-1.5">
+                <img src="/logos/sauki-mart-mark.webp" alt="Sauki Mart" width={36} height={36} className="h-full w-full object-contain" />
+              </span>
+            )}
             <span
               className={`rounded-full px-3 py-1 font-mono text-[11px] font-semibold uppercase tracking-wider ${
                 isComingSoon ? 'bg-amber-400 text-slate-950' : 'bg-emerald-500 text-slate-950'
@@ -181,7 +191,7 @@ export default async function ProjectDetailPage({ params }) {
                     height={360}
                     loading="lazy"
                     decoding="async"
-                    className="h-64 w-full rounded-lg bg-slate-950 object-contain"
+                    className={`h-64 w-full rounded-lg bg-slate-100 ${item.url.includes('/logos/') ? 'p-6 object-contain' : 'object-contain'}`}
                   />
                   {item.alt && <figcaption className="px-2 py-2 text-xs text-slate-600">{item.alt}</figcaption>}
                 </figure>

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { revalidatePlatformData } from '@/lib/cache'
-import { getDb, initDb, seedDefaults, slugify } from '@/lib/db'
+import { getDb, slugify } from '@/lib/db'
 
 async function uniqueSlug(sql, title, preferredSlug) {
   const base = slugify(preferredSlug || title) || `project-${Date.now()}`
@@ -29,8 +29,6 @@ async function attachMedia(sql, projects) {
 
 export async function GET() {
   try {
-    await initDb()
-    await seedDefaults()
     const sql = getDb()
     const projects = await sql`SELECT * FROM projects ORDER BY display_order ASC, id ASC`
     return NextResponse.json(await attachMedia(sql, projects))
@@ -41,7 +39,6 @@ export async function GET() {
 
 export async function POST(request) {
   try {
-    await initDb()
     const sql = getDb()
     const body = await request.json()
     const {

@@ -2,9 +2,61 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, ArrowRight, ExternalLink, Maximize2, MonitorSmartphone, Smartphone, X } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Code2, ExternalLink, GraduationCap, Maximize2, MonitorSmartphone, Truck, X } from 'lucide-react'
 import ProjectStoreBadges from '@/components/StoreBadges'
 import SaukiGoMark from '@/components/SaukiGoMark'
+
+function SlideLogo({ slug }) {
+  const s = String(slug || '').toLowerCase()
+  if (s.includes('sauki-go')) {
+    return <SaukiGoMark className="h-10 w-10" decorative />
+  }
+  if (s.includes('nelfund')) {
+    return (
+      <span className="inline-flex h-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-white px-2.5 py-1 shadow-2xs">
+        <img
+          src="/logos/nelfund-logo.webp"
+          alt="My NELFund"
+          width={110}
+          height={36}
+          className="h-7 w-auto object-contain"
+        />
+      </span>
+    )
+  }
+  if (s.includes('sauki-mart')) {
+    return (
+      <span className="inline-flex h-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-white px-2.5 py-1 shadow-2xs">
+        <img
+          src="/logos/sauki-mart-logo.webp"
+          alt="Sauki Mart"
+          width={120}
+          height={36}
+          className="h-7 w-auto object-contain"
+        />
+      </span>
+    )
+  }
+  if (s.includes('delivery')) {
+    return (
+      <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-amber-200 bg-amber-50 text-amber-700">
+        <Truck className="h-5 w-5" aria-hidden="true" />
+      </span>
+    )
+  }
+  if (s.includes('academy')) {
+    return (
+      <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-amber-200 bg-amber-50 text-amber-700">
+        <GraduationCap className="h-5 w-5" aria-hidden="true" />
+      </span>
+    )
+  }
+  return (
+    <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-900 shadow-2xs">
+      <Code2 className="h-5 w-5" aria-hidden="true" />
+    </span>
+  )
+}
 
 export default function ProjectShowcaseCarousel({ projects = [] }) {
   const trackRef = useRef(null)
@@ -39,7 +91,7 @@ export default function ProjectShowcaseCarousel({ projects = [] }) {
   }, [])
 
   const scrollToSlide = useCallback(
-    (targetIdx) => {
+    targetIdx => {
       const track = trackRef.current
       if (!track || !slideCount) return
       const wrapped = ((targetIdx % slideCount) + slideCount) % slideCount
@@ -81,7 +133,7 @@ export default function ProjectShowcaseCarousel({ projects = [] }) {
         rafId = requestAnimationFrame(() => {
           rafId = null
           const nearest = computeNearestIndex()
-          setActiveIndex((prev) => (prev === nearest ? prev : nearest))
+          setActiveIndex(prev => (prev === nearest ? prev : nearest))
         })
       }
       if (!('onscrollend' in window)) {
@@ -90,9 +142,7 @@ export default function ProjectShowcaseCarousel({ projects = [] }) {
       }
     }
 
-    const onScrollEnd = () => {
-      handleSettled()
-    }
+    const onScrollEnd = () => handleSettled()
 
     track.addEventListener('scroll', onScroll, { passive: true })
     if ('onscrollend' in window) {
@@ -119,17 +169,18 @@ export default function ProjectShowcaseCarousel({ projects = [] }) {
     }
   }, [lightboxMedia])
 
-  // Pointer-outside fallback for Safari where closedby="any" is unsupported
   useEffect(() => {
     const dialog = lightboxRef.current
     if (!dialog || 'closedBy' in HTMLDialogElement.prototype) return
-    const outside = (e) => {
+    const outside = e => {
       const r = dialog.getBoundingClientRect()
       return e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom
     }
     let pressedOutside = false
-    const onDown = (e) => { pressedOutside = outside(e) }
-    const onUp = (e) => {
+    const onDown = e => {
+      pressedOutside = outside(e)
+    }
+    const onUp = e => {
       if (pressedOutside && outside(e)) {
         dialog.close()
         setLightboxMedia(null)
@@ -149,19 +200,19 @@ export default function ProjectShowcaseCarousel({ projects = [] }) {
     <section
       aria-roledescription="carousel"
       aria-label="Anjal Solutions LTD Featured Products and Case Studies"
-      className="border-y border-slate-200 bg-slate-50 px-5 py-20 lg:px-8"
+      className="border-y border-slate-200 bg-slate-50 px-5 py-16 lg:px-8 lg:py-20"
     >
       <div className="mx-auto max-w-7xl">
         <div className="mb-10 flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.22em] text-sky-700">
+            <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-blue-700">
               Flagship Showcase
             </p>
-            <h2 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950 md:text-5xl">
+            <h2 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950 md:text-4xl">
               Production platforms & upcoming ecosystem.
             </h2>
-            <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">
-              Swipe or step through shipped mobile utilities, structured developer APIs, and upcoming commerce and logistics releases.
+            <p className="mt-2.5 max-w-2xl text-base leading-relaxed text-slate-600">
+              Explore shipped mobile applications, structured developer APIs, and pre-launch platforms engineered by Anjal Solutions LTD.
             </p>
           </div>
 
@@ -200,11 +251,10 @@ export default function ProjectShowcaseCarousel({ projects = [] }) {
         >
           {slides.map((project, idx) => {
             const media = project.media || []
-            const portrait = media.filter((m) => m.orientation === 'portrait').slice(0, 4)
-            const primary = media.find((m) => m.is_primary) || media[0]
+            const portrait = media.filter(m => m.orientation === 'portrait').slice(0, 4)
+            const primary = media.find(m => m.is_primary) || media[0]
             const isApp = project.project_type === 'mobile-app'
             const isComingSoon = String(project.status || '').toUpperCase().includes('COMING')
-            const isSaukiGo = String(project.slug || '').includes('sauki-go')
             const href = `/work/${project.slug || project.id}`
 
             return (
@@ -216,28 +266,28 @@ export default function ProjectShowcaseCarousel({ projects = [] }) {
                 className="carousel-slide overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm"
               >
                 <div className="grid lg:grid-cols-[1.08fr_0.92fr]">
-                  {/* Visual Device Stage */}
-                  <div className="relative flex flex-col justify-between bg-slate-950 p-6 text-white sm:p-8">
-                    <div className="mb-5 flex items-center justify-between gap-3">
+                  {/* Crisp Light Studio Showcase Stage (No Black Box) */}
+                  <div className="relative flex flex-col justify-between border-b border-slate-200 bg-gradient-to-br from-slate-100 via-slate-50 to-white p-6 text-slate-950 sm:p-8 lg:border-b-0 lg:border-r">
+                    <div className="mb-6 flex items-center justify-between gap-3">
                       <div className="flex items-center gap-3">
-                        {isSaukiGo && <SaukiGoMark className="h-9 w-9 shrink-0" decorative />}
+                        <SlideLogo slug={project.slug || project.id} />
                         <div>
-                          <p className="font-mono text-[11px] uppercase tracking-wider text-white/55">
+                          <p className="font-mono text-[11px] uppercase tracking-wider text-slate-500">
                             {project.industry || project.project_type}
                           </p>
-                          <p className="text-sm font-semibold text-white">{project.title}</p>
+                          <p className="text-sm font-semibold text-slate-950">{project.title}</p>
                         </div>
                       </div>
                       <span
                         className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wider ${
                           isComingSoon
-                            ? 'border border-amber-400/40 bg-amber-400/15 text-amber-200'
-                            : 'border border-emerald-400/40 bg-emerald-400/15 text-emerald-300'
+                            ? 'border border-amber-300 bg-amber-50 text-amber-800'
+                            : 'border border-emerald-200 bg-emerald-50 text-emerald-700'
                         }`}
                       >
                         <span
                           className={`h-1.5 w-1.5 rounded-full ${
-                            isComingSoon ? 'bg-amber-300' : 'bg-emerald-400'
+                            isComingSoon ? 'bg-amber-500' : 'bg-emerald-500'
                           }`}
                         />
                         {project.status || 'LIVE'}
@@ -252,7 +302,7 @@ export default function ProjectShowcaseCarousel({ projects = [] }) {
                             type="button"
                             onClick={() => setLightboxMedia(shot)}
                             aria-label={`Inspect ${shot.alt || project.title} screenshot`}
-                            className="group relative aspect-[9/19] overflow-hidden rounded-2xl border border-white/15 bg-slate-900 shadow-lg transition hover:border-sky-400/70"
+                            className="group relative aspect-[9/19] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:border-blue-500 hover:shadow-md"
                           >
                             <img
                               src={shot.url}
@@ -263,7 +313,7 @@ export default function ProjectShowcaseCarousel({ projects = [] }) {
                               decoding="async"
                               className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
                             />
-                            <span className="absolute right-2 top-2 inline-flex h-7 w-7 items-center justify-center rounded-full bg-black/55 text-white/80 opacity-0 transition group-hover:opacity-100">
+                            <span className="absolute right-2 top-2 inline-flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-slate-900 opacity-0 shadow transition group-hover:opacity-100">
                               <Maximize2 className="h-3.5 w-3.5" aria-hidden="true" />
                             </span>
                           </button>
@@ -274,7 +324,7 @@ export default function ProjectShowcaseCarousel({ projects = [] }) {
                         type="button"
                         onClick={() => setLightboxMedia(primary)}
                         aria-label={`Inspect ${primary.alt || project.title} preview`}
-                        className="group relative aspect-[16/10] w-full overflow-hidden rounded-2xl border border-white/15 bg-slate-900 shadow-xl"
+                        className="group relative flex aspect-[16/10] w-full items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-blue-500"
                       >
                         <img
                           src={primary.url}
@@ -283,23 +333,21 @@ export default function ProjectShowcaseCarousel({ projects = [] }) {
                           height={500}
                           loading={idx === 0 ? 'eager' : 'lazy'}
                           decoding="async"
-                          className="h-full w-full object-cover transition duration-300 group-hover:scale-103"
+                          className={`h-full w-full transition duration-300 group-hover:scale-103 ${
+                            primary.url.includes('/logos/') ? 'max-h-36 object-contain' : 'object-cover'
+                          }`}
                         />
-                        <span className="absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition group-hover:opacity-100">
+                        <span className="absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full bg-white text-slate-900 opacity-0 shadow transition group-hover:opacity-100">
                           <Maximize2 className="h-4 w-4" aria-hidden="true" />
                         </span>
                       </button>
                     ) : (
-                      <div className="flex aspect-[16/10] flex-col items-center justify-center rounded-2xl border border-dashed border-white/20 bg-white/[0.03] p-6 text-center">
-                        {isApp ? (
-                          <Smartphone className="mb-3 h-10 w-10 text-sky-400" aria-hidden="true" />
-                        ) : (
-                          <MonitorSmartphone className="mb-3 h-10 w-10 text-sky-400" aria-hidden="true" />
-                        )}
-                        <p className="text-sm font-semibold text-white">
+                      <div className="flex aspect-[16/10] flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-xs">
+                        <SlideLogo slug={project.slug || project.id} />
+                        <p className="mt-4 text-base font-semibold text-slate-950">
                           {isComingSoon ? `${project.title} — Launching Soon` : project.title}
                         </p>
-                        <p className="mt-1 max-w-sm text-xs text-white/55">
+                        <p className="mt-1.5 max-w-sm text-xs leading-relaxed text-slate-600">
                           {project.summary || project.description}
                         </p>
                       </div>
@@ -313,7 +361,7 @@ export default function ProjectShowcaseCarousel({ projects = [] }) {
                         <span className="rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-slate-700">
                           {isApp ? 'Mobile Platform' : 'Web & Cloud System'}
                         </span>
-                        {(project.tags || []).slice(0, 3).map((tag) => (
+                        {(project.tags || []).slice(0, 3).map(tag => (
                           <span
                             key={tag}
                             className="rounded-lg border border-slate-200 px-2.5 py-1 font-mono text-[11px] text-slate-600"
@@ -332,7 +380,7 @@ export default function ProjectShowcaseCarousel({ projects = [] }) {
 
                       {Array.isArray(project.outcomes) && project.outcomes.length > 0 && (
                         <ul className="mt-6 space-y-2 border-t border-slate-100 pt-5">
-                          {project.outcomes.slice(0, 3).map((outcome) => (
+                          {project.outcomes.slice(0, 3).map(outcome => (
                             <li key={outcome} className="flex items-start gap-2.5 text-sm text-slate-700">
                               <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-600" />
                               <span>{outcome}</span>
@@ -362,7 +410,7 @@ export default function ProjectShowcaseCarousel({ projects = [] }) {
                         )}
                         <Link
                           href={href}
-                          className="inline-flex min-h-[40px] items-center gap-2 rounded-xl bg-slate-950 px-4 py-2 text-xs font-bold text-white transition hover:bg-sky-700"
+                          className="inline-flex min-h-[40px] items-center gap-2 rounded-xl bg-slate-950 px-4 py-2 text-xs font-bold text-white transition hover:bg-blue-700"
                         >
                           Read Case Study
                           <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
@@ -380,7 +428,6 @@ export default function ProjectShowcaseCarousel({ projects = [] }) {
           {statusAnnouncement}
         </p>
 
-        {/* Named Slide Markers */}
         <nav
           aria-label="Select featured project slide"
           className="mt-6 flex flex-wrap items-center justify-center gap-2"
@@ -402,7 +449,7 @@ export default function ProjectShowcaseCarousel({ projects = [] }) {
               >
                 <span
                   className={`h-2 w-2 rounded-full ${
-                    active ? 'bg-sky-400' : 'bg-slate-300'
+                    active ? 'bg-blue-400' : 'bg-slate-300'
                   }`}
                 />
                 <span>{project.title}</span>
@@ -412,7 +459,6 @@ export default function ProjectShowcaseCarousel({ projects = [] }) {
         </nav>
       </div>
 
-      {/* Native Accessible Lightbox Dialog */}
       <dialog
         ref={lightboxRef}
         closedby="any"
@@ -421,12 +467,12 @@ export default function ProjectShowcaseCarousel({ projects = [] }) {
           if (lightboxRef.current) lightboxRef.current.returnValue = ''
           setLightboxMedia(null)
         }}
-        className="m-auto max-h-[90dvh] w-[min(92vw,760px)] overflow-hidden rounded-3xl border border-slate-700 bg-slate-950 p-0 text-white shadow-2xl"
+        className="m-auto max-h-[90dvh] w-[min(92vw,760px)] overflow-hidden rounded-3xl border border-slate-200 bg-white p-0 text-slate-950 shadow-2xl"
       >
         {lightboxMedia && (
           <div className="flex flex-col">
-            <div className="flex items-center justify-between border-b border-white/10 px-5 py-3.5">
-              <p id="lightbox-caption" className="text-sm font-semibold text-white">
+            <div className="flex items-center justify-between border-b border-slate-200 px-5 py-3.5">
+              <p id="lightbox-caption" className="text-sm font-semibold text-slate-950">
                 {lightboxMedia.alt || 'Product Preview'}
               </p>
               <form method="dialog">
@@ -434,13 +480,13 @@ export default function ProjectShowcaseCarousel({ projects = [] }) {
                   type="submit"
                   aria-label="Close preview"
                   onClick={() => setLightboxMedia(null)}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-white hover:bg-white/15"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
                 >
                   <X className="h-4 w-4" aria-hidden="true" />
                 </button>
               </form>
             </div>
-            <div className="flex max-h-[76dvh] items-center justify-center bg-slate-900 p-4">
+            <div className="flex max-h-[76dvh] items-center justify-center bg-slate-50 p-4">
               <img
                 src={lightboxMedia.url}
                 alt={lightboxMedia.alt || 'Product preview'}

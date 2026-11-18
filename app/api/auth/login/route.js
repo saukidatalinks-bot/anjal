@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
-import { bootstrapAdminUser, signToken, setAdminCookie, verifyAdminCredentials } from '@/lib/auth'
-import { initDb, seedDefaults } from '@/lib/db'
+import { signToken, setAdminCookie, verifyAdminCredentials } from '@/lib/auth'
 
 export async function POST(request) {
   try {
@@ -9,10 +8,6 @@ export async function POST(request) {
     if (!password) {
       return NextResponse.json({ error: 'Password required' }, { status: 400 })
     }
-
-    await initDb()
-    await seedDefaults()
-    await bootstrapAdminUser()
 
     const admin = await verifyAdminCredentials(email, password)
     if (!admin) {

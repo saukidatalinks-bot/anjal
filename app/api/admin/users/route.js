@@ -1,10 +1,9 @@
 import { NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
-import { getDb, initDb } from '@/lib/db'
+import { getDb } from '@/lib/db'
 
 export async function GET() {
   try {
-    await initDb()
     const sql = getDb()
     const users = await sql`
       SELECT id, name, email, role, is_active, last_login_at, created_at, updated_at
@@ -19,7 +18,6 @@ export async function GET() {
 
 export async function POST(request) {
   try {
-    await initDb()
     const sql = getDb()
     const { name, email, password, role, is_active } = await request.json()
     if (!name || !email || !password) {

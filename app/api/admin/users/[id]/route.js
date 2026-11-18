@@ -1,10 +1,9 @@
 import { NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
-import { getDb, initDb } from '@/lib/db'
+import { getDb } from '@/lib/db'
 
 export async function PUT(request, { params }) {
   try {
-    await initDb()
     const sql = getDb()
     const { name, email, password, role, is_active } = await request.json()
     const current = await sql`SELECT role FROM admin_users WHERE id = ${params.id}`
@@ -37,7 +36,6 @@ export async function PUT(request, { params }) {
 
 export async function DELETE(request, { params }) {
   try {
-    await initDb()
     const sql = getDb()
     const owners = await sql`SELECT COUNT(*)::int AS count FROM admin_users WHERE role = 'owner' AND is_active = true`
     const user = await sql`SELECT role FROM admin_users WHERE id = ${params.id}`

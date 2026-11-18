@@ -43,6 +43,39 @@ const DIVISION_ICONS = {
   'anjal-academy': GraduationCap,
 }
 
+function ProductMark({ slug, isComingSoon = false }) {
+  const s = String(slug || '').toLowerCase()
+  if (s.includes('sauki-go')) {
+    return <SaukiGoMark className="h-10 w-10" />
+  }
+  if (s.includes('nelfund')) {
+    return (
+      <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-white p-1 shadow-2xs">
+        <img src="/logos/nelfund-mark.webp" alt="My NELFund" width={40} height={40} className="h-full w-full object-contain" />
+      </span>
+    )
+  }
+  if (s.includes('sauki-mart')) {
+    return (
+      <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-white p-1.5 shadow-2xs">
+        <img src="/logos/sauki-mart-mark.webp" alt="Sauki Mart" width={40} height={40} className="h-full w-full object-contain" />
+      </span>
+    )
+  }
+  const Icon = DIVISION_ICONS[s] || Layers
+  return (
+    <div
+      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${
+        isComingSoon
+          ? 'border-amber-200 bg-amber-50 text-amber-700'
+          : 'border-slate-200 bg-slate-950 text-white'
+      }`}
+    >
+      <Icon className="h-5 w-5" aria-hidden="true" />
+    </div>
+  )
+}
+
 export function SectionIntro({ eyebrow, title, description, align = 'left', dark = false }) {
   return (
     <div className={align === 'center' ? 'mx-auto max-w-3xl text-center' : 'max-w-3xl'}>
@@ -126,7 +159,6 @@ export function Hero({ settings = {}, projects = [] }) {
           </dl>
         </div>
 
-        {/* Corporate & Product Ledger */}
         <aside className="rounded-xl border border-slate-800 bg-slate-950 p-6 text-white shadow-xl sm:p-7">
           <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-5">
             <div>
@@ -145,7 +177,7 @@ export function Hero({ settings = {}, projects = [] }) {
               className="group flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-white/[0.03] p-3.5 transition hover:border-blue-500/50 hover:bg-white/[0.06]"
             >
               <div className="flex items-center gap-3">
-                <SaukiGoMark className="h-9 w-9 shrink-0" />
+                <SaukiGoMark className="h-9 w-9" />
                 <div>
                   <p className="text-sm font-semibold text-white">Sauki Go</p>
                   <p className="text-xs text-slate-400">Mobile Data, Airtime & Electricity Utility</p>
@@ -161,9 +193,9 @@ export function Hero({ settings = {}, projects = [] }) {
               className="group flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-white/[0.03] p-3.5 transition hover:border-blue-500/50 hover:bg-white/[0.06]"
             >
               <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-600/20 text-blue-300">
-                  <Landmark className="h-4 w-4" aria-hidden="true" />
-                </div>
+                <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white p-1">
+                  <img src="/logos/nelfund-mark.webp" alt="My NELFund" width={36} height={36} className="h-full w-full object-contain" />
+                </span>
                 <div>
                   <p className="text-sm font-semibold text-white">My NELFund</p>
                   <p className="text-xs text-slate-400">Play Store & App Store · TVC Featured</p>
@@ -179,8 +211,8 @@ export function Hero({ settings = {}, projects = [] }) {
               className="group flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-white/[0.03] p-3.5 transition hover:border-blue-500/50 hover:bg-white/[0.06]"
             >
               <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-800 text-slate-200">
-                  <Code2 className="h-4 w-4" aria-hidden="true" />
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white p-1">
+                  <img src="/logo-sm.webp" alt="Anjal Islamic Library API" width={28} height={28} className="h-7 w-7 object-contain" />
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-white">Anjal Islamic Library API</p>
@@ -230,7 +262,6 @@ export function EcosystemBand({ divisions = ECOSYSTEM_DIVISIONS }) {
         <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {divisions.map(item => {
             const isComingSoon = item.status === 'COMING SOON'
-            const Icon = DIVISION_ICONS[item.key] || Layers
 
             return (
               <article
@@ -239,19 +270,7 @@ export function EcosystemBand({ divisions = ECOSYSTEM_DIVISIONS }) {
               >
                 <div>
                   <div className="flex items-start justify-between gap-3">
-                    {item.brandRule === 'saukigo-g-mark' ? (
-                      <SaukiGoMark className="h-10 w-10" />
-                    ) : (
-                      <div
-                        className={`flex h-10 w-10 items-center justify-center rounded-xl border ${
-                          isComingSoon
-                            ? 'border-amber-200 bg-amber-50 text-amber-700'
-                            : 'border-slate-200 bg-slate-950 text-white'
-                        }`}
-                      >
-                        <Icon className="h-5 w-5" aria-hidden="true" />
-                      </div>
-                    )}
+                    <ProductMark slug={item.key} isComingSoon={isComingSoon} />
 
                     <span
                       className={`rounded-full px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider ${
@@ -360,12 +379,12 @@ export function ProjectCard({ project }) {
   const isComingSoon = String(project.status || '').toUpperCase().includes('COMING')
   const outcomes = Array.isArray(project.outcomes) ? project.outcomes : []
   const tags = Array.isArray(project.tags) ? project.tags : []
-  const isSaukiGo = project.slug === 'sauki-go'
+  const slug = String(project.slug || project.id || '')
 
   return (
     <article className="flex flex-col justify-between overflow-hidden rounded-xl border border-slate-200 bg-white transition hover:border-slate-300 hover:shadow-md">
       <div>
-        <div className="relative aspect-[16/10] w-full overflow-hidden border-b border-slate-200 bg-slate-950">
+        <div className="relative aspect-[16/10] w-full overflow-hidden border-b border-slate-200 bg-gradient-to-br from-slate-100 via-white to-slate-50">
           {cover?.url ? (
             <img
               src={cover.url}
@@ -374,26 +393,26 @@ export function ProjectCard({ project }) {
               height={400}
               loading="lazy"
               decoding="async"
-              className="h-full w-full object-cover object-top"
+              className={`h-full w-full ${
+                cover.url.includes('/logos/') ? 'p-8 object-contain' : 'object-cover object-top'
+              }`}
             />
           ) : (
-            <div className="flex h-full w-full flex-col justify-between bg-[linear-gradient(135deg,#091224_0%,#111e38_100%)] p-6 text-white">
-              <span className="w-fit rounded-full border border-white/15 bg-white/10 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-amber-200">
-                {project.status || 'UPCOMING'}
-              </span>
+            <div className="flex h-full w-full flex-col justify-between p-6 text-slate-950">
+              <ProductMark slug={slug} isComingSoon={isComingSoon} />
               <div>
-                <p className="font-mono text-[11px] uppercase tracking-wider text-blue-300">{project.industry}</p>
-                <p className="mt-1 text-xl font-semibold tracking-tight">{project.title}</p>
+                <p className="font-mono text-[11px] uppercase tracking-wider text-blue-700">{project.industry}</p>
+                <p className="mt-1 text-xl font-semibold tracking-tight text-slate-950">{project.title}</p>
               </div>
             </div>
           )}
 
-          <div className="absolute left-3 top-3 flex items-center gap-2">
+          <div className="absolute right-3 top-3 flex items-center gap-2">
             <span
-              className={`rounded-full px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider shadow-sm ${
+              className={`rounded-full px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider shadow-2xs ${
                 isComingSoon
-                  ? 'bg-amber-400 text-slate-950'
-                  : 'bg-emerald-500 text-slate-950'
+                  ? 'border border-amber-300 bg-amber-50 text-amber-800'
+                  : 'border border-emerald-200 bg-emerald-50 text-emerald-700'
               }`}
             >
               {project.status || 'LIVE'}
@@ -403,7 +422,7 @@ export function ProjectCard({ project }) {
 
         <div className="p-6">
           <div className="flex items-center gap-3">
-            {isSaukiGo && <SaukiGoMark className="h-8 w-8 shrink-0" />}
+            <ProductMark slug={slug} isComingSoon={isComingSoon} />
             <div>
               <p className="font-mono text-[11px] uppercase tracking-wider text-slate-500">
                 {project.industry || project.project_type}

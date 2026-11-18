@@ -1,9 +1,8 @@
 import { NextResponse } from 'next/server'
-import { getDb, initDb } from '@/lib/db'
+import { getDb } from '@/lib/db'
 
 export async function GET() {
   try {
-    await initDb()
     const sql = getDb()
     const quotations = await sql`SELECT * FROM quotation_requests ORDER BY created_at DESC`
     return NextResponse.json(quotations)
@@ -14,7 +13,6 @@ export async function GET() {
 
 export async function DELETE(request) {
   try {
-    await initDb()
     const sql = getDb()
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')

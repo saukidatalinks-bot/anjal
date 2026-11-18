@@ -1,10 +1,9 @@
 import { NextResponse } from 'next/server'
 import { revalidatePlatformData } from '@/lib/cache'
-import { getDb, initDb } from '@/lib/db'
+import { getDb } from '@/lib/db'
 
 export async function GET(request, { params }) {
   try {
-    await initDb()
     const sql = getDb()
     const media = await sql`
       SELECT * FROM project_media
@@ -19,7 +18,6 @@ export async function GET(request, { params }) {
 
 export async function POST(request, { params }) {
   try {
-    await initDb()
     const sql = getDb()
     const { url, alt, orientation, media_type, display_order, is_primary } = await request.json()
     if (!url) return NextResponse.json({ error: 'Media URL is required' }, { status: 400 })
@@ -42,7 +40,6 @@ export async function POST(request, { params }) {
 
 export async function DELETE(request, { params }) {
   try {
-    await initDb()
     const sql = getDb()
     const { searchParams } = new URL(request.url)
     const mediaId = searchParams.get('mediaId')

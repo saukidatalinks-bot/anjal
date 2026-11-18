@@ -6,6 +6,7 @@ import toast, { Toaster } from 'react-hot-toast'
 import { companyDisplayName, managementSignoff } from '@/lib/company'
 import { sendEmailJsNotification } from '@/lib/emailjs'
 import { formatNaira } from '@/lib/format'
+import { fallbackCalculator } from '@/lib/platform-data'
 import { generateProposalPdf } from '@/lib/proposal-pdf'
 
 function itemPrice(item) {
@@ -20,19 +21,70 @@ function isMaintenanceSuite(items = []) {
 }
 
 export default function QuoteBuilder({ calculator = {}, settings = {}, initialPackage = '' }) {
-  const platforms = useMemo(() => calculator.platform || [], [calculator.platform])
-  const scopes = useMemo(() => calculator.scope || [], [calculator.scope])
-  const designs = useMemo(() => calculator.design || [], [calculator.design])
-  const timelines = useMemo(() => calculator.timeline || [], [calculator.timeline])
-  const supports = useMemo(() => calculator.support || [], [calculator.support])
-  const addonItems = useMemo(() => calculator.addon || [], [calculator.addon])
+  const platforms = useMemo(
+    () => (calculator.platform?.length ? calculator.platform : calculator.type?.length ? calculator.type : fallbackCalculator.platform),
+    [calculator.platform, calculator.type]
+  )
+  const scopes = useMemo(
+    () => (calculator.scope?.length ? calculator.scope : calculator.scale?.length ? calculator.scale : fallbackCalculator.scope),
+    [calculator.scope, calculator.scale]
+  )
+  const designs = useMemo(
+    () => (calculator.design?.length ? calculator.design : fallbackCalculator.design),
+    [calculator.design]
+  )
+  const timelines = useMemo(
+    () => (calculator.timeline?.length ? calculator.timeline : fallbackCalculator.timeline),
+    [calculator.timeline]
+  )
+  const supports = useMemo(
+    () => (calculator.support?.length ? calculator.support : fallbackCalculator.support),
+    [calculator.support]
+  )
+  const addonItems = useMemo(
+    () => (calculator.addon?.length ? calculator.addon : fallbackCalculator.addon),
+    [calculator.addon]
+  )
 
-  const [platform, setPlatform] = useState(platforms[0] || null)
-  const [scope, setScope] = useState(scopes[0] || null)
-  const [design, setDesign] = useState(designs[0] || null)
-  const [timeline, setTimeline] = useState(timelines[0] || null)
-  const [support, setSupport] = useState(supports[0] || null)
+  const [platform, setPlatform] = useState(() => platforms[0] || null)
+  const [scope, setScope] = useState(() => scopes[0] || null)
+  const [design, setDesign] = useState(() => designs[0] || null)
+  const [timeline, setTimeline] = useState(() => timelines[0] || null)
+  const [support, setSupport] = useState(() => supports[0] || null)
   const [addons, setAddons] = useState([])
+
+  useEffect(() => {
+    setPlatform(prev => prev || platforms[0] || null)
+  }, [platforms])
+
+  useEffect(() => {
+    setScope(prev => prev || scopes[0] || null)
+  }, [scopes])
+
+  useEffect(() => {
+    setDesign(prev => prev || designs[0] || null)
+  }, [designs])
+
+  useEffect(() => {
+    setTimeline(prev => prev || timelines[0] || null)
+  }, [timelines])
+
+  useEffect(() => {
+    setSupport(prev => prev || supports[0] || null)
+  }, [supports])
+
+  useEffect(() => {
+    if (!initialPackage || platforms.length === 0) return
+    const query = initialPackage.toLowerCase()
+    const matched = platforms.find(
+      item =>
+        item.name.toLowerCase().includes(query) ||
+        query.includes(item.name.toLowerCase()) ||
+        (query.includes('launch') && item.name.toLowerCase().includes('launch')) ||
+        (query.includes('growth') && item.name.toLowerCase().includes('growth'))
+    )
+    if (matched) setPlatform(matched)
+  }, [initialPackage, platforms])
 
   const [form, setForm] = useState({
     client_name: '',
@@ -48,13 +100,6 @@ export default function QuoteBuilder({ calculator = {}, settings = {}, initialPa
   const [submitting, setSubmitting] = useState(false)
   const [statusMessage, setStatusMessage] = useState('')
   const [lastResult, setLastResult] = useState(null)
-
-  useEffect(() => {
-    if (!initialPackage || platforms.length === 0) return
-    const query = initialPackage.toLowerCase()
-    const matched = platforms.find(item => item.name.toLowerCase().includes(query) || query.includes(item.name.toLowerCase()))
-    if (matched) setPlatform(matched)
-  }, [initialPackage, platforms])
 
   const selectedItems = useMemo(() => {
     return [platform, scope, design, timeline, support, ...addons].filter(Boolean)
@@ -85,12 +130,14 @@ export default function QuoteBuilder({ calculator = {}, settings = {}, initialPa
     }
 
     setSubmitting(true)
-    setStatusMessage('Submitting quotation request and preparing proposal document...')
+    setStatusMessage('Submitting quotation request and preparing proposal PDF...')
 
     const itemizedPayload = selectedItems.map(item => ({
       name: item.name,
       category: item.category,
+      description: item.description || '',
       price: itemPrice(item),
+      calculated_price: itemPrice(item),
       multiplier: Number(item.multiplier || 1),
     }))
 
@@ -145,7 +192,7 @@ export default function QuoteBuilder({ calculator = {}, settings = {}, initialPa
         reference,
         settings,
         form,
-        selectedItems,
+        selectedItems: itemizedPayload,
         totalNaira,
         requiresMaintenance,
       })
@@ -156,7 +203,7 @@ export default function QuoteBuilder({ calculator = {}, settings = {}, initialPa
         totalNaira,
         emailSent: emailResult.sent,
       })
-      setStatusMessage(`Proposal ${reference} generated and downloaded successfully.`)
+      setStatusMessage(`Proposal ${reference} generated and downloaded cleanly.`)
       toast.success(`Quotation ${reference} saved & PDF downloaded`)
     } catch (error) {
       console.error('Quotation error:', error)
@@ -212,7 +259,7 @@ export default function QuoteBuilder({ calculator = {}, settings = {}, initialPa
           <StepCard
             step="02"
             title="Architecture Depth, UI Polish, Timeline & Support"
-            description="Fine-tune complexity, bespoke branding, launch speed, and post-launch SLA coverage."
+            description="Select architecture scope, visual identity depth, sprint speed, and post-launch maintenance SLA."
           >
             <div className="grid gap-4 sm:grid-cols-2">
               <OptionSelect
@@ -366,7 +413,9 @@ export default function QuoteBuilder({ calculator = {}, settings = {}, initialPa
                 <span className="shrink-0 font-mono text-xs font-semibold text-slate-900">
                   {Number(item.multiplier || 1) !== 1 && itemPrice(item) === 0
                     ? `×${Number(item.multiplier).toFixed(2)}`
-                    : formatNaira(itemPrice(item))}
+                    : itemPrice(item) === 0
+                      ? 'Included'
+                      : formatNaira(itemPrice(item))}
                 </span>
               </div>
             ))}
@@ -401,7 +450,7 @@ export default function QuoteBuilder({ calculator = {}, settings = {}, initialPa
           </button>
 
           <p className="mt-3 text-center text-[11px] text-slate-500">
-            Instant PDF download + direct submission to our engineering team.
+            Instant branded PDF download + direct submission to our engineering team.
           </p>
 
           <div role="status" aria-live="polite" className="mt-4">

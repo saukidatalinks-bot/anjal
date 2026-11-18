@@ -16,8 +16,8 @@ import {
 import { sendEmailJsNotification } from '@/lib/emailjs'
 
 const BUDGET_RANGES = [
-  '₦150,000 – ₦449,999 (Launch / Delivery System)',
-  '₦500,000 – ₦649,999 (Growth / E-Commerce Suite)',
+  '₦350,000 – ₦549,999 (Launch / Delivery System)',
+  '₦550,000 – ₦649,999 (Growth / E-Commerce Suite)',
   '₦849,999+ (Restaurant Suite / Custom App)',
   'Enterprise Custom SLA',
 ]
